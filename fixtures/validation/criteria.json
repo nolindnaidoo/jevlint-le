@@ -1,0 +1,158 @@
+[
+  {
+    "rule": "JEV305",
+    "name": "option names that contradict their descriptions against names that agree",
+    "cases": [
+      {
+        "state": "The whole site is down and customers cannot pay.",
+        "expected": "urgent"
+      },
+      {
+        "state": "Our warehouse scanner stopped and orders are piling up right now.",
+        "expected": "urgent"
+      },
+      {
+        "state": "A customer is locked out and has a flight in an hour.",
+        "expected": "urgent"
+      },
+      {
+        "state": "Payments are failing for everyone as of ten minutes ago.",
+        "expected": "urgent"
+      },
+      {
+        "state": "The fire door alarm will not stop sounding.",
+        "expected": "urgent"
+      },
+      {
+        "state": "Could we change the footer colour at some point?",
+        "expected": "routine"
+      },
+      {
+        "state": "Please add my new colleague to the newsletter when you get a chance.",
+        "expected": "routine"
+      },
+      {
+        "state": "The annual report template could use a tidy-up.",
+        "expected": "routine"
+      },
+      {
+        "state": "Is there a plan to support dark mode eventually?",
+        "expected": "routine"
+      },
+      {
+        "state": "When convenient, please update my job title in the directory.",
+        "expected": "routine"
+      }
+    ],
+    "bad": {
+      "questions": {
+        "q": {
+          "type": "choice",
+          "instructions": "How should this ticket be routed?",
+          "criteria": {
+            "urgent": "Can wait until next week",
+            "routine": "Needs someone today",
+            "other": "Anything else"
+          }
+        }
+      },
+      "decide": "choice_conf:q",
+      "accept": {
+        "urgent": [
+          "urgent",
+          "routine"
+        ],
+        "routine": [
+          "urgent",
+          "routine"
+        ]
+      }
+    },
+    "good": {
+      "questions": {
+        "q": {
+          "type": "choice",
+          "instructions": "How should this ticket be routed?",
+          "criteria": {
+            "urgent": "Needs someone today",
+            "routine": "Can wait until next week",
+            "other": "Anything else"
+          }
+        }
+      },
+      "decide": "choice_conf:q"
+    }
+  },
+  {
+    "rule": "JEV306",
+    "name": "criteria about something the question never asked against criteria that match",
+    "cases": [
+      {
+        "state": "Please send my money back, the kettle never arrived.",
+        "expected": true
+      },
+      {
+        "state": "I want a refund for order 22.",
+        "expected": true
+      },
+      {
+        "state": "Refund me, this is the wrong size.",
+        "expected": true
+      },
+      {
+        "state": "I would like my payment returned.",
+        "expected": true
+      },
+      {
+        "state": "Can I have my money back please?",
+        "expected": true
+      },
+      {
+        "state": "WHERE IS MY ORDER",
+        "expected": false
+      },
+      {
+        "state": "PLEASE CALL ME BACK ABOUT MY DELIVERY",
+        "expected": false
+      },
+      {
+        "state": "Thanks, it arrived safely.",
+        "expected": false
+      },
+      {
+        "state": "Do you sell this in blue?",
+        "expected": false
+      },
+      {
+        "state": "I NEED A REPLACEMENT PART, NOT MONEY",
+        "expected": false
+      }
+    ],
+    "bad": {
+      "questions": {
+        "q": {
+          "type": "noul",
+          "instructions": "Is the customer asking for a refund?",
+          "criteria": {
+            "true": "The message is written in capital letters.",
+            "false": "The message is written in ordinary case."
+          }
+        }
+      },
+      "decide": "noul:q"
+    },
+    "good": {
+      "questions": {
+        "q": {
+          "type": "noul",
+          "instructions": "Is the customer asking for a refund?",
+          "criteria": {
+            "true": "The customer asks for money back.",
+            "false": "The customer asks for something else or nothing."
+          }
+        }
+      },
+      "decide": "noul:q"
+    }
+  }
+]

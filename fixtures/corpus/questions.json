@@ -1,0 +1,3238 @@
+[
+  {
+    "id": "jev101-1",
+    "defects": [
+      "JEV101"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the tenant not ineligible for the repair grant?"
+    }
+  },
+  {
+    "id": "jev101-2",
+    "defects": [
+      "JEV101"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Has the speaker never not turned up for a slot?"
+    }
+  },
+  {
+    "id": "jev101-3",
+    "defects": [
+      "JEV101"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Isn't it the case that the plant hasn't been watered?"
+    }
+  },
+  {
+    "id": "jev101-4",
+    "defects": [
+      "JEV101"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is it untrue that the bike was not collected?"
+    }
+  },
+  {
+    "id": "jev101-5",
+    "defects": [
+      "JEV101"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Did the borrower not fail to return the atlas?"
+    }
+  },
+  {
+    "id": "jev101-6",
+    "defects": [
+      "JEV101"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is there no reason the claim cannot be paid?"
+    }
+  },
+  {
+    "id": "jev102-1",
+    "defects": [
+      "JEV102"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Are more than four of the reviews about the sauce?"
+    }
+  },
+  {
+    "id": "jev102-2",
+    "defects": [
+      "JEV102"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "How many of the listed symptoms are respiratory?"
+    }
+  },
+  {
+    "id": "jev102-3",
+    "defects": [
+      "JEV102"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Do the repair charges add up to less than the deposit?"
+    }
+  },
+  {
+    "id": "jev102-4",
+    "defects": [
+      "JEV102"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the number of overdue books above the branch limit?"
+    }
+  },
+  {
+    "id": "jev102-5",
+    "defects": [
+      "JEV102"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Did at least two reviewers recommend the talk?"
+    }
+  },
+  {
+    "id": "jev102-6",
+    "defects": [
+      "JEV102"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the route climb over 900 metres across its three ascents?"
+    }
+  },
+  {
+    "id": "jev102-7",
+    "defects": [
+      "JEV102"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the bill split evenly between the five flatmates?"
+    }
+  },
+  {
+    "id": "jev103-1",
+    "defects": [
+      "JEV103"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Was the loan renewed before the due date passed?"
+    }
+  },
+  {
+    "id": "jev103-2",
+    "defects": [
+      "JEV103"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Did the frost arrive earlier than the day the seedlings were moved?"
+    }
+  },
+  {
+    "id": "jev103-3",
+    "defects": [
+      "JEV103"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the maintenance visit fall within the notice period?"
+    }
+  },
+  {
+    "id": "jev103-4",
+    "defects": [
+      "JEV103"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "How long ago was the chain last replaced?"
+    }
+  },
+  {
+    "id": "jev103-5",
+    "defects": [
+      "JEV103"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the booster jab more than a year overdue?"
+    }
+  },
+  {
+    "id": "jev103-6",
+    "defects": [
+      "JEV103"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Was the talk submitted after the call for papers closed?"
+    }
+  },
+  {
+    "id": "jev104-1",
+    "defects": [
+      "JEV104"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the trail muddy and closed to cyclists?"
+    }
+  },
+  {
+    "id": "jev104-2",
+    "defects": [
+      "JEV104"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Did the cat eat today and keep the food down?"
+    }
+  },
+  {
+    "id": "jev104-3",
+    "defects": [
+      "JEV104"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the abstract clear and is the topic new?"
+    }
+  },
+  {
+    "id": "jev104-4",
+    "defects": [
+      "JEV104"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the recipe quick as well as vegetarian?"
+    }
+  },
+  {
+    "id": "jev104-5",
+    "defects": [
+      "JEV104"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the flat have damp, plus a broken boiler?"
+    }
+  },
+  {
+    "id": "jev104-6",
+    "defects": [
+      "JEV104"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the saddle torn and does the customer want it replaced?"
+    }
+  },
+  {
+    "id": "jev105-1",
+    "defects": [
+      "JEV105"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "What gear ratio does the customer want?"
+    }
+  },
+  {
+    "id": "jev105-2",
+    "defects": [
+      "JEV105"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Who reported the leak?"
+    }
+  },
+  {
+    "id": "jev105-3",
+    "defects": [
+      "JEV105"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Write a one-line summary of the review."
+    }
+  },
+  {
+    "id": "jev105-4",
+    "defects": [
+      "JEV105"
+    ],
+    "question": {
+      "type": "choice",
+      "instructions": "Describe the symptoms the owner noticed.",
+      "criteria": {
+        "limp": "The dog is limping",
+        "cough": "The dog is coughing",
+        "other": "Something else"
+      }
+    }
+  },
+  {
+    "id": "jev105-5",
+    "defects": [
+      "JEV105"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "List the ingredients the cook left out.",
+      "criteria": [
+        "Nothing was left out",
+        "One or two things were left out",
+        "Most of the recipe was left out"
+      ]
+    }
+  },
+  {
+    "id": "jev105-6",
+    "defects": [
+      "JEV105"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Give the name of the trail the hiker took."
+    }
+  },
+  {
+    "id": "jev105-7",
+    "defects": [
+      "JEV105"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Where did the borrower say the book was left?"
+    }
+  },
+  {
+    "id": "jev106-1",
+    "defects": [
+      "JEV106"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the mechanic who serviced the bike that the customer's brother borrowed still employed by the shop which sold it?"
+    }
+  },
+  {
+    "id": "jev106-2",
+    "defects": [
+      "JEV106"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the landlord of the building which the tenant's guarantor lives in own the flat that flooded?"
+    }
+  },
+  {
+    "id": "jev106-3",
+    "defects": [
+      "JEV106"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the vet assigned to the owner's other pet the same vet as the one who signed this record?"
+    }
+  },
+  {
+    "id": "jev106-4",
+    "defects": [
+      "JEV106"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the author of the book the borrower's sister recommended a member of this library?"
+    }
+  },
+  {
+    "id": "jev106-5",
+    "defects": [
+      "JEV106"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Was the report from the warden's supervisor's deputy filed?"
+    }
+  },
+  {
+    "id": "jev107-1",
+    "defects": [
+      "JEV107"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the recipe free from nuts?"
+    }
+  },
+  {
+    "id": "jev107-2",
+    "defects": [
+      "JEV107"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the report lack a location?"
+    }
+  },
+  {
+    "id": "jev107-3",
+    "defects": [
+      "JEV107"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the submission missing a speaker bio?"
+    }
+  },
+  {
+    "id": "jev107-4",
+    "defects": [
+      "JEV107"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is there an absence of mould in the bathroom photos?"
+    }
+  },
+  {
+    "id": "jev107-5",
+    "defects": [
+      "JEV107"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the label omit the dosage?"
+    }
+  },
+  {
+    "id": "jev107-6",
+    "defects": [
+      "JEV107"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the garden without any shade?"
+    }
+  },
+  {
+    "id": "jev108-1",
+    "defects": [
+      "JEV108"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the review mention the service?",
+      "criteria": {
+        "true": "No mention of the service appears.",
+        "false": "The service is discussed."
+      }
+    }
+  },
+  {
+    "id": "jev108-2",
+    "defects": [
+      "JEV108"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the bike roadworthy?",
+      "criteria": {
+        "true": "Nothing on the bike is safe to ride.",
+        "false": "It can be ridden as it is."
+      }
+    }
+  },
+  {
+    "id": "jev108-3",
+    "defects": [
+      "JEV108"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Did the tenant report damp?",
+      "criteria": {
+        "true": "The message lacks any report of damp.",
+        "false": "Damp is reported."
+      }
+    }
+  },
+  {
+    "id": "jev108-4",
+    "defects": [
+      "JEV108"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Has the dog been vaccinated?",
+      "criteria": {
+        "true": "The record shows it has not been.",
+        "false": "The record shows a vaccination."
+      }
+    }
+  },
+  {
+    "id": "jev108-5",
+    "defects": [
+      "JEV108"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the path open?",
+      "criteria": {
+        "true": "The path is shut to walkers.",
+        "false": "Walkers can use the path."
+      }
+    }
+  },
+  {
+    "id": "jev109-1",
+    "defects": [
+      "JEV109"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "How good is this talk proposal?",
+      "criteria": [
+        "Vague, off-topic, and badly written",
+        "Clear, relevant, and well written"
+      ]
+    }
+  },
+  {
+    "id": "jev109-2",
+    "defects": [
+      "JEV109"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "How was the delivery?",
+      "criteria": [
+        "Cheap, slow, and unreliable",
+        "Pricey, fast, and dependable"
+      ]
+    }
+  },
+  {
+    "id": "jev109-3",
+    "defects": [
+      "JEV109"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "How is the flat?",
+      "criteria": [
+        "Cold and damp and noisy",
+        "Warm and dry and quiet"
+      ]
+    }
+  },
+  {
+    "id": "jev109-4",
+    "defects": [
+      "JEV109"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "How was the meal?",
+      "criteria": [
+        "Late and cold",
+        "On time and hot"
+      ]
+    }
+  },
+  {
+    "id": "jev110-1",
+    "defects": [
+      "JEV110"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "How urgent is the repair?",
+      "criteria": [
+        "Low",
+        "Medium",
+        "High"
+      ]
+    }
+  },
+  {
+    "id": "jev110-2",
+    "defects": [
+      "JEV110"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "How bad is the limp?",
+      "criteria": [
+        "Mild",
+        "Moderate",
+        "Severe"
+      ]
+    }
+  },
+  {
+    "id": "jev110-3",
+    "defects": [
+      "JEV110"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "How good is the recipe?",
+      "criteria": [
+        "Bad",
+        "Okay",
+        "Good",
+        "Great"
+      ]
+    }
+  },
+  {
+    "id": "jev110-4",
+    "defects": [
+      "JEV110"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "How big is the leak?",
+      "criteria": [
+        "Minor",
+        "Major",
+        "Critical"
+      ]
+    }
+  },
+  {
+    "id": "jev110-5",
+    "defects": [
+      "JEV110"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "How pressing is this request?",
+      "criteria": [
+        "Not urgent",
+        "Urgent",
+        "Very urgent"
+      ]
+    }
+  },
+  {
+    "id": "jev110-6",
+    "defects": [
+      "JEV110"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "How steep is the climb?",
+      "criteria": [
+        "Gentle",
+        "Steep",
+        "Very steep"
+      ]
+    }
+  },
+  {
+    "id": "jev111-1",
+    "defects": [
+      "JEV111"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the paint colour #3A7BD5 a kind of blue?"
+    }
+  },
+  {
+    "id": "jev111-2",
+    "defects": [
+      "JEV111"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the frame code 0x1F mean carbon?"
+    }
+  },
+  {
+    "id": "jev111-3",
+    "defects": [
+      "JEV111"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is rgb(34, 139, 34) close to the leaf colour in the photo?"
+    }
+  },
+  {
+    "id": "jev111-4",
+    "defects": [
+      "JEV111"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the swatch 255, 140, 0 an orange?"
+    }
+  },
+  {
+    "id": "good-1",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the customer ask for the brakes to be checked?"
+    }
+  },
+  {
+    "id": "good-2",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the bike described as a road bike?"
+    }
+  },
+  {
+    "id": "good-3",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the note say the wheel is buckled?"
+    }
+  },
+  {
+    "id": "good-4",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Has the customer been in before?"
+    }
+  },
+  {
+    "id": "good-5",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the heating and hot water system mentioned?"
+    }
+  },
+  {
+    "id": "good-6",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the message mention the salt and pepper squid?"
+    }
+  },
+  {
+    "id": "good-7",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the reader asking about opening hours?"
+    }
+  },
+  {
+    "id": "good-8",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Has the book not been returned?"
+    }
+  },
+  {
+    "id": "good-9",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the record say the cat is not eating?"
+    }
+  },
+  {
+    "id": "good-10",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Does it say whether or not the dog is chipped?"
+    }
+  },
+  {
+    "id": "good-11",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the same complaint made in more than one message?"
+    }
+  },
+  {
+    "id": "good-12",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Does at least one photo show the leak?"
+    }
+  },
+  {
+    "id": "good-13",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is this about order #204117?"
+    }
+  },
+  {
+    "id": "good-14",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the hiker name the trail?"
+    }
+  },
+  {
+    "id": "good-15",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is `plan_name` the plan this message asks about?"
+    }
+  },
+  {
+    "id": "good-16",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the review say the same thing as \"The soup was cold and the bread was stale before we even sat down\"?"
+    }
+  },
+  {
+    "id": "good-17",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the tenant describe the noise as coming from upstairs?"
+    }
+  },
+  {
+    "id": "good-18",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the tone of the message polite?"
+    }
+  },
+  {
+    "id": "good-19",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the abstract state what the audience will learn?"
+    }
+  },
+  {
+    "id": "good-20",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the plant kept indoors?"
+    }
+  },
+  {
+    "id": "good-21",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the owner say the limp started today?"
+    }
+  },
+  {
+    "id": "good-22",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "The note was scanned and typed up by the front desk. Does it ask for a refund?"
+    }
+  },
+  {
+    "id": "good-23",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the recipe suitable for someone who eats no meat?"
+    }
+  },
+  {
+    "id": "good-24",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the report give a grid reference?"
+    }
+  },
+  {
+    "id": "good-25",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the customer asking to cancel?"
+    }
+  },
+  {
+    "id": "good-26",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the listing say pets are allowed?"
+    }
+  },
+  {
+    "id": "good-27",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the speaker new to this conference?"
+    }
+  },
+  {
+    "id": "good-28",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the customer's complaint about the price?"
+    }
+  },
+  {
+    "id": "good-29",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the message thank the mechanic?"
+    }
+  },
+  {
+    "id": "good-30",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the photo of the front wheel?"
+    }
+  },
+  {
+    "id": "good-31",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the tenant want someone to visit?",
+      "criteria": {
+        "true": "The tenant asks for a visit or an inspection.",
+        "false": "The tenant only reports the problem."
+      }
+    }
+  },
+  {
+    "id": "good-32",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the review negative?",
+      "criteria": {
+        "true": "The reviewer was unhappy with the visit.",
+        "false": "The reviewer was satisfied or says nothing either way."
+      }
+    }
+  },
+  {
+    "id": "good-33",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the book missing pages?",
+      "criteria": {
+        "true": "The note says pages are torn out or lost.",
+        "false": "No pages are reported lost."
+      }
+    }
+  },
+  {
+    "id": "good-34",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the record lack a vaccination date?",
+      "criteria": {
+        "true": "No vaccination date is written down.",
+        "false": "A vaccination date is written down."
+      }
+    }
+  },
+  {
+    "id": "good-35",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Did the hiker turn back?",
+      "criteria": {
+        "true": "The hiker did not reach the summit.",
+        "false": "The hiker reached the summit."
+      }
+    }
+  },
+  {
+    "id": "good-36",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the proposal on topic?",
+      "criteria": {
+        "true": "It fits one of the conference tracks.",
+        "false": "It fits none of the tracks."
+      }
+    }
+  },
+  {
+    "id": "good-37",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": {
+        "question": "Is `candidate` the same bike as `known`?",
+        "known": {
+          "make": "Tern",
+          "colour": "green"
+        }
+      }
+    }
+  },
+  {
+    "id": "good-38",
+    "defects": [],
+    "question": {
+      "type": "choice",
+      "instructions": "Which service does the customer want?",
+      "criteria": {
+        "tune_up": "A general service",
+        "brakes": "Brake work",
+        "wheels": "Wheel truing or a new wheel",
+        "other": "Anything else"
+      }
+    }
+  },
+  {
+    "id": "good-39",
+    "defects": [],
+    "question": {
+      "type": "choice",
+      "instructions": "What is the message about?",
+      "criteria": {
+        "returns_and_refunds": "Sending something back or getting money back",
+        "delivery": "Where an order is",
+        "other": "Anything else"
+      }
+    }
+  },
+  {
+    "id": "good-40",
+    "defects": [],
+    "question": {
+      "type": "choice",
+      "instructions": "Which room is the problem in?",
+      "criteria": {
+        "kitchen": "The kitchen",
+        "bathroom": "The bathroom",
+        "bedroom": "A bedroom",
+        "not_stated": "The message does not say"
+      }
+    }
+  },
+  {
+    "id": "good-41",
+    "defects": [],
+    "question": {
+      "type": "choice",
+      "instructions": "Which track fits this talk?",
+      "criteria": {
+        "tooling": "Editors, linters and build tools",
+        "people": "Teams and hiring",
+        "none": "It fits no track"
+      }
+    }
+  },
+  {
+    "id": "good-42",
+    "defects": [],
+    "question": {
+      "type": "choice",
+      "instructions": "What does the reviewer want next?",
+      "criteria": {
+        "refund": "Money back",
+        "redo": "The dish made again",
+        "nothing": "No request is made"
+      }
+    }
+  },
+  {
+    "id": "good-43",
+    "defects": [],
+    "question": {
+      "type": "choice",
+      "instructions": "Which month is the booking for?",
+      "criteria": {
+        "june": "June",
+        "july": "July",
+        "august": "August",
+        "not_stated": "No month is given"
+      }
+    }
+  },
+  {
+    "id": "good-44",
+    "defects": [],
+    "question": {
+      "type": "choice",
+      "instructions": "Who should answer this?",
+      "criteria": {
+        "front_desk": "Bookings and opening hours",
+        "workshop": "Repairs and parts",
+        "unknown": "It is not clear"
+      }
+    }
+  },
+  {
+    "id": "good-45",
+    "defects": [],
+    "question": {
+      "type": "choice",
+      "instructions": "Which of these is the plant the gardener means?",
+      "criteria": {
+        "fern": "A fern",
+        "ivy": "An ivy",
+        "neither": "Neither"
+      }
+    }
+  },
+  {
+    "id": "good-46",
+    "defects": [],
+    "question": {
+      "type": "choice",
+      "instructions": "What kind of animal is the patient?",
+      "criteria": {
+        "dog": "A dog",
+        "cat": "A cat",
+        "other": "Another animal"
+      }
+    }
+  },
+  {
+    "id": "good-47",
+    "defects": [],
+    "question": {
+      "type": "choice",
+      "instructions": "How did the hiker travel to the trailhead?",
+      "criteria": {
+        "car": "By car",
+        "bus": "By bus",
+        "foot": "On foot",
+        "not_stated": "It is not said"
+      }
+    }
+  },
+  {
+    "id": "good-48",
+    "defects": [],
+    "question": {
+      "type": "choice",
+      "instructions": "What is the complaint about?",
+      "criteria": {
+        "noise": "Noise from neighbours or the street",
+        "damp": "Damp or mould",
+        "heating": "Heating or hot water",
+        "other": "Something else"
+      }
+    }
+  },
+  {
+    "id": "good-49",
+    "defects": [],
+    "question": {
+      "type": "choice",
+      "instructions": "Which outcome does the note record?",
+      "criteria": {
+        "fixed": "The fault was repaired",
+        "parts_ordered": "Parts are on order and the work is waiting",
+        "declined": "The customer chose not to go ahead",
+        "other": "None of these"
+      }
+    }
+  },
+  {
+    "id": "good-50",
+    "defects": [],
+    "question": {
+      "type": "score",
+      "instructions": "How ready is the bike to ride?",
+      "criteria": [
+        "It cannot be ridden at all",
+        "It can be ridden gently for a short way",
+        "It is safe for everyday riding"
+      ]
+    }
+  },
+  {
+    "id": "good-51",
+    "defects": [],
+    "question": {
+      "type": "score",
+      "instructions": "How unhappy is the reviewer?",
+      "criteria": [
+        "Content with the visit",
+        "Put out but willing to come back",
+        "Says they will never return"
+      ]
+    }
+  },
+  {
+    "id": "good-52",
+    "defects": [],
+    "question": {
+      "type": "score",
+      "instructions": "How well does the abstract explain the talk?",
+      "criteria": [
+        "The topic cannot be told from it",
+        "The topic is clear but the takeaway is unclear",
+        "Both the topic and the takeaway are clear"
+      ]
+    }
+  },
+  {
+    "id": "good-53",
+    "defects": [],
+    "question": {
+      "type": "score",
+      "instructions": "How serious is the damp?",
+      "criteria": [
+        "A small patch that wipes off",
+        "Patches that come back after cleaning",
+        "Walls that are wet to the touch"
+      ]
+    }
+  },
+  {
+    "id": "good-54",
+    "defects": [],
+    "question": {
+      "type": "score",
+      "instructions": "How much of the trail is passable?",
+      "criteria": [
+        "None of it",
+        "The lower half only",
+        "All but the summit ridge",
+        "All of it"
+      ]
+    }
+  },
+  {
+    "id": "good-55",
+    "defects": [],
+    "question": {
+      "type": "score",
+      "instructions": "How quickly does the owner want to be seen?",
+      "criteria": [
+        "Any time this month",
+        "Within the week",
+        "Today"
+      ]
+    }
+  },
+  {
+    "id": "good-56",
+    "defects": [],
+    "question": {
+      "type": "score",
+      "instructions": "How closely was the recipe followed?",
+      "criteria": [
+        "Hardly followed",
+        "Followed with some swaps",
+        "Followed to the letter"
+      ]
+    }
+  },
+  {
+    "id": "good-57",
+    "defects": [],
+    "question": {
+      "type": "score",
+      "instructions": "How far along is the repair?",
+      "criteria": [
+        "Not started",
+        "Parts fitted, not yet tested",
+        "Tested and ready to collect"
+      ]
+    }
+  },
+  {
+    "id": "good-58",
+    "defects": [],
+    "question": {
+      "type": "score",
+      "instructions": "How thirsty is the plant?",
+      "criteria": [
+        "The soil is wet",
+        "The top of the soil is dry",
+        "The leaves are drooping"
+      ]
+    }
+  },
+  {
+    "id": "good-59",
+    "defects": [],
+    "question": {
+      "type": "score",
+      "instructions": "How much does the tenant know about the cause?",
+      "criteria": [
+        "No idea what caused it",
+        "A guess at the cause",
+        "Saw what caused it"
+      ]
+    }
+  },
+  {
+    "id": "good-60",
+    "defects": [],
+    "question": {
+      "type": "score",
+      "instructions": "How strong is the case for a refund?",
+      "criteria": [
+        "The customer got what was ordered",
+        "Part of the order was wrong",
+        "Nothing that was ordered arrived"
+      ]
+    }
+  },
+  {
+    "id": "good-61",
+    "defects": [],
+    "question": {
+      "type": "score",
+      "instructions": "How firm is the booking?",
+      "criteria": [
+        "An enquiry only",
+        "Dates pencilled in",
+        "Deposit paid"
+      ]
+    }
+  },
+  {
+    "id": "jev101-h1",
+    "defects": [
+      "JEV101"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is it false that the permit was never issued?"
+    }
+  },
+  {
+    "id": "jev101-h2",
+    "defects": [
+      "JEV101"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Wasn't the claim not approved?"
+    }
+  },
+  {
+    "id": "jev101-h3",
+    "defects": [
+      "JEV101"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the member no longer unable to book?"
+    }
+  },
+  {
+    "id": "jev101-h4",
+    "defects": [
+      "JEV101"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the form not lack a signature?"
+    }
+  },
+  {
+    "id": "jev102-h1",
+    "defects": [
+      "JEV102"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Do fewer than three guests speak in this episode?"
+    }
+  },
+  {
+    "id": "jev102-h2",
+    "defects": [
+      "JEV102"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the total of the fees above the cap?"
+    }
+  },
+  {
+    "id": "jev102-h3",
+    "defects": [
+      "JEV102"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the trip cost twice the deposit?"
+    }
+  },
+  {
+    "id": "jev103-h1",
+    "defects": [
+      "JEV103"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Did the permit expire before the car was ticketed?"
+    }
+  },
+  {
+    "id": "jev103-h2",
+    "defects": [
+      "JEV103"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the claim older than six months?"
+    }
+  },
+  {
+    "id": "jev103-h3",
+    "defects": [
+      "JEV103"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Was the laundry collected two days late?"
+    }
+  },
+  {
+    "id": "jev103-h4",
+    "defects": [
+      "JEV103"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the class start sooner than the membership does?"
+    }
+  },
+  {
+    "id": "jev104-h1",
+    "defects": [
+      "JEV104"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the episode long and boring?"
+    }
+  },
+  {
+    "id": "jev104-h2",
+    "defects": [
+      "JEV104"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Was the coach late and was the lunch missing?"
+    }
+  },
+  {
+    "id": "jev104-h3",
+    "defects": [
+      "JEV104"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the shirt clean and pressed?"
+    }
+  },
+  {
+    "id": "jev104-h4",
+    "defects": [
+      "JEV104"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the member want to cancel and get a refund?"
+    }
+  },
+  {
+    "id": "jev105-h1",
+    "defects": [
+      "JEV105"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Which guest is speaking?"
+    }
+  },
+  {
+    "id": "jev105-h2",
+    "defects": [
+      "JEV105"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Name the school the trip is for."
+    }
+  },
+  {
+    "id": "jev105-h3",
+    "defects": [
+      "JEV105"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Explain why the claim was denied."
+    }
+  },
+  {
+    "id": "jev105-h4",
+    "defects": [
+      "JEV105"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "How much is the fine?"
+    }
+  },
+  {
+    "id": "jev106-h1",
+    "defects": [
+      "JEV106"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the teacher who booked the coach that the school's bursar approved the one which broke down?"
+    }
+  },
+  {
+    "id": "jev106-h2",
+    "defects": [
+      "JEV106"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the adjuster assigned to the claim's policyholder work at the branch that issued it?"
+    }
+  },
+  {
+    "id": "jev106-h3",
+    "defects": [
+      "JEV106"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the host's guest's agent named?"
+    }
+  },
+  {
+    "id": "jev106-h4",
+    "defects": [
+      "JEV106"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the permit of the car parked in the bay that the resident's visitor uses valid?"
+    }
+  },
+  {
+    "id": "jev107-h1",
+    "defects": [
+      "JEV107"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the bag free of stains?"
+    }
+  },
+  {
+    "id": "jev107-h2",
+    "defects": [
+      "JEV107"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the transcript leave out the sponsor read?"
+    }
+  },
+  {
+    "id": "jev107-h3",
+    "defects": [
+      "JEV107"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the claim lacking a police report?"
+    }
+  },
+  {
+    "id": "jev108-h1",
+    "defects": [
+      "JEV108"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the permit valid?",
+      "criteria": {
+        "true": "The permit has run out.",
+        "false": "The permit is in date."
+      }
+    }
+  },
+  {
+    "id": "jev108-h2",
+    "defects": [
+      "JEV108"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Did the guest swear?",
+      "criteria": {
+        "true": "No swearing is heard.",
+        "false": "Swearing is heard."
+      }
+    }
+  },
+  {
+    "id": "jev108-h3",
+    "defects": [
+      "JEV108"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Was lunch included?",
+      "criteria": {
+        "true": "Not included in the price.",
+        "false": "Included in the price."
+      }
+    }
+  },
+  {
+    "id": "jev108-h4",
+    "defects": [
+      "JEV108"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the gym open?",
+      "criteria": {
+        "true": "Without any open hours today.",
+        "false": "Open today."
+      }
+    }
+  },
+  {
+    "id": "jev109-h1",
+    "defects": [
+      "JEV109"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "How was the laundry?",
+      "criteria": [
+        "Dirty, torn, and late",
+        "Clean, intact, and on time"
+      ]
+    }
+  },
+  {
+    "id": "jev109-h2",
+    "defects": [
+      "JEV109"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "How was the episode?",
+      "criteria": [
+        "Dull and long",
+        "Lively and short"
+      ]
+    }
+  },
+  {
+    "id": "jev109-h3",
+    "defects": [
+      "JEV109"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "How is the gym?",
+      "criteria": [
+        "Rude staff, broken kit, and high fees",
+        "Kind staff, good kit, and fair fees"
+      ]
+    }
+  },
+  {
+    "id": "jev110-h1",
+    "defects": [
+      "JEV110"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "How good is the episode?",
+      "criteria": [
+        "Poor",
+        "Average",
+        "Excellent"
+      ]
+    }
+  },
+  {
+    "id": "jev110-h2",
+    "defects": [
+      "JEV110"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "How creased is it?",
+      "criteria": [
+        "A little",
+        "Somewhat",
+        "Very"
+      ]
+    }
+  },
+  {
+    "id": "jev110-h3",
+    "defects": [
+      "JEV110"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "How noisy is the gym?",
+      "criteria": [
+        "Not noisy",
+        "Noisy",
+        "Extremely noisy"
+      ]
+    }
+  },
+  {
+    "id": "jev110-h4",
+    "defects": [
+      "JEV110"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "How big is the claim?",
+      "criteria": [
+        "Small",
+        "Big",
+        "Huge"
+      ]
+    }
+  },
+  {
+    "id": "jev111-h1",
+    "defects": [
+      "JEV111"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the shirt colour #8B0000 a red?"
+    }
+  },
+  {
+    "id": "jev111-h2",
+    "defects": [
+      "JEV111"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is flag 0xFF set on the claim?"
+    }
+  },
+  {
+    "id": "jev111-h3",
+    "defects": [
+      "JEV111"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Does rgb(0,0,128) match the logo?"
+    }
+  },
+  {
+    "id": "jev112-h1",
+    "defects": [
+      "JEV112"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the claim large?"
+    }
+  },
+  {
+    "id": "jev112-h2",
+    "defects": [
+      "JEV112"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the member come often?"
+    }
+  },
+  {
+    "id": "jev112-h3",
+    "defects": [
+      "JEV112"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the episode good enough to feature?"
+    }
+  },
+  {
+    "id": "jev112-h4",
+    "defects": [
+      "JEV112"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the applicant experienced?"
+    }
+  },
+  {
+    "id": "jev112-h5",
+    "defects": [
+      "JEV112"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Was the coach very late?"
+    }
+  },
+  {
+    "id": "good-h1",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is this about billing and shipping?"
+    }
+  },
+  {
+    "id": "good-h2",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the form cover heating and plumbing?"
+    }
+  },
+  {
+    "id": "good-h3",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the guest mention the rise and fall of the band?"
+    }
+  },
+  {
+    "id": "good-h4",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the member asking to pause?"
+    }
+  },
+  {
+    "id": "good-h5",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Has the car been ticketed before?"
+    }
+  },
+  {
+    "id": "good-h6",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the claim include a police report?"
+    }
+  },
+  {
+    "id": "good-h7",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the permit for bay 14?"
+    }
+  },
+  {
+    "id": "good-h8",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Did the trip go ahead?"
+    }
+  },
+  {
+    "id": "good-h9",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the transcript name the sponsor?"
+    }
+  },
+  {
+    "id": "good-h10",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the shirt described as silk?"
+    }
+  },
+  {
+    "id": "good-h11",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the note say nothing was damaged?"
+    }
+  },
+  {
+    "id": "good-h12",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the caller not the policyholder?"
+    }
+  },
+  {
+    "id": "good-h13",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the parent give consent for the trip?"
+    }
+  },
+  {
+    "id": "good-h14",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is there a photo of the dashboard permit?"
+    }
+  },
+  {
+    "id": "good-h15",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the item listed as a duvet?"
+    }
+  },
+  {
+    "id": "good-h16",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the complaint about the changing rooms?"
+    }
+  },
+  {
+    "id": "good-h17",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the member say why they are leaving?"
+    }
+  },
+  {
+    "id": "good-h18",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Was a receipt attached?"
+    }
+  },
+  {
+    "id": "good-h19",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the episode have more than one host?"
+    }
+  },
+  {
+    "id": "good-h20",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is `claim_type` consistent with the description?"
+    }
+  },
+  {
+    "id": "good-h21",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the fee refundable?"
+    }
+  },
+  {
+    "id": "good-h22",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the parking bay a disabled bay?"
+    }
+  },
+  {
+    "id": "good-h23",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the teacher list allergies?"
+    }
+  },
+  {
+    "id": "good-h24",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the tone friendly?"
+    }
+  },
+  {
+    "id": "good-h25",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Did the claimant call the police?"
+    }
+  },
+  {
+    "id": "good-h26",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the guest a musician?"
+    }
+  },
+  {
+    "id": "good-h27",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Was the class cancelled?"
+    }
+  },
+  {
+    "id": "good-h28",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the booking for a group?"
+    }
+  },
+  {
+    "id": "good-h29",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the claim for water damage?",
+      "criteria": {
+        "true": "The damage described was caused by water.",
+        "false": "The damage has another cause or none is given."
+      }
+    }
+  },
+  {
+    "id": "good-h30",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is anything missing from the bag?",
+      "criteria": {
+        "true": "At least one item is reported missing.",
+        "false": "Nothing is reported missing."
+      }
+    }
+  },
+  {
+    "id": "good-h31",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Did the car overstay?",
+      "criteria": {
+        "true": "It stayed past the paid time.",
+        "false": "It left inside the paid time."
+      }
+    }
+  },
+  {
+    "id": "good-h32",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the claim large?",
+      "criteria": {
+        "true": "The amount claimed is stated and is above the excess on the policy.",
+        "false": "The amount is below the excess or is not stated."
+      }
+    }
+  },
+  {
+    "id": "good-h33",
+    "defects": [],
+    "question": {
+      "type": "choice",
+      "instructions": "What is the episode mostly about?",
+      "criteria": {
+        "music": "Bands, records and touring",
+        "film": "Films and television",
+        "other": "Anything else"
+      }
+    }
+  },
+  {
+    "id": "good-h34",
+    "defects": [],
+    "question": {
+      "type": "choice",
+      "instructions": "Which season is the trip in?",
+      "criteria": {
+        "autumn": "September to November",
+        "spring": "March to May",
+        "summer": "June to August",
+        "not_stated": "No date is given"
+      }
+    }
+  },
+  {
+    "id": "good-h35",
+    "defects": [],
+    "question": {
+      "type": "choice",
+      "instructions": "What went wrong with the laundry?",
+      "criteria": {
+        "lost": "An item did not come back",
+        "damaged": "An item came back torn, shrunk or stained",
+        "late": "The bag came back after the promised day",
+        "other": "Something else"
+      }
+    }
+  },
+  {
+    "id": "good-h36",
+    "defects": [],
+    "question": {
+      "type": "choice",
+      "instructions": "What does the member want?",
+      "criteria": {
+        "pause": "To stop paying for a while and come back",
+        "cancel": "To leave for good",
+        "upgrade": "To move to a bigger plan",
+        "unclear": "It is not clear"
+      }
+    }
+  },
+  {
+    "id": "good-h37",
+    "defects": [],
+    "question": {
+      "type": "choice",
+      "instructions": "Who is at fault according to the claim?",
+      "criteria": {
+        "claimant": "The person claiming",
+        "third_party": "Someone else",
+        "nobody": "Nobody, it was an accident",
+        "not_stated": "The claim does not say"
+      }
+    }
+  },
+  {
+    "id": "good-h38",
+    "defects": [],
+    "question": {
+      "type": "score",
+      "instructions": "How creased is the shirt?",
+      "criteria": [
+        "Barely creased",
+        "Creased all over",
+        "Creased all over and stained as well"
+      ]
+    }
+  },
+  {
+    "id": "good-h39",
+    "defects": [],
+    "question": {
+      "type": "score",
+      "instructions": "How sure is the parent about the trip?",
+      "criteria": [
+        "Has said no",
+        "Is asking questions first",
+        "Has signed the form"
+      ]
+    }
+  },
+  {
+    "id": "good-h40",
+    "defects": [],
+    "question": {
+      "type": "score",
+      "instructions": "How complete is the claim?",
+      "criteria": [
+        "Only a description",
+        "A description and photos",
+        "A description, photos and a receipt"
+      ]
+    }
+  },
+  {
+    "id": "good-h41",
+    "defects": [],
+    "question": {
+      "type": "score",
+      "instructions": "How busy does the gym sound?",
+      "criteria": [
+        "The member had the room alone",
+        "A short wait for machines",
+        "Could not get on anything"
+      ]
+    }
+  },
+  {
+    "id": "good-h42",
+    "defects": [],
+    "question": {
+      "type": "score",
+      "instructions": "How far through the episode is the sponsor read?",
+      "criteria": [
+        "In the first minute",
+        "Somewhere in the middle",
+        "In the last minute"
+      ]
+    }
+  },
+  {
+    "id": "jev303-1",
+    "defects": [
+      "JEV303"
+    ],
+    "question": {
+      "type": "choice",
+      "instructions": "What is the ticket about?",
+      "criteria": {
+        "payments": "Anything to do with money",
+        "refunds": "The customer wants money back",
+        "delivery": "Where the order is",
+        "other": "Anything else"
+      }
+    }
+  },
+  {
+    "id": "jev303-2",
+    "defects": [
+      "JEV303"
+    ],
+    "question": {
+      "type": "choice",
+      "instructions": "What went wrong?",
+      "criteria": {
+        "damaged": "The item arrived damaged",
+        "broken": "The item arrived broken",
+        "late": "The item arrived late",
+        "other": "Something else"
+      }
+    }
+  },
+  {
+    "id": "jev303-3",
+    "defects": [
+      "JEV303"
+    ],
+    "question": {
+      "type": "choice",
+      "instructions": "Which team should take this?",
+      "criteria": {
+        "support": "Customer problems",
+        "technical": "Technical problems customers report",
+        "sales": "New business",
+        "other": "Anything else"
+      }
+    }
+  },
+  {
+    "id": "jev303-4",
+    "defects": [
+      "JEV303"
+    ],
+    "question": {
+      "type": "choice",
+      "instructions": "What kind of animal is the patient?",
+      "criteria": {
+        "pet": "An animal kept at home",
+        "dog": "A dog",
+        "cat": "A cat",
+        "other": "Another animal"
+      }
+    }
+  },
+  {
+    "id": "jev303-5",
+    "defects": [
+      "JEV303"
+    ],
+    "question": {
+      "type": "choice",
+      "instructions": "What does the member want?",
+      "criteria": {
+        "cancel": "To stop the membership",
+        "leave": "To end the membership",
+        "pause": "To take a break and come back",
+        "unclear": "It is not clear"
+      }
+    }
+  },
+  {
+    "id": "jev303-6",
+    "defects": [
+      "JEV303"
+    ],
+    "question": {
+      "type": "choice",
+      "instructions": "Which room is the problem in?",
+      "criteria": {
+        "kitchen": "Where food is cooked",
+        "dining": "Where food is eaten or cooked",
+        "bathroom": "The bathroom",
+        "not_stated": "The message does not say"
+      }
+    }
+  },
+  {
+    "id": "jev303-7",
+    "defects": [
+      "JEV303"
+    ],
+    "question": {
+      "type": "choice",
+      "instructions": "What is the review about?",
+      "criteria": {
+        "food": "The food or drink",
+        "quality": "How good the meal was",
+        "service": "The staff",
+        "other": "Something else"
+      }
+    }
+  },
+  {
+    "id": "jev303-8",
+    "defects": [
+      "JEV303"
+    ],
+    "question": {
+      "type": "choice",
+      "instructions": "Which label fits the message?",
+      "criteria": {
+        "urgent": "Needs action today",
+        "billing": "About an invoice",
+        "technical": "About a fault",
+        "other": "None of these"
+      }
+    }
+  },
+  {
+    "id": "jev304-1",
+    "defects": [
+      "JEV304"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "How severe is the bug?",
+      "criteria": [
+        "Cosmetic, nobody is blocked",
+        "There is no way around it and work has stopped",
+        "No workaround exists, so work cannot continue"
+      ]
+    }
+  },
+  {
+    "id": "jev304-2",
+    "defects": [
+      "JEV304"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "How badly is the parcel damaged?",
+      "criteria": [
+        "The parcel is unmarked",
+        "The contents are broken or crushed",
+        "The contents are crushed or broken"
+      ]
+    }
+  },
+  {
+    "id": "jev304-3",
+    "defects": [
+      "JEV304"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "How sure is the parent?",
+      "criteria": [
+        "Has said no",
+        "Is unsure",
+        "Has not decided",
+        "Has signed the form"
+      ]
+    }
+  },
+  {
+    "id": "jev304-4",
+    "defects": [
+      "JEV304"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "How bad is the fault?",
+      "criteria": [
+        "Nothing is wrong",
+        "A minor fault",
+        "A small problem",
+        "Unusable"
+      ]
+    }
+  },
+  {
+    "id": "jev304-5",
+    "defects": [
+      "JEV304"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "How late was it?",
+      "criteria": [
+        "Arrived early",
+        "Arrived on the promised day",
+        "Arrived when expected",
+        "Arrived a week late"
+      ]
+    }
+  },
+  {
+    "id": "jev304-6",
+    "defects": [
+      "JEV304"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "How creased is the shirt?",
+      "criteria": [
+        "Barely creased",
+        "Lightly creased",
+        "Creased all over"
+      ]
+    }
+  },
+  {
+    "id": "jev304-7",
+    "defects": [
+      "JEV304"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "How soon is it needed?",
+      "criteria": [
+        "Any time this month",
+        "Within the week",
+        "In the next seven days",
+        "Today"
+      ]
+    }
+  },
+  {
+    "id": "jev304-8",
+    "defects": [
+      "JEV304"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "How upset is the customer?",
+      "criteria": [
+        "Calm",
+        "Annoyed",
+        "Irritated",
+        "Furious"
+      ]
+    }
+  },
+  {
+    "id": "jev305-1",
+    "defects": [
+      "JEV305"
+    ],
+    "question": {
+      "type": "choice",
+      "instructions": "How should this ticket be routed?",
+      "criteria": {
+        "urgent": "Can wait until next week",
+        "routine": "Needs someone today",
+        "other": "Anything else"
+      }
+    }
+  },
+  {
+    "id": "jev305-2",
+    "defects": [
+      "JEV305"
+    ],
+    "question": {
+      "type": "choice",
+      "instructions": "What does the customer want?",
+      "criteria": {
+        "refund": "The customer wants a replacement sent",
+        "replacement": "The customer wants money back",
+        "other": "Something else"
+      }
+    }
+  },
+  {
+    "id": "jev305-3",
+    "defects": [
+      "JEV305"
+    ],
+    "question": {
+      "type": "choice",
+      "instructions": "Which animal is it?",
+      "criteria": {
+        "dog": "A cat or kitten",
+        "cat": "A dog or puppy",
+        "other": "Another animal"
+      }
+    }
+  },
+  {
+    "id": "jev305-4",
+    "defects": [
+      "JEV305"
+    ],
+    "question": {
+      "type": "choice",
+      "instructions": "How did the hiker arrive?",
+      "criteria": {
+        "car": "Came on foot",
+        "foot": "Came by car",
+        "bus": "Came by bus",
+        "not_stated": "It is not said"
+      }
+    }
+  },
+  {
+    "id": "jev305-5",
+    "defects": [
+      "JEV305"
+    ],
+    "question": {
+      "type": "choice",
+      "instructions": "What is the verdict?",
+      "criteria": {
+        "approve": "The request is turned down",
+        "reject": "The request is accepted",
+        "unclear": "It cannot be told"
+      }
+    }
+  },
+  {
+    "id": "jev305-6",
+    "defects": [
+      "JEV305"
+    ],
+    "question": {
+      "type": "choice",
+      "instructions": "Which room?",
+      "criteria": {
+        "kitchen": "The room with the bath",
+        "bathroom": "The room with the cooker",
+        "other": "Another room"
+      }
+    }
+  },
+  {
+    "id": "jev305-7",
+    "defects": [
+      "JEV305"
+    ],
+    "question": {
+      "type": "choice",
+      "instructions": "Is the talk for beginners or experts?",
+      "criteria": {
+        "beginner": "Assumes years of experience",
+        "expert": "Assumes no prior knowledge",
+        "mixed": "A bit of both"
+      }
+    }
+  },
+  {
+    "id": "jev305-8",
+    "defects": [
+      "JEV305"
+    ],
+    "question": {
+      "type": "choice",
+      "instructions": "What is the state of the order?",
+      "criteria": {
+        "shipped": "Still in the warehouse",
+        "pending": "Already with the courier",
+        "other": "Something else"
+      }
+    }
+  },
+  {
+    "id": "jev306-1",
+    "defects": [
+      "JEV306"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the customer asking for a refund?",
+      "criteria": {
+        "true": "The message is written in capital letters.",
+        "false": "The message is written in ordinary case."
+      }
+    }
+  },
+  {
+    "id": "jev306-2",
+    "defects": [
+      "JEV306"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the review mention the food?",
+      "criteria": {
+        "true": "The reviewer gave five stars.",
+        "false": "The reviewer gave fewer than five stars."
+      }
+    }
+  },
+  {
+    "id": "jev306-3",
+    "defects": [
+      "JEV306"
+    ],
+    "question": {
+      "type": "choice",
+      "instructions": "Which team should handle this?",
+      "criteria": {
+        "billing": "The message is short",
+        "technical": "The message is long",
+        "other": "The message is in another language"
+      }
+    }
+  },
+  {
+    "id": "jev306-4",
+    "defects": [
+      "JEV306"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "How severe is the bug?",
+      "criteria": [
+        "The report was filed on a weekday",
+        "The report was filed at the weekend",
+        "The report was filed on a public holiday"
+      ]
+    }
+  },
+  {
+    "id": "jev306-5",
+    "defects": [
+      "JEV306"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the bike roadworthy?",
+      "criteria": {
+        "true": "The owner sounds happy.",
+        "false": "The owner sounds annoyed."
+      }
+    }
+  },
+  {
+    "id": "jev306-6",
+    "defects": [
+      "JEV306"
+    ],
+    "question": {
+      "type": "choice",
+      "instructions": "What kind of animal is the patient?",
+      "criteria": {
+        "dog": "The owner lives nearby",
+        "cat": "The owner lives far away",
+        "other": "No address is given"
+      }
+    }
+  },
+  {
+    "id": "jev306-7",
+    "defects": [
+      "JEV306"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "How urgent is the repair?",
+      "criteria": [
+        "The tenant has rented for under a year",
+        "The tenant has rented for some years",
+        "The tenant has rented for a decade or more"
+      ]
+    }
+  },
+  {
+    "id": "jev306-8",
+    "defects": [
+      "JEV306"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Did the hiker reach the summit?",
+      "criteria": {
+        "true": "The report is longer than a page.",
+        "false": "The report is a few lines."
+      }
+    }
+  },
+  {
+    "id": "jev307-1",
+    "defects": [
+      "JEV307"
+    ],
+    "question": {
+      "type": "choice",
+      "instructions": "How angry is the customer?",
+      "criteria": {
+        "calm": "Not angry at all",
+        "annoyed": "Somewhat angry",
+        "furious": "Extremely angry"
+      }
+    }
+  },
+  {
+    "id": "jev307-2",
+    "defects": [
+      "JEV307"
+    ],
+    "question": {
+      "type": "choice",
+      "instructions": "How big is the order?",
+      "criteria": {
+        "small": "One or two items",
+        "medium": "A boxful",
+        "large": "A pallet or more"
+      }
+    }
+  },
+  {
+    "id": "jev307-3",
+    "defects": [
+      "JEV307"
+    ],
+    "question": {
+      "type": "choice",
+      "instructions": "How soon is it needed?",
+      "criteria": {
+        "this_month": "Any time this month",
+        "this_week": "Within the week",
+        "today": "By the end of today"
+      }
+    }
+  },
+  {
+    "id": "jev307-4",
+    "defects": [
+      "JEV307"
+    ],
+    "question": {
+      "type": "choice",
+      "instructions": "How complete is the claim?",
+      "criteria": {
+        "bare": "A description only",
+        "partial": "A description and photos",
+        "full": "A description, photos and a receipt"
+      }
+    }
+  },
+  {
+    "id": "jev307-5",
+    "defects": [
+      "JEV307"
+    ],
+    "question": {
+      "type": "choice",
+      "instructions": "How worn is the tyre?",
+      "criteria": {
+        "new": "Full tread",
+        "used": "Half the tread left",
+        "bald": "No tread left"
+      }
+    }
+  },
+  {
+    "id": "jev307-6",
+    "defects": [
+      "JEV307"
+    ],
+    "question": {
+      "type": "choice",
+      "instructions": "How sure is the parent?",
+      "criteria": {
+        "no": "Has refused",
+        "maybe": "Is still asking questions",
+        "yes": "Has signed the form"
+      }
+    }
+  },
+  {
+    "id": "jev307-7",
+    "defects": [
+      "JEV307"
+    ],
+    "question": {
+      "type": "choice",
+      "instructions": "How far along is the repair?",
+      "criteria": {
+        "not_started": "Nothing done yet",
+        "in_progress": "Parts fitted, not tested",
+        "done": "Tested and ready"
+      }
+    }
+  },
+  {
+    "id": "jev307-8",
+    "defects": [
+      "JEV307"
+    ],
+    "question": {
+      "type": "choice",
+      "instructions": "How loud is the gym?",
+      "criteria": {
+        "quiet": "You can hold a conversation",
+        "busy": "You have to raise your voice",
+        "deafening": "You cannot hear the person next to you"
+      }
+    }
+  },
+  {
+    "id": "jev308-1",
+    "defects": [
+      "JEV308"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "What is the ticket about?",
+      "criteria": [
+        "A billing problem",
+        "A technical fault",
+        "A delivery question"
+      ]
+    }
+  },
+  {
+    "id": "jev308-2",
+    "defects": [
+      "JEV308"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "Which animal is the patient?",
+      "criteria": [
+        "A dog",
+        "A cat",
+        "A rabbit",
+        "A bird"
+      ]
+    }
+  },
+  {
+    "id": "jev308-3",
+    "defects": [
+      "JEV308"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "Which room is the problem in?",
+      "criteria": [
+        "The kitchen",
+        "The bathroom",
+        "A bedroom"
+      ]
+    }
+  },
+  {
+    "id": "jev308-4",
+    "defects": [
+      "JEV308"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "How did the hiker travel?",
+      "criteria": [
+        "By car",
+        "By bus",
+        "On foot"
+      ]
+    }
+  },
+  {
+    "id": "jev308-5",
+    "defects": [
+      "JEV308"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "What kind of post is this?",
+      "criteria": [
+        "An announcement",
+        "A question",
+        "A joke",
+        "A complaint"
+      ]
+    }
+  },
+  {
+    "id": "jev308-6",
+    "defects": [
+      "JEV308"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "Which season is the trip in?",
+      "criteria": [
+        "Spring",
+        "Summer",
+        "Autumn",
+        "Winter"
+      ]
+    }
+  },
+  {
+    "id": "jev308-7",
+    "defects": [
+      "JEV308"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "What does the member want?",
+      "criteria": [
+        "To cancel",
+        "To pause",
+        "To upgrade"
+      ]
+    }
+  },
+  {
+    "id": "jev308-8",
+    "defects": [
+      "JEV308"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "What colour is the frame?",
+      "criteria": [
+        "Red",
+        "Green",
+        "Blue",
+        "Black"
+      ]
+    }
+  },
+  {
+    "id": "jev309-1",
+    "defects": [
+      "JEV309"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "If `job_type` is brakes, are the pads mentioned?"
+    },
+    "siblings": [
+      "job_type",
+      "hurry"
+    ]
+  },
+  {
+    "id": "jev309-2",
+    "defects": [
+      "JEV309"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Given the answer to department, is this a duplicate?"
+    },
+    "siblings": [
+      "department",
+      "tone"
+    ]
+  },
+  {
+    "id": "jev309-3",
+    "defects": [
+      "JEV309"
+    ],
+    "question": {
+      "type": "choice",
+      "instructions": "For the animal picked in species, which vaccine is due?",
+      "criteria": {
+        "rabies": "Rabies",
+        "flu": "Flu",
+        "none": "None is due"
+      }
+    },
+    "siblings": [
+      "species",
+      "age_band"
+    ]
+  },
+  {
+    "id": "jev309-4",
+    "defects": [
+      "JEV309"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the severity chosen above justified by the report?"
+    },
+    "siblings": [
+      "severity",
+      "has_workaround"
+    ]
+  },
+  {
+    "id": "jev309-5",
+    "defects": [
+      "JEV309"
+    ],
+    "question": {
+      "type": "score",
+      "instructions": "How well does the refund amount match the reason selected in return_reason?",
+      "criteria": [
+        "Not at all",
+        "Partly",
+        "Fully"
+      ]
+    },
+    "siblings": [
+      "return_reason",
+      "department"
+    ]
+  },
+  {
+    "id": "jev309-6",
+    "defects": [
+      "JEV309"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "When is_urgent is true, does the customer also give a deadline?"
+    },
+    "siblings": [
+      "is_urgent",
+      "mood"
+    ]
+  },
+  {
+    "id": "jev309-7",
+    "defects": [
+      "JEV309"
+    ],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the tone found by the mood question fit a complaint?"
+    },
+    "siblings": [
+      "mood",
+      "topic"
+    ]
+  },
+  {
+    "id": "jev309-8",
+    "defects": [
+      "JEV309"
+    ],
+    "question": {
+      "type": "choice",
+      "instructions": "Using the topic already identified, which sub-topic applies?",
+      "criteria": {
+        "pricing": "Pricing",
+        "bugs": "Bugs",
+        "other": "Other"
+      }
+    },
+    "siblings": [
+      "topic",
+      "language"
+    ]
+  },
+  {
+    "id": "good-s1",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the customer ask for the brakes to be checked?"
+    },
+    "siblings": [
+      "job_type",
+      "hurry"
+    ]
+  },
+  {
+    "id": "good-s2",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is the tone of the message polite?"
+    },
+    "siblings": [
+      "department",
+      "refund_requested"
+    ]
+  },
+  {
+    "id": "good-s3",
+    "defects": [],
+    "question": {
+      "type": "choice",
+      "instructions": "Which service does the customer want?",
+      "criteria": {
+        "tune_up": "A general service",
+        "brakes": "Brake work",
+        "other": "Anything else"
+      }
+    },
+    "siblings": [
+      "has_deadline",
+      "mood"
+    ]
+  },
+  {
+    "id": "good-s4",
+    "defects": [],
+    "question": {
+      "type": "score",
+      "instructions": "How unhappy is the reviewer?",
+      "criteria": [
+        "Content with the visit",
+        "Put out but willing to come back",
+        "Says they will never return"
+      ]
+    },
+    "siblings": [
+      "topic",
+      "language"
+    ]
+  },
+  {
+    "id": "good-s5",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the report give a grid reference?"
+    },
+    "siblings": [
+      "trail_name",
+      "turned_back"
+    ]
+  },
+  {
+    "id": "good-s6",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Is `plan_name` the plan this message asks about?"
+    },
+    "siblings": [
+      "is_urgent",
+      "topic"
+    ]
+  },
+  {
+    "id": "good-s7",
+    "defects": [],
+    "question": {
+      "type": "noul",
+      "instructions": "Does the record say the cat is not eating?"
+    },
+    "siblings": [
+      "species",
+      "age_band"
+    ]
+  },
+  {
+    "id": "good-s8",
+    "defects": [],
+    "question": {
+      "type": "choice",
+      "instructions": "Which room is the problem in?",
+      "criteria": {
+        "kitchen": "The kitchen",
+        "bathroom": "The bathroom",
+        "not_stated": "The message does not say"
+      }
+    },
+    "siblings": [
+      "severity",
+      "has_workaround"
+    ]
+  },
+  {
+    "id": "good-s9",
+    "defects": [],
+    "question": {
+      "type": "choice",
+      "instructions": "How should this visit be booked?",
+      "criteria": {
+        "urgent": "Needs to be seen today",
+        "routine": "Can wait until next week",
+        "other": "Anything else"
+      }
+    },
+    "siblings": [
+      "animal",
+      "serious",
+      "limping"
+    ]
+  }
+]

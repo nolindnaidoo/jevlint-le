@@ -1,0 +1,324 @@
+{
+  "name": "jevlint-le",
+  "publisher": "nolindnaidoo",
+  "displayName": "JevLint-LE",
+  "description": "Lint the questions you send to TypeSafe's Jev model as you type, with no API key and no network calls. An optional command asks Jev itself to check a file",
+  "icon": "src/assets/images/icon.png",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "author": {
+    "name": "nolindnaidoo",
+    "url": "https://nolindnaidoo.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nolindnaidoo/jevlint-le.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nolindnaidoo/jevlint-le/issues"
+  },
+  "homepage": "https://letools.dev/tools/jevlint-le",
+  "engines": {
+    "vscode": "^1.101.0",
+    "node": ">=20.0.0"
+  },
+  "categories": [
+    "Linters"
+  ],
+  "keywords": [
+    "jevlint",
+    "jev",
+    "jev lint",
+    "jev linter",
+    "typesafe",
+    "system one",
+    "lint",
+    "linter",
+    "noul",
+    "choice",
+    "score",
+    "questions",
+    "decision model",
+    "prompt",
+    "prompt lint",
+    "llm",
+    "ai",
+    "static analysis",
+    "code quality",
+    "diagnostics",
+    "quick fix",
+    "python",
+    "typescript",
+    "javascript",
+    "rust",
+    "go",
+    "json",
+    "mcp",
+    "cli",
+    "ci"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onLanguage:json",
+    "onLanguage:jsonc",
+    "onLanguage:javascript",
+    "onLanguage:javascriptreact",
+    "onLanguage:typescript",
+    "onLanguage:typescriptreact",
+    "onLanguage:python",
+    "onLanguage:rust",
+    "onLanguage:go"
+  ],
+  "capabilities": {
+    "virtualWorkspaces": true,
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "Linting works everywhere. Checking a file with Jev sends its questions to TypeSafe and is disabled in an untrusted workspace."
+    }
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "jevlint-le.lintFile",
+        "title": "Lint Jev Questions in This File",
+        "category": "JevLint-LE"
+      },
+      {
+        "command": "jevlint-le.lintWorkspace",
+        "title": "Lint Jev Questions in the Workspace",
+        "category": "JevLint-LE"
+      },
+      {
+        "command": "jevlint-le.openSettings",
+        "title": "Open Settings",
+        "category": "JevLint-LE"
+      },
+      {
+        "command": "jevlint-le.checkWithJev",
+        "title": "Check This File with Jev (uses your API key)",
+        "category": "JevLint-LE"
+      },
+      {
+        "command": "jevlint-le.setApiKey",
+        "title": "Set TypeSafe API Key",
+        "category": "JevLint-LE"
+      },
+      {
+        "command": "jevlint-le.clearApiKey",
+        "title": "Clear TypeSafe API Key",
+        "category": "JevLint-LE"
+      },
+      {
+        "command": "jevlint-le.probeQuestion",
+        "title": "Probe the Jev Question at the Cursor (uses your API key)",
+        "category": "JevLint-LE"
+      }
+    ],
+    "configuration": {
+      "title": "JevLint-LE",
+      "properties": {
+        "jevlint-le.rules": {
+          "type": "object",
+          "default": {},
+          "markdownDescription": "Severity per rule code. Values: `off`, `hint`, `info`, `warning`, `error`. A rule not listed keeps its default. Example: `{ \"JEV004\": \"off\" }`.",
+          "additionalProperties": {
+            "type": "string",
+            "enum": [
+              "off",
+              "hint",
+              "info",
+              "warning",
+              "error"
+            ]
+          }
+        },
+        "jevlint-le.fallbackOptions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "other",
+            "none",
+            "none of the above",
+            "unknown",
+            "unclear",
+            "neither",
+            "not stated",
+            "not applicable",
+            "n/a"
+          ],
+          "markdownDescription": "Choice option names that count as a fallback for `JEV004`. Matched case-insensitively, with `_` and `-` read as spaces."
+        },
+        "jevlint-le.ignore": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "markdownDescription": "Findings to drop, as `CODE:questionId`. Example: `JEV004:department`. This is the way to suppress a finding in JSON, which has no comments."
+        },
+        "jevlint-le.include": {
+          "type": "string",
+          "default": "**/*.{json,jsonc,js,jsx,mjs,cjs,ts,tsx,mts,cts,py,rs,go}",
+          "markdownDescription": "Glob of files the workspace command lints."
+        },
+        "jevlint-le.exclude": {
+          "type": "string",
+          "default": "**/{node_modules,dist,out,build,coverage,.git}/**",
+          "markdownDescription": "Glob of files the workspace command skips."
+        },
+        "jevlint-le.maxFileSizeBytes": {
+          "type": "number",
+          "default": 1e6,
+          "minimum": 1,
+          "markdownDescription": "Files larger than this are reported as skipped, not linted."
+        },
+        "jevlint-le.jev.model": {
+          "type": "string",
+          "default": "jev-1.13.0",
+          "markdownDescription": "The Jev model the **Check This File with Jev** command asks. Pinned to the version its checks were calibrated on. An alias such as `jev-latest` will move those cutoffs under you."
+        },
+        "jevlint-le.jev.maxCalls": {
+          "type": "number",
+          "default": 25,
+          "minimum": 1,
+          "markdownDescription": "The most requests one **Check This File with Jev** run may send. Each question in the file costs one request. Questions past the limit are counted and not sent."
+        },
+        "jevlint-le.jev.sendState": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Also send the `state` written beside a `questions` map, so Jev can check whether the state holds what each question asks about and whether it carries instructions. Off by default: with it off, only questions are sent. It applies only where the state is written out in the file."
+        },
+        "jevlint-le.jev.confirm": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Before **Check This File with Jev** or the probe sends anything, show how many requests it will make, roughly what that costs and whether your state is sent, and wait for a yes. Off by default: running the command is taken as the decision to send."
+        },
+        "jevlint-le.jev.apiKey": {
+          "type": "string",
+          "default": "",
+          "scope": "application",
+          "ignoreSync": true,
+          "markdownDescription": "Your TypeSafe API key, for **Check This File with Jev** and the probe. It can only be set in your user settings, never in a workspace, so it cannot end up in a repository, and it is left out of Settings Sync. **Set TypeSafe API Key** in the command palette stores it in the system keychain instead, which keeps it out of a plain-text file. A key set here is used ahead of one in the keychain."
+        },
+        "jevlint-le.notificationsLevel": {
+          "type": "string",
+          "default": "important",
+          "enum": [
+            "all",
+            "important",
+            "silent"
+          ],
+          "enumDescriptions": [
+            "Show every message, including the summary after each command.",
+            "Hide the summaries. Still say when a run was cancelled or files were left out.",
+            "Show a message only when a command you ran could not do anything."
+          ],
+          "markdownDescription": "How much JevLint-LE tells you in notifications. Findings always appear in the editor and the Problems panel, whatever this is set to."
+        }
+      }
+    },
+    "jsonValidation": [
+      {
+        "fileMatch": [
+          "*.jev.json"
+        ],
+        "url": "./schemas/request.schema.json"
+      },
+      {
+        "fileMatch": [
+          "jevlint-le.json"
+        ],
+        "url": "./schemas/config.schema.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "json",
+        "path": "./snippets/json.json"
+      },
+      {
+        "language": "jsonc",
+        "path": "./snippets/json.json"
+      },
+      {
+        "language": "javascript",
+        "path": "./snippets/js.json"
+      },
+      {
+        "language": "typescript",
+        "path": "./snippets/js.json"
+      },
+      {
+        "language": "javascriptreact",
+        "path": "./snippets/js.json"
+      },
+      {
+        "language": "typescriptreact",
+        "path": "./snippets/js.json"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "jevlint-le.lintFile",
+          "when": "editorLangId =~ /^(json|jsonc|javascript|javascriptreact|typescript|typescriptreact|python|rust|go)$/",
+          "group": "jevlint-le@1"
+        },
+        {
+          "command": "jevlint-le.checkWithJev",
+          "when": "editorLangId =~ /^(json|jsonc|javascript|javascriptreact|typescript|typescriptreact|python|rust|go)$/",
+          "group": "jevlint-le@2"
+        },
+        {
+          "command": "jevlint-le.probeQuestion",
+          "when": "editorLangId =~ /^(json|jsonc|javascript|javascriptreact|typescript|typescriptreact|python|rust|go)$/",
+          "group": "jevlint-le@3"
+        }
+      ]
+    },
+    "mcpServerDefinitionProviders": [
+      {
+        "id": "jevlint-le",
+        "label": "JevLint-LE"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --target=node20 --main-fields=module,main --sourcemap && esbuild src/cli/main.ts --bundle --outfile=dist/cli.js --format=cjs --platform=node --target=node20",
+    "build:prod": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --target=node20 --main-fields=module,main --minify --sourcemap=external && esbuild src/cli/main.ts --bundle --outfile=dist/cli.js --format=cjs --platform=node --target=node20 --minify",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --pool=threads",
+    "test:coverage": "vitest run --coverage --pool=threads",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "test:integration": "bun run build && tsc -p tsconfig.it.json && vscode-test",
+    "package": "node -e \"require('fs').mkdirSync('release',{recursive:true})\" && bun run build:prod && vsce package --no-dependencies --out release/",
+    "test:e2e-vsix": "node scripts/e2e-vsix.js",
+    "validate": "bun scripts/validate-defects.ts",
+    "cli": "bun run build:npm && node npm/cli.js",
+    "test:cli": "bun run build:npm && node scripts/e2e-cli.js",
+    "build:npm": "node scripts/build-npm.js",
+    "hooks:install": "node scripts/install-hooks.js",
+    "prepare": "node scripts/install-hooks.js",
+    "lint:commits": "node scripts/commit-lint.js --range origin/main..HEAD",
+    "test:watch": "vitest --pool=threads"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.14",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^26.6.3",
+    "@types/vscode": "1.101.0",
+    "@vitest/coverage-v8": "^4.1.11",
+    "@vscode/test-cli": "^0.0.15",
+    "@vscode/test-electron": "^3.1.0",
+    "@vscode/vsce": "^4.0.0",
+    "esbuild": "^0.28.2",
+    "mocha": "^12.0.2",
+    "playwright-core": "1.63.0",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.11"
+  }
+}

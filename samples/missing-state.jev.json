@@ -1,0 +1,9 @@
+{
+  "model": "jev-1.13.0",
+  "questions": {
+    "has_deadline": {
+      "type": "noul",
+      "instructions": "Does the customer name a day they need the bike by?"
+    }
+  }
+}

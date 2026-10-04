@@ -1,0 +1,68 @@
+{
+  "ranOn": "2026-10-04",
+  "model": "jev-1.13.0",
+  "calls": 122,
+  "inputTokens": 37869,
+  "results": [
+    {
+      "rule": "JEV101",
+      "name": "double negative against the direct question",
+      "bad": "6 of 6",
+      "good": "6 of 6"
+    },
+    {
+      "rule": "JEV102",
+      "name": "counting in one question against one question per item",
+      "bad": "6 of 6",
+      "good": "6 of 6"
+    },
+    {
+      "rule": "JEV103",
+      "name": "ordering two dates",
+      "bad": "6 of 6",
+      "good": "done in code"
+    },
+    {
+      "rule": "JEV104",
+      "name": "one compound question against two combined in code",
+      "bad": "8 of 8",
+      "good": "8 of 8"
+    },
+    {
+      "rule": "JEV107",
+      "name": "asking for absence against asking for presence",
+      "bad": "6 of 6",
+      "good": "6 of 6"
+    },
+    {
+      "rule": "JEV108",
+      "name": "inverted criteria against aligned criteria",
+      "bad": "6 of 6",
+      "good": "6 of 6"
+    },
+    {
+      "rule": "JEV110",
+      "name": "degree words against described levels",
+      "bad": "6 of 6",
+      "good": "6 of 6"
+    },
+    {
+      "rule": "JEV008",
+      "name": "bare numbers against described levels",
+      "bad": "3 of 6",
+      "good": "6 of 6"
+    },
+    {
+      "rule": "JEV112",
+      "name": "an undefined boundary against one drawn in the criteria",
+      "bad": "4 of 6",
+      "good": "6 of 6"
+    },
+    {
+      "rule": "JEV004",
+      "name": "a Choice with no fallback against one with a fallback",
+      "bad": "4 of 8",
+      "good": "8 of 8"
+    }
+  ]
+}

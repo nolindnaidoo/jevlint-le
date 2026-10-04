@@ -1,0 +1,24 @@
+{
+  "ranOn": "2026-10-04",
+  "model": "jev-1.13.0",
+  "calls": 24,
+  "inputTokens": 7552,
+  "results": [
+    {
+      "rule": "JEV103",
+      "name": "a date inside a window counted in days",
+      "bad": "11 of 12",
+      "badSureness": "0.75",
+      "good": "done in code",
+      "goodSureness": "n/a"
+    },
+    {
+      "rule": "JEV102",
+      "name": "adding three to five numbers against a limit",
+      "bad": "5 of 12",
+      "badSureness": "0.52",
+      "good": "done in code",
+      "goodSureness": "n/a"
+    }
+  ]
+}

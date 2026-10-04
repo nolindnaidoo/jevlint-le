@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 256 256">
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- question mark: dark outline, then the blue body, then a highlight -->
+    <path d="M 82 86 C 82 44, 174 44, 174 88 C 174 122, 128 120, 128 150" stroke="#0B2A66" stroke-width="46"/>
+    <circle cx="128" cy="186" r="22" fill="#0B2A66"/>
+    <path d="M 82 86 C 82 44, 174 44, 174 88 C 174 122, 128 120, 128 150" stroke="#2F8CF0" stroke-width="30"/>
+    <circle cx="128" cy="186" r="14" fill="#2F8CF0"/>
+    <path d="M 86 78 C 90 56, 122 50, 142 56" stroke="#8CC6FF" stroke-width="7"/>
+    <circle cx="123" cy="181" r="4" fill="#8CC6FF"/>
+    <!-- the lint squiggle -->
+    <path d="M 40 232 q 15 -20 30 0 t 30 0 t 30 0 t 30 0 t 30 0 t 26 0" stroke="#6B3F00" stroke-width="22"/>
+    <path d="M 40 232 q 15 -20 30 0 t 30 0 t 30 0 t 30 0 t 30 0 t 26 0" stroke="#FFC21A" stroke-width="11"/>
+  </g>
+</svg>

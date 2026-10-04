@@ -1,0 +1,72 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Jev request body",
+  "description": "The body of POST https://api.typesafe.ai/v1/systemone, as documented at https://docs.typesafe.ai/api on 2026-10-04.",
+  "type": "object",
+  "required": [
+    "state",
+    "model",
+    "questions"
+  ],
+  "properties": {
+    "state": {
+      "description": "The content to evaluate.",
+      "type": [
+        "string",
+        "object",
+        "array"
+      ]
+    },
+    "model": {
+      "description": "The model that handles the request. An alias such as jev-latest moves with each release. A versioned id such as jev-1.13.0 does not.",
+      "type": "string"
+    },
+    "questions": {
+      "description": "A map of typed questions. You choose each key, and answers come back under the same keys.",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/question"
+      }
+    }
+  },
+  "definitions": {
+    "entry": {
+      "type": [
+        "string",
+        "object",
+        "array"
+      ]
+    },
+    "question": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "description": "noul answers yes or no. choice picks one option. score rates against ordered levels.",
+          "anyOf": [
+            {
+              "enum": [
+                "noul",
+                "choice",
+                "score"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "instructions": {
+          "description": "The question to evaluate. A string, or an object or array that holds the question and data it refers to.",
+          "$ref": "#/definitions/entry"
+        },
+        "criteria": {
+          "description": "noul: an optional object with 'true' and 'false'. choice: a map of option to description, at most 255. score: an ordered array of 2 to 10 level descriptions."
+        }
+      },
+      "description": "A typed question. JevLint-LE checks its shape and reports problems with a reason, so this schema only describes the fields."
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "state": {
+    "note": "Dropped off my green commuter bike on Monday. The rear wheel wobbles and the brakes squeal in the wet. I need it for work on Thursday."
+  },
+  "model": "jev-1.13.0",
+  "questions": {
+    "not_uncollected": {
+      "type": "noul",
+      "instructions": "Is it not the case that the bike has not been collected?"
+    },
+    "several_faults": {
+      "type": "noul",
+      "instructions": "Does the note list more than two faults?"
+    },
+    "needed_by": {
+      "type": "noul",
+      "instructions": "What day does the customer need the bike by?"
+    },
+    "same_mechanic": {
+      "type": "noul",
+      "instructions": "Is the mechanic who last serviced the bike that the customer's partner rides still at the branch which sold it?"
+    },
+    "no_deadline": {
+      "type": "noul",
+      "instructions": "Is the note missing a deadline?"
+    },
+    "has_deadline": {
+      "type": "noul",
+      "instructions": "Does the customer name a day they need the bike by?",
+      "criteria": {
+        "true": "No day or date is given.",
+        "false": "A day or date is given."
+      }
+    },
+    "wear": {
+      "type": "score",
+      "instructions": "How worn does the bike sound?",
+      "criteria": ["Low", "Medium", "High"]
+    },
+    "frame_colour": {
+      "type": "noul",
+      "instructions": "Is the frame colour close to #2E8B57?"
+    },
+    "late_pickup": {
+      "type": "noul",
+      "instructions": "Was the bike dropped off after the workshop closed?"
+    },
+    "big_job": {
+      "type": "noul",
+      "instructions": "Is this a large job?"
+    },
+    "wobble_and_squeal": {
+      "type": "noul",
+      "instructions": "Does the wheel wobble and do the brakes squeal?"
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "Jev Noul question": {
+    "prefix": "jev-noul",
+    "description": "A yes/no Jev question",
+    "body": [
+      "\"${1:question_id}\": {",
+      "  \"type\": \"noul\",",
+      "  \"instructions\": \"${2:Does the state ...?}\",",
+      "  \"criteria\": {",
+      "    \"true\": \"${3:What a yes means}\",",
+      "    \"false\": \"${4:What a no means}\"",
+      "  }",
+      "}"
+    ]
+  },
+  "Jev Choice question": {
+    "prefix": "jev-choice",
+    "description": "A Jev question that picks one option, with a fallback",
+    "body": [
+      "\"${1:question_id}\": {",
+      "  \"type\": \"choice\",",
+      "  \"instructions\": \"${2:Which ...?}\",",
+      "  \"criteria\": {",
+      "    \"${3:option_a}\": \"${4:What makes this the answer}\",",
+      "    \"${5:option_b}\": \"${6:What makes this the answer}\",",
+      "    \"other\": \"Fits none of the other options\"",
+      "  }",
+      "}"
+    ]
+  },
+  "Jev Score question": {
+    "prefix": "jev-score",
+    "description": "A Jev question that rates the state against described levels",
+    "body": [
+      "\"${1:question_id}\": {",
+      "  \"type\": \"score\",",
+      "  \"instructions\": \"${2:How ...?}\",",
+      "  \"criteria\": [",
+      "    \"${3:The situation at the low end}\",",
+      "    \"${4:The situation in the middle}\",",
+      "    \"${5:The situation at the high end}\"",
+      "  ]",
+      "}"
+    ]
+  }
+}

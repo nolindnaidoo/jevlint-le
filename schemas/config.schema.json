@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "JevLint-LE project settings",
+  "description": "Lint settings for this project. The editor and the command line both read this file, so they report the same findings.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "rules": {
+      "description": "The level of a rule, by its code. A rule not listed keeps its default.",
+      "type": "object",
+      "propertyNames": { "pattern": "^JEV\\d{3}$" },
+      "additionalProperties": {
+        "enum": ["off", "hint", "info", "warning", "error"]
+      }
+    },
+    "fallbackOptions": {
+      "description": "Option names that count as a fallback for a Choice, such as other or none.",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "ignore": {
+      "description": "Findings to leave out, each written as a rule code, a colon and a question id: JEV004:department.",
+      "type": "array",
+      "items": { "type": "string", "pattern": "^JEV\\d{3}:.+$" }
+    }
+  }
+}

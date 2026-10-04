@@ -1,0 +1,51 @@
+{
+  "state": {
+    "note": "Dropped off my green commuter bike on Monday. The rear wheel wobbles and the brakes squeal in the wet. I need it for work on Thursday."
+  },
+  "model": "jev-latest",
+  "questions": {
+    "job_type": {
+      "type": "choice",
+      "instructions": "What kind of job is this?",
+      "criteria": {
+        "wheels": "Truing, spokes, or a replacement wheel",
+        "brakes": "Pads, cables, or bleeding",
+        "gears": "Indexing, cables, or a new cassette"
+      }
+    },
+    "hurry": {
+      "type": "score",
+      "instructions": "Rate how soon the customer needs the bike from 0 to 2",
+      "criteria": ["0", "1", "2"]
+    },
+    "has_deadline": {
+      "type": "noul",
+      "instructions": "Does the customer name a day they need the bike by?",
+      "criteria": {
+        "yes": "A day or date is given",
+        "no": "No day or date is given"
+      }
+    },
+    "wants_quote": {
+      "type": "nuol",
+      "instructions": "Does the customer ask what the work will cost?"
+    },
+    "wear": {
+      "type": "score",
+      "instructions": "How worn does the bike sound?",
+      "criteria": {
+        "light": "One fault, otherwise looked after",
+        "heavy": "Several faults that have been left a while"
+      }
+    },
+    "job_type": {
+      "type": "choice",
+      "instructions": "Which bench should take the follow-up?",
+      "criteria": {
+        "wheels": "Truing, spokes, or a replacement wheel",
+        "brakes": "Pads, cables, or bleeding",
+        "other": "Fits none of the other options"
+      }
+    }
+  }
+}

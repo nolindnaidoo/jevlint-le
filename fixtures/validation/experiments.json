@@ -1,0 +1,605 @@
+[
+  {
+    "rule": "JEV101",
+    "name": "double negative against the direct question",
+    "cases": [
+      {
+        "state": "The parcel left the depot on Tuesday and is with the courier.",
+        "expected": true
+      },
+      {
+        "state": "Dispatched this morning, tracking number sent.",
+        "expected": true
+      },
+      {
+        "state": "Shipped. Should arrive Friday.",
+        "expected": true
+      },
+      {
+        "state": "Still waiting on stock, nothing has gone out.",
+        "expected": false
+      },
+      {
+        "state": "Order is packed but the courier has not collected it.",
+        "expected": false
+      },
+      {
+        "state": "Payment received. We will post it next week.",
+        "expected": false
+      }
+    ],
+    "bad": {
+      "questions": {
+        "q": {
+          "type": "noul",
+          "instructions": "Is it not the case that the order has not shipped?"
+        }
+      },
+      "decide": "noul:q"
+    },
+    "good": {
+      "questions": {
+        "q": {
+          "type": "noul",
+          "instructions": "Has the order shipped?"
+        }
+      },
+      "decide": "noul:q"
+    }
+  },
+  {
+    "rule": "JEV102",
+    "name": "counting in one question against one question per item",
+    "cases": [
+      {
+        "state": {
+          "items": [
+            "apple",
+            "hammer",
+            "pear",
+            "plum",
+            "kiwi"
+          ]
+        },
+        "expected": true
+      },
+      {
+        "state": {
+          "items": [
+            "apple",
+            "hammer",
+            "spanner",
+            "plum",
+            "kiwi",
+            "fig"
+          ]
+        },
+        "expected": true
+      },
+      {
+        "state": {
+          "items": [
+            "mango",
+            "grape",
+            "lime",
+            "peach",
+            "nail",
+            "screw",
+            "bolt"
+          ]
+        },
+        "expected": true
+      },
+      {
+        "state": {
+          "items": [
+            "apple",
+            "hammer",
+            "spanner"
+          ]
+        },
+        "expected": false
+      },
+      {
+        "state": {
+          "items": [
+            "brick",
+            "pear",
+            "plum",
+            "rope",
+            "tape",
+            "lime"
+          ]
+        },
+        "expected": false
+      },
+      {
+        "state": {
+          "items": [
+            "saw",
+            "drill",
+            "file",
+            "fig",
+            "date"
+          ]
+        },
+        "expected": false
+      }
+    ],
+    "bad": {
+      "questions": {
+        "q": {
+          "type": "noul",
+          "instructions": "Are more than three of the items in `items` the name of a fruit?"
+        }
+      },
+      "decide": "noul:q"
+    },
+    "good": {
+      "each": {
+        "over": "items",
+        "id": "item_",
+        "question": {
+          "type": "noul",
+          "instructions": "Is `items[{i}]` the name of a fruit?"
+        }
+      },
+      "decide": "count_gt:item_:3"
+    }
+  },
+  {
+    "rule": "JEV103",
+    "name": "ordering two dates",
+    "cases": [
+      {
+        "state": {
+          "renewed": "3 March 2025",
+          "incident": "12 March 2025"
+        },
+        "expected": true
+      },
+      {
+        "state": {
+          "renewed": "2025-01-30",
+          "incident": "Feb 2, 2025"
+        },
+        "expected": true
+      },
+      {
+        "state": {
+          "renewed": "14/06/2024",
+          "incident": "1 July 2024"
+        },
+        "expected": true
+      },
+      {
+        "state": {
+          "renewed": "9 November 2024",
+          "incident": "2 November 2024"
+        },
+        "expected": false
+      },
+      {
+        "state": {
+          "renewed": "2025-05-20",
+          "incident": "May 4, 2025"
+        },
+        "expected": false
+      },
+      {
+        "state": {
+          "renewed": "31 December 2024",
+          "incident": "1 December 2024"
+        },
+        "expected": false
+      }
+    ],
+    "bad": {
+      "questions": {
+        "q": {
+          "type": "noul",
+          "instructions": "Was the subscription renewed before the incident started?"
+        }
+      },
+      "decide": "noul:q"
+    },
+    "good": null
+  },
+  {
+    "rule": "JEV104",
+    "name": "one compound question against two combined in code",
+    "cases": [
+      {
+        "state": "I am furious. Send my money back today.",
+        "expected": true
+      },
+      {
+        "state": "This is outrageous and I want a full refund.",
+        "expected": true
+      },
+      {
+        "state": "I am really angry about the wait, but I will keep the item.",
+        "expected": false
+      },
+      {
+        "state": "Absolutely livid at how I was spoken to. No refund needed, just an apology.",
+        "expected": false
+      },
+      {
+        "state": "Lovely staff. Could I have a refund though? It does not fit.",
+        "expected": false
+      },
+      {
+        "state": "Calmly asking for my money back as it arrived late.",
+        "expected": false
+      },
+      {
+        "state": "All good, thanks.",
+        "expected": false
+      },
+      {
+        "state": "Great service, will order again.",
+        "expected": false
+      }
+    ],
+    "bad": {
+      "questions": {
+        "q": {
+          "type": "noul",
+          "instructions": "Is the customer angry and asking for a refund?"
+        }
+      },
+      "decide": "noul:q"
+    },
+    "good": {
+      "questions": {
+        "a": {
+          "type": "noul",
+          "instructions": "Is the customer angry?"
+        },
+        "b": {
+          "type": "noul",
+          "instructions": "Is the customer asking for a refund?"
+        }
+      },
+      "decide": "and:a,b"
+    }
+  },
+  {
+    "rule": "JEV107",
+    "name": "asking for absence against asking for presence",
+    "cases": [
+      {
+        "state": "See you at noon.",
+        "expected": true
+      },
+      {
+        "state": "The meeting moved to room four.",
+        "expected": true
+      },
+      {
+        "state": "Thanks, that works.",
+        "expected": true
+      },
+      {
+        "state": "Call me on 07700 900123.",
+        "expected": false
+      },
+      {
+        "state": "My address is 14 Mill Lane, Leeds.",
+        "expected": false
+      },
+      {
+        "state": "Forward it to dana.reyes@example.org please.",
+        "expected": false
+      }
+    ],
+    "bad": {
+      "questions": {
+        "q": {
+          "type": "noul",
+          "instructions": "Is the message free of personal data?"
+        }
+      },
+      "decide": "noul:q"
+    },
+    "good": {
+      "questions": {
+        "q": {
+          "type": "noul",
+          "instructions": "Does the message contain personal data?"
+        }
+      },
+      "decide": "not:q"
+    }
+  },
+  {
+    "rule": "JEV108",
+    "name": "inverted criteria against aligned criteria",
+    "cases": [
+      {
+        "state": "See you at noon.",
+        "expected": false
+      },
+      {
+        "state": "The meeting moved to room four.",
+        "expected": false
+      },
+      {
+        "state": "Thanks, that works.",
+        "expected": false
+      },
+      {
+        "state": "Call me on 07700 900123.",
+        "expected": true
+      },
+      {
+        "state": "My address is 14 Mill Lane, Leeds.",
+        "expected": true
+      },
+      {
+        "state": "Forward it to dana.reyes@example.org please.",
+        "expected": true
+      }
+    ],
+    "bad": {
+      "questions": {
+        "q": {
+          "type": "noul",
+          "instructions": "Does the message contain personal data?",
+          "criteria": {
+            "true": "No personal detail appears.",
+            "false": "A name, address, phone number or email appears."
+          }
+        }
+      },
+      "decide": "noul:q"
+    },
+    "good": {
+      "questions": {
+        "q": {
+          "type": "noul",
+          "instructions": "Does the message contain personal data?",
+          "criteria": {
+            "true": "A name, address, phone number or email appears.",
+            "false": "No personal detail appears."
+          }
+        }
+      },
+      "decide": "noul:q"
+    }
+  },
+  {
+    "rule": "JEV110",
+    "name": "degree words against described levels",
+    "cases": [
+      {
+        "state": "The logo is two pixels off centre on the login page.",
+        "expected": 0
+      },
+      {
+        "state": "Typo in the footer.",
+        "expected": 0
+      },
+      {
+        "state": "Export fails in Safari but works in Chrome.",
+        "expected": 1
+      },
+      {
+        "state": "Search is slow, though results do load after a minute.",
+        "expected": 1
+      },
+      {
+        "state": "Nobody can log in since the deploy.",
+        "expected": 2
+      },
+      {
+        "state": "Saving a document deletes its contents.",
+        "expected": 2
+      }
+    ],
+    "bad": {
+      "questions": {
+        "q": {
+          "type": "score",
+          "instructions": "How severe is this bug report?",
+          "criteria": [
+            "Low",
+            "Medium",
+            "High"
+          ]
+        }
+      },
+      "decide": "score:q"
+    },
+    "good": {
+      "questions": {
+        "q": {
+          "type": "score",
+          "instructions": "How severe is this bug report?",
+          "criteria": [
+            "Cosmetic, and nobody is blocked",
+            "Broken or degraded, but a workaround exists",
+            "No workaround, and work has stopped"
+          ]
+        }
+      },
+      "decide": "score:q"
+    }
+  },
+  {
+    "rule": "JEV008",
+    "name": "bare numbers against described levels",
+    "cases": [
+      {
+        "state": "The logo is two pixels off centre on the login page.",
+        "expected": 0
+      },
+      {
+        "state": "Typo in the footer.",
+        "expected": 0
+      },
+      {
+        "state": "Export fails in Safari but works in Chrome.",
+        "expected": 1
+      },
+      {
+        "state": "Search is slow, though results do load after a minute.",
+        "expected": 1
+      },
+      {
+        "state": "Nobody can log in since the deploy.",
+        "expected": 2
+      },
+      {
+        "state": "Saving a document deletes its contents.",
+        "expected": 2
+      }
+    ],
+    "bad": {
+      "questions": {
+        "q": {
+          "type": "score",
+          "instructions": "How severe is this bug report?",
+          "criteria": [
+            "0",
+            "1",
+            "2"
+          ]
+        }
+      },
+      "decide": "score:q"
+    },
+    "good": {
+      "questions": {
+        "q": {
+          "type": "score",
+          "instructions": "How severe is this bug report?",
+          "criteria": [
+            "Cosmetic, and nobody is blocked",
+            "Broken or degraded, but a workaround exists",
+            "No workaround, and work has stopped"
+          ]
+        }
+      },
+      "decide": "score:q"
+    }
+  },
+  {
+    "rule": "JEV112",
+    "name": "an undefined boundary against one drawn in the criteria",
+    "cases": [
+      {
+        "state": "Two full pallets of tiles, needs the lorry.",
+        "expected": true
+      },
+      {
+        "state": "Forty boxes on three pallets.",
+        "expected": true
+      },
+      {
+        "state": "One pallet and a few loose bags, tail lift required.",
+        "expected": true
+      },
+      {
+        "state": "A single box of screws.",
+        "expected": false
+      },
+      {
+        "state": "Three tins of paint, customer will collect.",
+        "expected": false
+      },
+      {
+        "state": "One bag of sand.",
+        "expected": false
+      }
+    ],
+    "bad": {
+      "questions": {
+        "q": {
+          "type": "noul",
+          "instructions": "Is the order large?"
+        }
+      },
+      "decide": "noul:q"
+    },
+    "good": {
+      "questions": {
+        "q": {
+          "type": "noul",
+          "instructions": "Is the order large?",
+          "criteria": {
+            "true": "The order is at least one pallet or needs a lorry.",
+            "false": "The order is loose items a person could carry."
+          }
+        }
+      },
+      "decide": "noul:q"
+    }
+  },
+  {
+    "rule": "JEV004",
+    "name": "a Choice with no fallback against one with a fallback",
+    "cases": [
+      {
+        "state": "My invoice shows the wrong amount.",
+        "expected": "billing"
+      },
+      {
+        "state": "I was charged twice this month.",
+        "expected": "billing"
+      },
+      {
+        "state": "The app crashes when I open settings.",
+        "expected": "technical"
+      },
+      {
+        "state": "Sync has been stuck for an hour.",
+        "expected": "technical"
+      },
+      {
+        "state": "Do you have any job openings?",
+        "expected": "other"
+      },
+      {
+        "state": "I would like to book a table for six.",
+        "expected": "other"
+      },
+      {
+        "state": "Where is your office?",
+        "expected": "other"
+      },
+      {
+        "state": "Can I interview your founder for a podcast?",
+        "expected": "other"
+      }
+    ],
+    "bad": {
+      "questions": {
+        "q": {
+          "type": "choice",
+          "instructions": "Which team should handle this?",
+          "criteria": {
+            "billing": "Charges, invoices and payment problems",
+            "technical": "Faults, errors and outages"
+          }
+        }
+      },
+      "decide": "choice:q"
+    },
+    "good": {
+      "questions": {
+        "q": {
+          "type": "choice",
+          "instructions": "Which team should handle this?",
+          "criteria": {
+            "billing": "Charges, invoices and payment problems",
+            "technical": "Faults, errors and outages",
+            "other": "Fits none of the other options"
+          }
+        }
+      },
+      "decide": "choice:q"
+    }
+  }
+]

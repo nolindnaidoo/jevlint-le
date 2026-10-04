@@ -1,0 +1,95 @@
+{
+  "JEV101 double-negative": {
+    "caught": "10 of 10",
+    "firedOnGood": "0 of 112",
+    "missed": [],
+    "falseFirings": []
+  },
+  "JEV102 arithmetic": {
+    "caught": "10 of 10",
+    "firedOnGood": "0 of 112",
+    "missed": [],
+    "falseFirings": []
+  },
+  "JEV103 date-comparison": {
+    "caught": "10 of 10",
+    "firedOnGood": "0 of 112",
+    "missed": [],
+    "falseFirings": []
+  },
+  "JEV104 compound": {
+    "caught": "6 of 10",
+    "firedOnGood": "0 of 112",
+    "missed": [
+      "jev104-2",
+      "jev104-4",
+      "jev104-5",
+      "jev104-h4"
+    ],
+    "falseFirings": []
+  },
+  "JEV105 generation": {
+    "caught": "11 of 11",
+    "firedOnGood": "0 of 112",
+    "missed": [],
+    "falseFirings": []
+  },
+  "JEV106 multi-hop": {
+    "caught": "7 of 9",
+    "firedOnGood": "0 of 112",
+    "missed": [
+      "jev106-5",
+      "jev106-h3"
+    ],
+    "falseFirings": []
+  },
+  "JEV107 negated-noul": {
+    "caught": "9 of 9",
+    "firedOnGood": "0 of 112",
+    "missed": [],
+    "falseFirings": []
+  },
+  "JEV108 inverted-criteria": {
+    "caught": "6 of 9",
+    "firedOnGood": "0 of 112",
+    "missed": [
+      "jev108-4",
+      "jev108-5",
+      "jev108-h1"
+    ],
+    "falseFirings": []
+  },
+  "JEV109 multi-dimension-level": {
+    "caught": "5 of 7",
+    "firedOnGood": "1 of 112",
+    "missed": [
+      "jev109-4",
+      "jev109-h2"
+    ],
+    "falseFirings": [
+      "good-h40"
+    ]
+  },
+  "JEV110 degree-levels": {
+    "caught": "9 of 10",
+    "firedOnGood": "0 of 112",
+    "missed": [
+      "jev110-6"
+    ],
+    "falseFirings": []
+  },
+  "JEV111 numeric-encoding": {
+    "caught": "6 of 7",
+    "firedOnGood": "0 of 112",
+    "missed": [
+      "jev111-4"
+    ],
+    "falseFirings": []
+  },
+  "JEV112 undefined-boundary": {
+    "caught": "5 of 5",
+    "firedOnGood": "0 of 112",
+    "missed": [],
+    "falseFirings": []
+  }
+}

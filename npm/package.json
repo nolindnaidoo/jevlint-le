@@ -1,0 +1,52 @@
+{
+  "name": "jevlint-le",
+  "version": "0.1.0",
+  "mcpName": "io.github.nolindnaidoo/jevlint-le",
+  "description": "Lint the questions you send to TypeSafe's Jev model: a command line for CI and an MCP server for AI agents. No API key and no network calls.",
+  "keywords": [
+    "jev",
+    "typesafe",
+    "system-one",
+    "lint",
+    "linter",
+    "cli",
+    "mcp",
+    "modelcontextprotocol",
+    "model-context-protocol",
+    "mcp-server",
+    "ai-agent",
+    "jevlint-le",
+    "nolindnaidoo",
+    "letools"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "Nolin Naidoo",
+    "url": "https://nolindnaidoo.com"
+  },
+  "homepage": "https://letools.dev/tools/jevlint-le",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nolindnaidoo/jevlint-le.git",
+    "directory": "npm"
+  },
+  "bugs": {
+    "url": "https://github.com/nolindnaidoo/jevlint-le/issues"
+  },
+  "type": "commonjs",
+  "bin": {
+    "jevlint-le": "cli.js"
+  },
+  "files": [
+    "cli.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}

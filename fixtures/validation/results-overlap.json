@@ -1,0 +1,24 @@
+{
+  "ranOn": "2026-10-04",
+  "model": "jev-1.13.0",
+  "calls": 40,
+  "inputTokens": 13450,
+  "results": [
+    {
+      "rule": "JEV303",
+      "name": "two options that cover the same cases against one",
+      "bad": "10 of 10",
+      "badSureness": "0.86",
+      "good": "10 of 10",
+      "goodSureness": "1.00"
+    },
+    {
+      "rule": "JEV304",
+      "name": "two levels that describe the same situation against three distinct ones",
+      "bad": "6 of 10",
+      "badSureness": "0.58",
+      "good": "9 of 10",
+      "goodSureness": "0.91"
+    }
+  ]
+}

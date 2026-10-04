@@ -1,0 +1,46 @@
+{
+  "Jev Noul question": {
+    "prefix": "jev-noul",
+    "description": "A yes/no Jev question",
+    "body": [
+      "${1:questionId}: {",
+      "\ttype: 'noul',",
+      "\tinstructions: '${2:Does the state ...?}',",
+      "\tcriteria: {",
+      "\t\ttrue: '${3:What a yes means}',",
+      "\t\tfalse: '${4:What a no means}',",
+      "\t},",
+      "},"
+    ]
+  },
+  "Jev Choice question": {
+    "prefix": "jev-choice",
+    "description": "A Jev question that picks one option, with a fallback",
+    "body": [
+      "${1:questionId}: {",
+      "\ttype: 'choice',",
+      "\tinstructions: '${2:Which ...?}',",
+      "\tcriteria: {",
+      "\t\t${3:optionA}: '${4:What makes this the answer}',",
+      "\t\t${5:optionB}: '${6:What makes this the answer}',",
+      "\t\tother: 'Fits none of the other options',",
+      "\t},",
+      "},"
+    ]
+  },
+  "Jev Score question": {
+    "prefix": "jev-score",
+    "description": "A Jev question that rates the state against described levels",
+    "body": [
+      "${1:questionId}: {",
+      "\ttype: 'score',",
+      "\tinstructions: '${2:How ...?}',",
+      "\tcriteria: [",
+      "\t\t'${3:The situation at the low end}',",
+      "\t\t'${4:The situation in the middle}',",
+      "\t\t'${5:The situation at the high end}',",
+      "\t],",
+      "},"
+    ]
+  }
+}

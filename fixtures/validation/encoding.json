@@ -1,0 +1,74 @@
+[
+  {
+    "rule": "JEV111",
+    "name": "a colour given as hex against the same colour named",
+    "cases": [
+      {
+        "state": "The front door is painted scarlet.",
+        "expected": true
+      },
+      {
+        "state": "She chose a deep maroon for the hallway.",
+        "expected": true
+      },
+      {
+        "state": "The cushions are cherry coloured.",
+        "expected": true
+      },
+      {
+        "state": "A ruby glaze on the tiles.",
+        "expected": true
+      },
+      {
+        "state": "The shed is brick coloured.",
+        "expected": true
+      },
+      {
+        "state": "He wants the sign in crimson.",
+        "expected": true
+      },
+      {
+        "state": "The van is navy.",
+        "expected": false
+      },
+      {
+        "state": "The ceiling is sky coloured on a clear day.",
+        "expected": false
+      },
+      {
+        "state": "They went with cobalt for the gate.",
+        "expected": false
+      },
+      {
+        "state": "An azure trim around the window.",
+        "expected": false
+      },
+      {
+        "state": "The logo is royal blue.",
+        "expected": false
+      },
+      {
+        "state": "The tiles are the colour of the sea at noon, a strong cerulean.",
+        "expected": false
+      }
+    ],
+    "bad": {
+      "questions": {
+        "q": {
+          "type": "noul",
+          "instructions": "Is the colour in the note closer to #FF0000 than to #0000FF?"
+        }
+      },
+      "decide": "noul:q"
+    },
+    "good": {
+      "questions": {
+        "q": {
+          "type": "noul",
+          "instructions": "Is the colour in the note closer to red than to blue?"
+        }
+      },
+      "decide": "noul:q"
+    }
+  }
+]

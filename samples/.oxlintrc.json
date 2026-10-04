@@ -1,0 +1,25 @@
+{
+  "jsPlugins": ["oxlint-plugin-jev"],
+  "rules": {
+    "jev/ask": [
+      "error",
+      {
+        "model": "jev-latest",
+        "rules": [
+          {
+            "id": "retry-has-limit",
+            "target": "function",
+            "question": "Does this function retry a failed request in a loop that has an upper bound on attempts?",
+            "cutoff": 0.8
+          },
+          {
+            "id": "retry-has-limit",
+            "target": "call",
+            "question": "",
+            "cutoff": 0.6
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,167 @@
+[
+  {
+    "rule": "JEV303",
+    "name": "two options that cover the same cases against one",
+    "cases": [
+      {
+        "state": "The box was crushed and the vase inside is in pieces.",
+        "expected": "damaged"
+      },
+      {
+        "state": "It turned up with a cracked screen.",
+        "expected": "damaged"
+      },
+      {
+        "state": "One leg of the chair had snapped off in transit.",
+        "expected": "damaged"
+      },
+      {
+        "state": "The lid is dented and the seal is torn.",
+        "expected": "damaged"
+      },
+      {
+        "state": "Everything inside was smashed.",
+        "expected": "damaged"
+      },
+      {
+        "state": "The frame is bent.",
+        "expected": "damaged"
+      },
+      {
+        "state": "It came nine days after the date you promised.",
+        "expected": "late"
+      },
+      {
+        "state": "Still waiting, it was due last Monday.",
+        "expected": "late"
+      },
+      {
+        "state": "The courier was rude to my neighbour.",
+        "expected": "other"
+      },
+      {
+        "state": "You sent the invoice to the wrong email.",
+        "expected": "other"
+      }
+    ],
+    "bad": {
+      "questions": {
+        "q": {
+          "type": "choice",
+          "instructions": "What went wrong with this delivery?",
+          "criteria": {
+            "damaged": "The item arrived damaged",
+            "broken": "The item arrived broken",
+            "late": "The item arrived late",
+            "other": "Something else"
+          }
+        }
+      },
+      "decide": "choice_conf:q",
+      "accept": {
+        "damaged": [
+          "damaged",
+          "broken"
+        ]
+      }
+    },
+    "good": {
+      "questions": {
+        "q": {
+          "type": "choice",
+          "instructions": "What went wrong with this delivery?",
+          "criteria": {
+            "damaged": "The item arrived damaged or broken",
+            "late": "The item arrived late",
+            "other": "Something else"
+          }
+        }
+      },
+      "decide": "choice_conf:q"
+    }
+  },
+  {
+    "rule": "JEV304",
+    "name": "two levels that describe the same situation against three distinct ones",
+    "cases": [
+      {
+        "state": "The tooltip text is cut off on small screens.",
+        "expected": 0
+      },
+      {
+        "state": "Wrong shade of blue on the save button.",
+        "expected": 0
+      },
+      {
+        "state": "The footer year still says last year.",
+        "expected": 0
+      },
+      {
+        "state": "Upload fails over 10 MB, but splitting the file works.",
+        "expected": 1
+      },
+      {
+        "state": "Reports take five minutes to open; they do open.",
+        "expected": 1
+      },
+      {
+        "state": "Dark mode crashes the settings page, light mode is fine.",
+        "expected": 1
+      },
+      {
+        "state": "The mobile app won't sync, though the website does.",
+        "expected": 1
+      },
+      {
+        "state": "Checkout returns an error for every customer.",
+        "expected": 2
+      },
+      {
+        "state": "All saved drafts vanished after the update.",
+        "expected": 2
+      },
+      {
+        "state": "The service has been unreachable since 8am.",
+        "expected": 2
+      }
+    ],
+    "bad": {
+      "questions": {
+        "q": {
+          "type": "score",
+          "instructions": "How severe is this bug report?",
+          "criteria": [
+            "Cosmetic, nobody is blocked",
+            "There is no way around it and work has stopped",
+            "No workaround exists, so work cannot continue"
+          ]
+        }
+      },
+      "decide": "score_conf:q",
+      "accept": {
+        "0": [
+          0
+        ],
+        "1": [],
+        "2": [
+          1,
+          2
+        ]
+      }
+    },
+    "good": {
+      "questions": {
+        "q": {
+          "type": "score",
+          "instructions": "How severe is this bug report?",
+          "criteria": [
+            "Cosmetic, and nobody is blocked",
+            "Broken or degraded, but a workaround exists",
+            "No workaround, and work has stopped"
+          ]
+        }
+      },
+      "decide": "score_conf:q"
+    }
+  }
+]

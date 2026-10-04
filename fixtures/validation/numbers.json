@@ -1,0 +1,270 @@
+[
+  {
+    "rule": "JEV103",
+    "name": "a date inside a window counted in days",
+    "cases": [
+      {
+        "state": {
+          "ordered": "3 March 2025",
+          "returned": "20 March 2025",
+          "window_days": 30
+        },
+        "expected": true
+      },
+      {
+        "state": {
+          "ordered": "3 March 2025",
+          "returned": "10 April 2025",
+          "window_days": 30
+        },
+        "expected": false
+      },
+      {
+        "state": {
+          "ordered": "2025-01-28",
+          "returned": "12 February 2025",
+          "window_days": 14
+        },
+        "expected": false
+      },
+      {
+        "state": {
+          "ordered": "2025-01-28",
+          "returned": "9 February 2025",
+          "window_days": 14
+        },
+        "expected": true
+      },
+      {
+        "state": {
+          "ordered": "15 June 2024",
+          "returned": "13 August 2024",
+          "window_days": 60
+        },
+        "expected": true
+      },
+      {
+        "state": {
+          "ordered": "15 June 2024",
+          "returned": "16 August 2024",
+          "window_days": 60
+        },
+        "expected": false
+      },
+      {
+        "state": {
+          "ordered": "Dec 20, 2024",
+          "returned": "3 January 2025",
+          "window_days": 14
+        },
+        "expected": true
+      },
+      {
+        "state": {
+          "ordered": "Dec 20, 2024",
+          "returned": "5 January 2025",
+          "window_days": 14
+        },
+        "expected": false
+      },
+      {
+        "state": {
+          "ordered": "2024-02-20",
+          "returned": "20 March 2024",
+          "window_days": 30
+        },
+        "expected": true
+      },
+      {
+        "state": {
+          "ordered": "2024-02-20",
+          "returned": "22 March 2024",
+          "window_days": 30
+        },
+        "expected": false
+      },
+      {
+        "state": {
+          "ordered": "1 October 2025",
+          "returned": "30 October 2025",
+          "window_days": 30
+        },
+        "expected": true
+      },
+      {
+        "state": {
+          "ordered": "1 October 2025",
+          "returned": "2 November 2025",
+          "window_days": 30
+        },
+        "expected": false
+      }
+    ],
+    "bad": {
+      "questions": {
+        "q": {
+          "type": "noul",
+          "instructions": "Was the item returned within the return window, counted from the order date?"
+        }
+      },
+      "decide": "noul:q"
+    },
+    "good": null
+  },
+  {
+    "rule": "JEV102",
+    "name": "adding three to five numbers against a limit",
+    "cases": [
+      {
+        "state": {
+          "items": [
+            412,
+            388,
+            275
+          ],
+          "limit": 1000
+        },
+        "expected": true
+      },
+      {
+        "state": {
+          "items": [
+            412,
+            388,
+            175
+          ],
+          "limit": 1000
+        },
+        "expected": false
+      },
+      {
+        "state": {
+          "items": [
+            1250,
+            980,
+            1340,
+            760
+          ],
+          "limit": 4300
+        },
+        "expected": true
+      },
+      {
+        "state": {
+          "items": [
+            1250,
+            980,
+            1340,
+            660
+          ],
+          "limit": 4300
+        },
+        "expected": false
+      },
+      {
+        "state": {
+          "items": [
+            86,
+            97,
+            79,
+            91,
+            88
+          ],
+          "limit": 440
+        },
+        "expected": true
+      },
+      {
+        "state": {
+          "items": [
+            86,
+            97,
+            79,
+            91,
+            78
+          ],
+          "limit": 440
+        },
+        "expected": false
+      },
+      {
+        "state": {
+          "items": [
+            2305,
+            1877
+          ],
+          "limit": 4180
+        },
+        "expected": true
+      },
+      {
+        "state": {
+          "items": [
+            2305,
+            1867
+          ],
+          "limit": 4180
+        },
+        "expected": false
+      },
+      {
+        "state": {
+          "items": [
+            640,
+            515,
+            733,
+            298,
+            410
+          ],
+          "limit": 2590
+        },
+        "expected": true
+      },
+      {
+        "state": {
+          "items": [
+            640,
+            515,
+            733,
+            298,
+            400
+          ],
+          "limit": 2590
+        },
+        "expected": false
+      },
+      {
+        "state": {
+          "items": [
+            9120,
+            4475,
+            3380
+          ],
+          "limit": 16970
+        },
+        "expected": true
+      },
+      {
+        "state": {
+          "items": [
+            9120,
+            4475,
+            3370
+          ],
+          "limit": 16970
+        },
+        "expected": false
+      }
+    ],
+    "bad": {
+      "questions": {
+        "q": {
+          "type": "noul",
+          "instructions": "Do the amounts in `items` add up to more than `limit`?"
+        }
+      },
+      "decide": "noul:q"
+    },
+    "good": null
+  }
+]

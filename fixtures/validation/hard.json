@@ -1,0 +1,1012 @@
+[
+  {
+    "rule": "JEV101",
+    "name": "double negative, states that take reading",
+    "cases": [
+      {
+        "state": "Packed and labelled, courier booked for tomorrow.",
+        "expected": false
+      },
+      {
+        "state": "Label printed. Waiting for the van.",
+        "expected": false
+      },
+      {
+        "state": "Handed to the courier at 9 this morning.",
+        "expected": true
+      },
+      {
+        "state": "The parcel is out for delivery.",
+        "expected": true
+      },
+      {
+        "state": "We tried to send it on Monday but the address failed validation, so it is still here.",
+        "expected": false
+      },
+      {
+        "state": "Left our warehouse yesterday; the tracking page has not updated yet.",
+        "expected": true
+      },
+      {
+        "state": "Not sent yet, sorry.",
+        "expected": false
+      },
+      {
+        "state": "It has not been held back; it went with this morning's collection.",
+        "expected": true
+      },
+      {
+        "state": "No, nothing has been dispatched on this order.",
+        "expected": false
+      },
+      {
+        "state": "Dispatch is scheduled for the 14th.",
+        "expected": false
+      },
+      {
+        "state": "The carrier scanned it at their hub an hour ago.",
+        "expected": true
+      },
+      {
+        "state": "We have not been unable to send it: it left on Tuesday.",
+        "expected": true
+      },
+      {
+        "state": "Awaiting payment before we can send anything.",
+        "expected": false
+      },
+      {
+        "state": "Delivered and signed for.",
+        "expected": true
+      },
+      {
+        "state": "It is boxed up on the loading bay.",
+        "expected": false
+      }
+    ],
+    "bad": {
+      "questions": {
+        "q": {
+          "type": "noul",
+          "instructions": "Is it not the case that the order has not shipped?"
+        }
+      },
+      "decide": "noul:q"
+    },
+    "good": {
+      "questions": {
+        "q": {
+          "type": "noul",
+          "instructions": "Has the order shipped?"
+        }
+      },
+      "decide": "noul:q"
+    }
+  },
+  {
+    "rule": "JEV102",
+    "name": "counting 20 to 40 items, one either side of the line",
+    "cases": [
+      {
+        "state": {
+          "items": [
+            "bolt",
+            "file",
+            "pear",
+            "plank",
+            "bracket",
+            "ladder",
+            "chisel",
+            "saw",
+            "washer",
+            "mango",
+            "orange",
+            "melon",
+            "drill",
+            "brick",
+            "screw",
+            "cherry",
+            "fig",
+            "peach",
+            "grape",
+            "lemon"
+          ],
+          "limit": 8
+        },
+        "expected": true
+      },
+      {
+        "state": {
+          "items": [
+            "trowel",
+            "plank",
+            "bolt",
+            "apple",
+            "chisel",
+            "pomelo",
+            "fig",
+            "nectarine",
+            "rope",
+            "damson",
+            "screw",
+            "drill",
+            "bucket",
+            "shovel",
+            "clamp",
+            "banana",
+            "mango",
+            "date",
+            "washer",
+            "rivet"
+          ],
+          "limit": 8
+        },
+        "expected": false
+      },
+      {
+        "state": {
+          "items": [
+            "grape",
+            "saw",
+            "bolt",
+            "lychee",
+            "rivet",
+            "quince",
+            "hammer",
+            "hinge",
+            "pliers",
+            "orange",
+            "melon",
+            "cherry",
+            "wire",
+            "papaya",
+            "plank",
+            "rope",
+            "tape",
+            "clamp",
+            "banana",
+            "pear",
+            "bucket",
+            "level",
+            "apple",
+            "peach",
+            "trowel"
+          ],
+          "limit": 10
+        },
+        "expected": true
+      },
+      {
+        "state": {
+          "items": [
+            "persimmon",
+            "sander",
+            "screw",
+            "brick",
+            "wrench",
+            "peach",
+            "nail",
+            "orange",
+            "lychee",
+            "shovel",
+            "lime",
+            "fig",
+            "rivet",
+            "nectarine",
+            "bolt",
+            "rope",
+            "ladder",
+            "pear",
+            "damson",
+            "hammer",
+            "apricot",
+            "plank",
+            "hinge",
+            "washer",
+            "tape"
+          ],
+          "limit": 10
+        },
+        "expected": false
+      },
+      {
+        "state": {
+          "items": [
+            "bracket",
+            "tape",
+            "pomelo",
+            "kiwi",
+            "mallet",
+            "brick",
+            "ladder",
+            "rivet",
+            "melon",
+            "chisel",
+            "pear",
+            "vice",
+            "wire",
+            "hinge",
+            "lemon",
+            "bolt",
+            "lime",
+            "drill",
+            "saw",
+            "shovel",
+            "apple",
+            "quince",
+            "hammer",
+            "pliers",
+            "guava",
+            "banana",
+            "nail",
+            "persimmon",
+            "papaya",
+            "date"
+          ],
+          "limit": 12
+        },
+        "expected": true
+      },
+      {
+        "state": {
+          "items": [
+            "brick",
+            "rope",
+            "clamp",
+            "melon",
+            "plum",
+            "mallet",
+            "date",
+            "plank",
+            "lemon",
+            "apricot",
+            "orange",
+            "apple",
+            "rivet",
+            "washer",
+            "peach",
+            "guava",
+            "fuse",
+            "saw",
+            "chisel",
+            "papaya",
+            "kiwi",
+            "bucket",
+            "shovel",
+            "hinge",
+            "file",
+            "nail",
+            "lime",
+            "spanner",
+            "hammer",
+            "bracket"
+          ],
+          "limit": 12
+        },
+        "expected": false
+      },
+      {
+        "state": {
+          "items": [
+            "peach",
+            "hinge",
+            "orange",
+            "file",
+            "brick",
+            "trowel",
+            "guava",
+            "bucket",
+            "grape",
+            "lemon",
+            "banana",
+            "persimmon",
+            "wrench",
+            "quince",
+            "vice",
+            "apricot",
+            "mango",
+            "pomelo",
+            "screw",
+            "papaya",
+            "fuse",
+            "nectarine",
+            "hammer",
+            "wire",
+            "fig",
+            "date",
+            "washer",
+            "ladder",
+            "spanner",
+            "pear"
+          ],
+          "limit": 15
+        },
+        "expected": true
+      },
+      {
+        "state": {
+          "items": [
+            "clamp",
+            "apricot",
+            "rivet",
+            "ladder",
+            "saw",
+            "plum",
+            "hinge",
+            "brick",
+            "kiwi",
+            "fuse",
+            "pliers",
+            "hammer",
+            "grape",
+            "shovel",
+            "file",
+            "lime",
+            "melon",
+            "plank",
+            "mango",
+            "damson",
+            "lemon",
+            "lychee",
+            "fig",
+            "cherry",
+            "apple",
+            "peach",
+            "tape",
+            "rope",
+            "papaya",
+            "mallet"
+          ],
+          "limit": 15
+        },
+        "expected": false
+      },
+      {
+        "state": {
+          "items": [
+            "guava",
+            "hinge",
+            "mallet",
+            "tape",
+            "orange",
+            "fuse",
+            "nail",
+            "lemon",
+            "plum",
+            "washer",
+            "saw",
+            "hammer",
+            "damson",
+            "bolt",
+            "nectarine",
+            "level",
+            "kiwi",
+            "file",
+            "grape",
+            "drill",
+            "lychee",
+            "shovel",
+            "sander",
+            "pomelo",
+            "vice",
+            "cherry",
+            "banana",
+            "rivet",
+            "bracket",
+            "mango",
+            "date",
+            "chisel",
+            "peach",
+            "melon",
+            "fig",
+            "pear",
+            "screw",
+            "ladder",
+            "quince",
+            "wrench"
+          ],
+          "limit": 18
+        },
+        "expected": true
+      },
+      {
+        "state": {
+          "items": [
+            "file",
+            "level",
+            "papaya",
+            "date",
+            "quince",
+            "nail",
+            "plum",
+            "shovel",
+            "tape",
+            "lemon",
+            "fuse",
+            "vice",
+            "guava",
+            "trowel",
+            "orange",
+            "mango",
+            "lychee",
+            "melon",
+            "ladder",
+            "kiwi",
+            "nectarine",
+            "hinge",
+            "brick",
+            "bracket",
+            "cherry",
+            "pliers",
+            "plank",
+            "damson",
+            "screw",
+            "bolt",
+            "bucket",
+            "wire",
+            "saw",
+            "rope",
+            "persimmon",
+            "banana",
+            "chisel",
+            "drill",
+            "apricot",
+            "fig"
+          ],
+          "limit": 18
+        },
+        "expected": false
+      },
+      {
+        "state": {
+          "items": [
+            "guava",
+            "trowel",
+            "hinge",
+            "hammer",
+            "mango",
+            "melon",
+            "bucket",
+            "rivet",
+            "lemon",
+            "papaya",
+            "persimmon",
+            "apricot",
+            "apple",
+            "orange",
+            "vice",
+            "tape",
+            "date",
+            "kiwi",
+            "damson",
+            "lime",
+            "banana",
+            "clamp",
+            "mallet",
+            "fuse",
+            "file",
+            "nail",
+            "peach",
+            "bracket",
+            "quince",
+            "drill",
+            "level",
+            "pear",
+            "plum",
+            "nectarine",
+            "pliers",
+            "pomelo",
+            "brick",
+            "grape",
+            "shovel",
+            "plank"
+          ],
+          "limit": 20
+        },
+        "expected": true
+      },
+      {
+        "state": {
+          "items": [
+            "mango",
+            "papaya",
+            "date",
+            "chisel",
+            "lime",
+            "level",
+            "apple",
+            "plum",
+            "pomelo",
+            "sander",
+            "pear",
+            "damson",
+            "peach",
+            "quince",
+            "drill",
+            "nectarine",
+            "wire",
+            "mallet",
+            "kiwi",
+            "fuse",
+            "file",
+            "ladder",
+            "tape",
+            "apricot",
+            "banana",
+            "bucket",
+            "trowel",
+            "plank",
+            "bolt",
+            "persimmon",
+            "grape",
+            "pliers",
+            "brick",
+            "saw",
+            "spanner",
+            "screw",
+            "melon",
+            "lychee",
+            "clamp",
+            "lemon"
+          ],
+          "limit": 20
+        },
+        "expected": false
+      }
+    ],
+    "bad": {
+      "questions": {
+        "q": {
+          "type": "noul",
+          "instructions": "Are more than `limit` of the entries in `items` the name of a fruit?"
+        }
+      },
+      "decide": "noul:q"
+    },
+    "good": {
+      "each": {
+        "over": "items",
+        "id": "item_",
+        "question": {
+          "type": "noul",
+          "instructions": "Is `items[{i}]` the name of a fruit?"
+        }
+      },
+      "decide": "count_gt_state:item_:limit"
+    }
+  },
+  {
+    "rule": "JEV103",
+    "name": "two dates a day or two apart, in mixed formats",
+    "cases": [
+      {
+        "state": {
+          "renewed": "30 April 2025",
+          "incident": "1 May 2025"
+        },
+        "expected": true
+      },
+      {
+        "state": {
+          "renewed": "2025-03-01",
+          "incident": "28 February 2025"
+        },
+        "expected": false
+      },
+      {
+        "state": {
+          "renewed": "Jan 2, 2025",
+          "incident": "31 December 2024"
+        },
+        "expected": false
+      },
+      {
+        "state": {
+          "renewed": "31 Dec 2024",
+          "incident": "2 Jan 2025"
+        },
+        "expected": true
+      },
+      {
+        "state": {
+          "renewed": "2024-02-29",
+          "incident": "1 March 2024"
+        },
+        "expected": true
+      },
+      {
+        "state": {
+          "renewed": "15 August 2025",
+          "incident": "2025-08-14"
+        },
+        "expected": false
+      },
+      {
+        "state": {
+          "renewed": "9 September 2025",
+          "incident": "10 September 2025"
+        },
+        "expected": true
+      },
+      {
+        "state": {
+          "renewed": "2025-10-11",
+          "incident": "11 October 2025"
+        },
+        "expected": false
+      },
+      {
+        "state": {
+          "renewed": "1 June 2025",
+          "incident": "31 May 2025"
+        },
+        "expected": false
+      },
+      {
+        "state": {
+          "renewed": "28 July 2025",
+          "incident": "2025-07-29"
+        },
+        "expected": true
+      },
+      {
+        "state": {
+          "renewed": "2023-12-31",
+          "incident": "1 January 2023"
+        },
+        "expected": false
+      },
+      {
+        "state": {
+          "renewed": "5 November 2024",
+          "incident": "2024-11-06"
+        },
+        "expected": true
+      }
+    ],
+    "bad": {
+      "questions": {
+        "q": {
+          "type": "noul",
+          "instructions": "Was the subscription renewed before the incident started?"
+        }
+      },
+      "decide": "noul:q"
+    },
+    "good": null
+  },
+  {
+    "rule": "JEV104",
+    "name": "compound, where only one half holds",
+    "cases": [
+      {
+        "state": "This is a disgrace. I want every penny back.",
+        "expected": true
+      },
+      {
+        "state": "Third time this has broken. Furious. Refund me.",
+        "expected": true
+      },
+      {
+        "state": "I'm so fed up with this, just give me my money back.",
+        "expected": true
+      },
+      {
+        "state": "Unacceptable. Refund, now.",
+        "expected": true
+      },
+      {
+        "state": "I'm furious. Fix it by Friday or I'm leaving a review.",
+        "expected": false
+      },
+      {
+        "state": "Absolutely appalling service. I never want to hear from you again.",
+        "expected": false
+      },
+      {
+        "state": "Livid. Send a replacement immediately.",
+        "expected": false
+      },
+      {
+        "state": "What a joke of a company.",
+        "expected": false
+      },
+      {
+        "state": "Hi, could I get a refund? It was a gift and they already have one. Thanks so much!",
+        "expected": false
+      },
+      {
+        "state": "No rush at all, but please refund order 22 when you can.",
+        "expected": false
+      },
+      {
+        "state": "Lovely product, just the wrong size. Refund please :)",
+        "expected": false
+      },
+      {
+        "state": "Per your returns policy I'd like my money back.",
+        "expected": false
+      },
+      {
+        "state": "Is this available in blue?",
+        "expected": false
+      },
+      {
+        "state": "Thanks, it arrived.",
+        "expected": false
+      }
+    ],
+    "bad": {
+      "questions": {
+        "q": {
+          "type": "noul",
+          "instructions": "Is the customer angry and asking for a refund?"
+        }
+      },
+      "decide": "noul:q"
+    },
+    "good": {
+      "questions": {
+        "a": {
+          "type": "noul",
+          "instructions": "Is the customer angry?"
+        },
+        "b": {
+          "type": "noul",
+          "instructions": "Is the customer asking for a refund?"
+        }
+      },
+      "decide": "and:a,b"
+    }
+  },
+  {
+    "rule": "JEV107",
+    "name": "absence against presence, personal data that is easy to overlook",
+    "cases": [
+      {
+        "state": "It's Priya from accounts.",
+        "expected": false
+      },
+      {
+        "state": "Send it to the flat above the bakery on Kirk Street, number 9.",
+        "expected": false
+      },
+      {
+        "state": "My date of birth is 4 July 1988.",
+        "expected": false
+      },
+      {
+        "state": "You can reach me at j.okafor at mailbox dot org.",
+        "expected": false
+      },
+      {
+        "state": "My NHS number is 943 476 5919.",
+        "expected": false
+      },
+      {
+        "state": "Ask for Mr Halloran at reception.",
+        "expected": false
+      },
+      {
+        "state": "I'm on 0161 496 0123 after six.",
+        "expected": false
+      },
+      {
+        "state": "The meeting is at 3.",
+        "expected": true
+      },
+      {
+        "state": "Please call the support line on the website.",
+        "expected": true
+      },
+      {
+        "state": "The office is closed on Sunday.",
+        "expected": true
+      },
+      {
+        "state": "Somebody left a phone in room 4.",
+        "expected": true
+      },
+      {
+        "state": "Thanks for the quick reply!",
+        "expected": true
+      },
+      {
+        "state": "Your invoice total is forty pounds.",
+        "expected": true
+      },
+      {
+        "state": "The customer sounded upset.",
+        "expected": true
+      }
+    ],
+    "bad": {
+      "questions": {
+        "q": {
+          "type": "noul",
+          "instructions": "Is the message free of personal data?"
+        }
+      },
+      "decide": "noul:q"
+    },
+    "good": {
+      "questions": {
+        "q": {
+          "type": "noul",
+          "instructions": "Does the message contain personal data?"
+        }
+      },
+      "decide": "not:q"
+    }
+  },
+  {
+    "rule": "JEV108",
+    "name": "inverted criteria, personal data that is easy to overlook",
+    "cases": [
+      {
+        "state": "It's Priya from accounts.",
+        "expected": true
+      },
+      {
+        "state": "Send it to the flat above the bakery on Kirk Street, number 9.",
+        "expected": true
+      },
+      {
+        "state": "My date of birth is 4 July 1988.",
+        "expected": true
+      },
+      {
+        "state": "You can reach me at j.okafor at mailbox dot org.",
+        "expected": true
+      },
+      {
+        "state": "My NHS number is 943 476 5919.",
+        "expected": true
+      },
+      {
+        "state": "Ask for Mr Halloran at reception.",
+        "expected": true
+      },
+      {
+        "state": "I'm on 0161 496 0123 after six.",
+        "expected": true
+      },
+      {
+        "state": "The meeting is at 3.",
+        "expected": false
+      },
+      {
+        "state": "Please call the support line on the website.",
+        "expected": false
+      },
+      {
+        "state": "The office is closed on Sunday.",
+        "expected": false
+      },
+      {
+        "state": "Somebody left a phone in room 4.",
+        "expected": false
+      },
+      {
+        "state": "Thanks for the quick reply!",
+        "expected": false
+      },
+      {
+        "state": "Your invoice total is forty pounds.",
+        "expected": false
+      },
+      {
+        "state": "The customer sounded upset.",
+        "expected": false
+      }
+    ],
+    "bad": {
+      "questions": {
+        "q": {
+          "type": "noul",
+          "instructions": "Does the message contain personal data?",
+          "criteria": {
+            "true": "No personal detail appears.",
+            "false": "A name, address, phone number or other personal detail appears."
+          }
+        }
+      },
+      "decide": "noul:q"
+    },
+    "good": {
+      "questions": {
+        "q": {
+          "type": "noul",
+          "instructions": "Does the message contain personal data?",
+          "criteria": {
+            "true": "A name, address, phone number or other personal detail appears.",
+            "false": "No personal detail appears."
+          }
+        }
+      },
+      "decide": "noul:q"
+    }
+  },
+  {
+    "rule": "JEV110",
+    "name": "degree words, reports that sit between levels",
+    "cases": [
+      {
+        "state": "The tooltip text is cut off on small screens.",
+        "expected": 0
+      },
+      {
+        "state": "Wrong shade of blue on the save button.",
+        "expected": 0
+      },
+      {
+        "state": "The footer year still says last year.",
+        "expected": 0
+      },
+      {
+        "state": "Icons look blurry on one monitor.",
+        "expected": 0
+      },
+      {
+        "state": "Upload fails over 10 MB, but splitting the file works.",
+        "expected": 1
+      },
+      {
+        "state": "Reports take five minutes to open; they do open.",
+        "expected": 1
+      },
+      {
+        "state": "Dark mode crashes the settings page, light mode is fine.",
+        "expected": 1
+      },
+      {
+        "state": "The mobile app won't sync, though the website does.",
+        "expected": 1
+      },
+      {
+        "state": "Checkout returns an error for every customer.",
+        "expected": 2
+      },
+      {
+        "state": "All saved drafts vanished after the update.",
+        "expected": 2
+      },
+      {
+        "state": "The service has been unreachable since 8am.",
+        "expected": 2
+      },
+      {
+        "state": "Payroll export produces an empty file and there is no other way to get the data.",
+        "expected": 2
+      }
+    ],
+    "bad": {
+      "questions": {
+        "q": {
+          "type": "score",
+          "instructions": "How severe is this bug report?",
+          "criteria": [
+            "Low",
+            "Medium",
+            "High"
+          ]
+        }
+      },
+      "decide": "score:q"
+    },
+    "good": {
+      "questions": {
+        "q": {
+          "type": "score",
+          "instructions": "How severe is this bug report?",
+          "criteria": [
+            "Cosmetic, and nobody is blocked",
+            "Broken or degraded, but a workaround exists",
+            "No workaround, and work has stopped"
+          ]
+        }
+      },
+      "decide": "score:q"
+    }
+  }
+]

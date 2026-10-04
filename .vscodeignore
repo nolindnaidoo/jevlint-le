@@ -1,0 +1,12 @@
+# Allow-list packaging: everything is excluded except what the extension
+# needs at runtime. dist/extension.js is a self-contained esbuild bundle.
+**
+
+!dist/extension.js
+!dist/cli.js
+!src/assets/images/icon.png
+!schemas/*.schema.json
+!snippets/*.json
+!README.md
+!CHANGELOG.md
+!LICENSE
