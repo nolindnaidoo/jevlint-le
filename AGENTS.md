@@ -304,6 +304,28 @@ family's files, copied unchanged from `regex-le`.
   when any part is built at runtime, and the run counts what it held back.
 - **No test calls TypeSafe.** `fetch` is stubbed. The scripts under `scripts/`
   that do call it are run by hand, and each has a `--dry-run` and a call limit.
+- **A reply is a Jev reply or it is a failure.** `jev/client.ts` checks the
+  shape before reading it. A 200 from a proxy read as "no answers" would
+  report a clean check that never ran.
+- **Every request has a time limit, and a stop ends a wait at once.** A
+  stalled connection would otherwise hold a CI job until it was killed.
+  Only `busy` and `server` failures are retried.
+- **A run on a document ends when the document changes.** `reviewer.clear`
+  stops the run and marks it overtaken, and an overtaken run shows nothing.
+  One run per document at a time.
+- **The MCP server answers everything and exits only when its input closes.**
+  A tool that throws is a failed call. A line that is not a request is a
+  protocol error.
+- **What the command line could not read is named, never passed over.** An
+  unreadable folder or file and a file the reader failed on go in
+  `totals.unread`. A linked folder is not followed, because it can lead back
+  to its parent. A run that read nothing exits 2.
+- **`linter.lint` does not throw.** It runs in timers and events, where a
+  throw is lost. A reader failure clears the file's findings and is shown as
+  the reason the file was not linted.
+- **One workspace run at a time.** A second would reset the findings the
+  first is adding to.
+- **File size is counted in bytes in both places.**
 - **The pinned model and the call limit are defined once,** in
   `jev/review.ts`. The editor's defaults and the command line's read them.
 - **A Jev check's cutoff is read from `fixtures/validation/calibration.json`,**

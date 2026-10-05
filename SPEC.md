@@ -650,7 +650,8 @@ under `--jev`. The probe is not in it.
 It refuses where passing would mislead. An unknown option is an error and
 never a path. A file named outright must be a type it reads. A run that
 finds no file to read exits 2, so a CI job pointed at the wrong directory
-does not pass. An unknown key in the config file is an error, because a
+does not pass. A folder or file that cannot be read is named in the summary
+and the rest is linted. A linked folder is not followed. An unknown key in the config file is an error, because a
 misspelt `rules` would leave a rule on that its author believes is off. The
 summary line always carries the count of questions not read in full.
 
@@ -672,7 +673,7 @@ identical requests for identical text, and a test compares them.
 | Limit | `--jev-max-calls`, default 25, for the whole run and not per file as in the editor. A run that needed more exits 2 |
 | State | Sent only with `--jev-send-state` |
 | Model | `--jev-model`, default the pinned calibration model |
-| Failure | A rejected key, a rejected request, a busy service after the retries, a network failure or an interrupt stops the sending. What was found is printed, the reason and the count answered of the count planned go to standard error, and the exit is 2 |
+| Failure | A rejected key, a rejected request, a busy or failing service after three tries, a reply that is not a Jev reply, no answer in 30 seconds, or an interrupt stops the sending. What was found is printed, the reason and the count answered of the count planned go to standard error, and the exit is 2 |
 | Output | Jev findings join each file's findings. `totals.jev` is present only when asked for |
 
 Not built: the model and state settings in `jevlint-le.json`, so a team's
@@ -705,8 +706,9 @@ which is where this differs from the rest of the family. There the command
 line is a Rust crate, so the npm package holds only the server. Here both are
 one JavaScript bundle, and two packages would be two versions to keep equal.
 
-A bad argument or an unknown tool is a failed call with the reason in it. Bad
-JSON and an unknown method are protocol errors. It answers in the protocol
+A bad argument, an unknown tool or a tool that throws is a failed call with
+the reason in it. Bad JSON, JSON that is not a request and an unknown method
+are protocol errors. None of them ends the server. It answers in the protocol
 version the client asked for when it knows it, from `2024-11-05` to
 `2025-06-18`. The process test speaks to the built bundle over a real pipe.
 It has not been tried in a real agent client.
