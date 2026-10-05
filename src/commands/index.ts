@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import type { Configuration } from '../config/config';
+import { diskDocument } from '../services/diskDocument';
 import type { Linter } from '../services/linter';
 import { blocked, caution, result } from '../ui/notifier';
 import { summarize } from '../ui/statusBar';
@@ -50,12 +51,38 @@ async function lintFile(deps: Deps): Promise<void> {
 	result(`${summarize(outcome.result)}.`);
 }
 
+/**
+ * What to lint for a file in a workspace run: the open document when the
+ * editor has one, since it can hold edits that are not saved, and otherwise
+ * the text on disk. Nothing is opened: a run over a large project used to
+ * leave every file it read held in the editor. Undefined is a file over the
+ * size limit, which is not read at all.
+ */
+async function documentFor(
+	deps: Deps,
+	uri: vscode.Uri,
+): Promise<vscode.TextDocument | undefined> {
+	const key = uri.toString();
+	const open = vscode.workspace.textDocuments.find(
+		(document) => document.uri.toString() === key,
+	);
+	if (open) return open;
+	const { size } = await vscode.workspace.fs.stat(uri);
+	if (size > deps.getConfiguration().maxFileSizeBytes) return undefined;
+	const bytes = await vscode.workspace.fs.readFile(uri);
+	return diskDocument(uri, Buffer.from(bytes).toString('utf8'));
+}
+
 async function lintOne(
 	deps: Deps,
 	uri: vscode.Uri,
 	tally: Tally,
 ): Promise<void> {
-	const document = await vscode.workspace.openTextDocument(uri);
+	const document = await documentFor(deps, uri);
+	if (!document) {
+		tally.tooLarge += 1;
+		return;
+	}
 	const outcome = deps.linter.lint(document, { keep: true });
 	if (outcome.kind === 'skipped' && outcome.reason === 'config') {
 		tally.misconfigured += 1;

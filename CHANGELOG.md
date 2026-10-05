@@ -13,6 +13,10 @@
   cannot be used: the workspace is not trusted, the copy is older than 0.3.0,
   it does not load, or it does not read that kind of file. The status bar
   names the project's version, since findings can then differ from CI.
+- **Lint Workspace reads files from disk** and opens none of them. A run over
+  a large project used to leave every file it read held in the editor's
+  memory. A file you have open is still linted as it is in the editor,
+  unsaved edits included.
 - The npm package can be required as a library: `lint`, `fix`, `rules`,
   `syntaxes` and an `api` number. This is what the editor loads.
 - Check with Jev and the probe always run the extension's own code. They

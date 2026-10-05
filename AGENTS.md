@@ -85,6 +85,7 @@ config/projectConfig.ts  jevlint-le.json: parsing it and finding the one that ap
                          No `vscode`, so the command line shares it
 services/projectConfigs.ts  the settings for a document, and a watch on the files
 services/installedCopies.ts  the installed copy for a document, kept for a few seconds
+services/diskDocument.ts  a file's text as a document, for a workspace run that opens nothing
 services/engines.ts       which linter a document gets: the project's copy or the bundled one
 services/loadModule.ts    loads a project's copy fresh, so an upgrade is picked up
 lib.ts                    what the npm package exports as a library, for the editor to load
@@ -175,10 +176,17 @@ family's files, copied unchanged from `regex-le`.
   worked, `caution` for a run that fell short, `blocked` for why a command
   did nothing. `blocked` is shown at every level. A modal that waits for an
   answer is an interaction, not a notification, and is called directly.
-- **Workspace-run findings are kept when the editor closes the document.** The
-  editor closes documents it opened only to read a few minutes later. Without
-  `keep`, the results of a workspace run would vanish while being read. They
-  are dropped by the next workspace run.
+- **A workspace run opens nothing.** It reads each file from disk through
+  `services/diskDocument.ts` and uses the editor's document only for a file
+  that is already open, which can hold unsaved edits. Opening every file left
+  each one held in the editor for minutes. `extension.test.ts` fails if a run
+  opens a document.
+- **A file read from disk gets its language from `LANGUAGE_BY_EXTENSION`.** It
+  must list exactly the extensions in `EXTENSIONS`, and a test holds the two
+  together. A new file type is added to both.
+- **Workspace-run findings are kept when the user closes a file they opened
+  from them.** Without `keep`, looking at one result would drop it. They are
+  dropped by the next workspace run.
 - **The icon is `src/assets/images/icon.png`**, 256 pixels square with a
   transparent background, drawn from `icon-source.svg` beside it. It is a
   placeholder the owner may replace. The installed-extension test fails if it

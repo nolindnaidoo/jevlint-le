@@ -16,6 +16,8 @@ export const _state = {
 	messages: [] as string[],
 	files: [] as unknown[],
 	documents: new Map<string, unknown>(),
+	/** How many documents the code under test asked the editor to open. */
+	opened: 0,
 	listeners: {} as Record<string, (event: unknown) => unknown>,
 	executed: [] as unknown[][],
 	activeTextEditor: undefined as unknown,
@@ -57,6 +59,7 @@ export function _reset(): void {
 	_state.statusBar = { text: '', tooltip: '', command: '', visible: false };
 	_state.messages = [];
 	_state.files = [];
+	_state.opened = 0;
 	_state.documents.clear();
 	_state.listeners = {};
 	_state.executed = [];
@@ -150,11 +153,20 @@ export const Uri = {
 	parse: (value: string) => ({
 		toString: () => value,
 		scheme: value.slice(0, value.indexOf(':')),
+		path: value.replace(/^[a-z-]+:\/\//, ''),
 		fsPath: value.replace(/^[a-z-]+:\/\//, ''),
 	}),
 };
 
 const disposable = () => ({ dispose: () => {} });
+
+function onDisk(uri: { toString(): string }): string {
+	const stored = _state.documents.get(uri.toString()) as
+		| { getText(): string }
+		| undefined;
+	if (!stored) throw new Error('ENOENT');
+	return stored.getText();
+}
 
 function listen(name: string) {
 	return (handler: (event: unknown) => unknown) => {
@@ -222,11 +234,21 @@ export const workspace = {
 		get: (key: string) => _state.config[key] ?? _state.suite[key],
 	}),
 	findFiles: async () => _state.files,
+	// Files on disk are the stored documents. One that is not stored cannot be read.
+	fs: {
+		stat: async (uri: { toString(): string }) => ({
+			size: Buffer.byteLength(onDisk(uri), 'utf8'),
+		}),
+		readFile: async (uri: { toString(): string }) =>
+			Buffer.from(onDisk(uri), 'utf8'),
+	},
 	// Given a uri, the stored document. Given content, a new untitled one.
-	openTextDocument: async (target: { toString(): string; content?: string }) =>
-		target.content === undefined
+	openTextDocument: async (target: { toString(): string; content?: string }) => {
+		_state.opened += 1;
+		return target.content === undefined
 			? _state.documents.get(target.toString())
-			: { getText: () => target.content },
+			: { getText: () => target.content };
+	},
 	// The folder a file belongs to. Undefined is a file opened on its own.
 	getWorkspaceFolder: () =>
 		_state.workspaceFolder
