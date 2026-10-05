@@ -7,7 +7,7 @@ import type { Resolved } from './projectConfigs';
 
 export type Outcome =
 	| Readonly<{ kind: 'linted'; result: LintResult }>
-	| Readonly<{ kind: 'skipped'; reason: 'language' | 'size' }>
+	| Readonly<{ kind: 'skipped'; reason: 'language' | 'size' | 'excluded' }>
 	/** The settings file that governs this document could not be used, or the reader failed on the file. */
 	| Readonly<{ kind: 'skipped'; reason: 'config' | 'error'; detail: string }>;
 
@@ -95,6 +95,12 @@ export function createLinter(deps: Deps): Linter {
 			return { kind: 'skipped', reason: 'config', detail: resolved.problem };
 		}
 		problems.delete(document.uri.toString());
+		if (resolved.excluded) {
+			// Left out by the project's settings file, as the command line leaves it out.
+			clear(document);
+			deps.onResult(document);
+			return { kind: 'skipped', reason: 'excluded' };
+		}
 		let result: LintResult;
 		try {
 			result = lintText(text, resolved.options, syntaxFor(document.languageId));

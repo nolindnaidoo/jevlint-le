@@ -1310,6 +1310,14 @@ describe('a project settings file in the editor', () => {
 		expect(diagnostics('file:///work/app/src/q.ts')).toEqual([]);
 	});
 
+	it('does not lint a file the settings file leaves out, as the command line does not', () => {
+		within(
+			{ '/work/app/jevlint-le.json': '{ "exclude": ["src/q.ts"] }' },
+			file(),
+		);
+		expect(diagnostics('file:///work/app/src/q.ts')).toEqual([]);
+	});
+
 	it('leaves the editor settings in charge where there is none', () => {
 		_state.config = { rules: { JEV004: 'error' } };
 		within({}, file());
