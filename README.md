@@ -348,6 +348,35 @@ JSON has no comments, so use the setting:
 { "jevlint-le.ignore": ["JEV004:side"] }
 ```
 
+## Keyboard shortcuts
+
+Every command can be given a shortcut. Open **Keyboard Shortcuts**, search for
+`JevLint-LE`, and press the keys you want on any command in the list. None is
+bound out of the box, so nothing here can collide with a shortcut you already
+use.
+
+Or write them into `keybindings.json`. The keys here are only an example:
+
+```json
+[
+  { "key": "ctrl+alt+j", "command": "jevlint-le.lintFile", "when": "editorTextFocus" },
+  { "key": "ctrl+alt+k", "command": "jevlint-le.checkWithJev", "when": "editorTextFocus" }
+]
+```
+
+| Command | Id |
+|---|---|
+| Lint Jev Questions in This File | `jevlint-le.lintFile` |
+| Lint Jev Questions in the Workspace | `jevlint-le.lintWorkspace` |
+| Check This File with Jev | `jevlint-le.checkWithJev` |
+| Probe the Jev Question at the Cursor | `jevlint-le.probeQuestion` |
+| Set TypeSafe API Key | `jevlint-le.setApiKey` |
+| Clear TypeSafe API Key | `jevlint-le.clearApiKey` |
+| Open Settings | `jevlint-le.openSettings` |
+
+The two that say Jev send requests with your key, so pick keys for them you
+will not press by accident.
+
 ## Settings
 
 | Setting | Default | Meaning |
