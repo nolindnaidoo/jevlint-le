@@ -58,8 +58,7 @@ First release.
   re-export them, and `system_one(...)` requests. Every rule, quick fix and
   Jev check works on them.
 - A command-line version of the linter, with text, JSON and GitHub annotation
-  output, for CI and other editors. Built from this repository, not yet on
-  npm.
+  output, for CI and other editors. On npm as `jevlint-le`.
 - Rust and Go: the JSON inside `json!`, Go maps, structs and enum variants
   named for a question type, and Rust constructors.
 - A request pasted as JSON into a string is read in every language.
