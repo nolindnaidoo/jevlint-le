@@ -10,7 +10,8 @@ model, in JSON, JavaScript, TypeScript, Python, Rust and Go, and reports the one
 no network and no API key. One command, run by the user with their own key,
 asks Jev to check a file. No filesystem writes outside an accepted quick fix.
 
-**Status:** released as 0.1.0 on 2026-10-04. The name
+**Status:** released as 0.1.0 on 2026-10-04. 0.2.0 is on `main` and not
+yet published. The name
 appears in `package.json`, the `jevlint-le.*` settings and commands, the
 `jevlint-le-disable` directive and the diagnostic source.
 
