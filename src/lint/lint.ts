@@ -23,7 +23,7 @@ import type {
 import { check } from './checks';
 import { normalizeOption } from './finding';
 import { RULES } from './rules';
-import { suppressor } from './suppress';
+import { suppression, type UnusedDirective } from './suppress';
 
 export const DEFAULT_FALLBACK_OPTIONS: ReadonlyArray<string> = Object.freeze([
 	'other',
@@ -206,6 +206,20 @@ export function readQuestions(text: string, syntax: Syntax = 'js'): Extraction {
 	return read(text, syntax).extraction;
 }
 
+function unusedDisable(unused: UnusedDirective): Finding {
+	const named =
+		'This comment silences nothing. Remove it, so it cannot hide a finding that is added later.';
+	return {
+		code: 'JEV010',
+		message: unused.bare
+			? `${named} If it is there for a check Jev makes, name the rule, such as JEV303.`
+			: named,
+		span: unused.span,
+		questionId: undefined,
+		fix: undefined,
+	};
+}
+
 function isIgnored(finding: Finding, ignore: ReadonlyArray<string>): boolean {
 	return (
 		finding.questionId !== undefined &&
@@ -243,14 +257,22 @@ export function lintText(
 	const fallbackName = options.fallbackOptions[0] ?? 'other';
 	const all = check(extraction, { text, fallback, fallbackName, syntaxAt });
 
-	const isSuppressed = suppressor(text);
+	const comments = suppression(text);
 	const seen = new Set<string>();
-	const findings = all
+	// Rules that are off come out first: a comment for a rule that reports
+	// nothing has silenced nothing.
+	const reported = all
+		.map((finding) => withSeverity(finding, options))
+		.filter((finding): finding is ReportedFinding => finding !== undefined)
 		.filter(
 			(finding) =>
-				!isSuppressed(finding) && !isIgnored(finding, options.ignore),
-		)
-		.map((finding) => withSeverity(finding, options))
+				!comments.isSuppressed(finding) && !isIgnored(finding, options.ignore),
+		);
+	// Asked for only now, when every finding has had its turn at the comments.
+	const stale = comments
+		.unused()
+		.map((unused) => withSeverity(unusedDisable(unused), options));
+	const findings = [...reported, ...stale]
 		.map((finding) =>
 			finding && inside(finding.span.start)
 				? { ...finding, inString: true }

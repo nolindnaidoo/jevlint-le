@@ -113,6 +113,7 @@ what the text says. `JEV004` is the exception in spirit and is explained below.
 | JEV007 | invalid-question | error | The `type` is missing or unknown, or the instructions are an empty string |
 | JEV008 | numeric-levels | warning | Every level of a Score is a bare number |
 | JEV009 | too-few-options | info | A Choice has fewer than two options, or a Score fewer than two levels |
+| JEV010 | unused-disable | warning | A `jevlint-le-disable` comment silenced no finding. Not reported for a comment that names only Jev-backed rules, which linting never runs |
 
 **JEV001 has no automatic fix.** Pinning needs the current version id, and the
 extension cannot fetch it. A hard-coded id would be wrong after the next

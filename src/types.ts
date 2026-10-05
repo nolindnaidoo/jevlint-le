@@ -136,6 +136,7 @@ export type RuleCode =
 	| 'JEV007'
 	| 'JEV008'
 	| 'JEV009'
+	| 'JEV010'
 	| 'JEV101'
 	| 'JEV102'
 	| 'JEV103'
