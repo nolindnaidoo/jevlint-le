@@ -29,6 +29,8 @@ export type CliOptions = Readonly<{
 	jevSendState: boolean;
 	/** A run that finds no file to lint passes, where it would exit 2. */
 	allowNoFiles: boolean;
+	/** Write the safe fixes into the files before reporting. */
+	fix: boolean;
 }>;
 
 export type Parsed =
@@ -92,6 +94,11 @@ const FLAGS: ReadonlyArray<Flag> = Object.freeze([
 		value: 'path',
 		help: 'Lint the text on standard input as if it were this file.',
 		apply: (options, value) => ({ ...options, stdinFilename: value }),
+	},
+	{
+		name: '--fix',
+		help: 'Write the fixes that only mend what the API would refuse. The rest are left for a person.',
+		apply: (options) => ({ ...options, fix: true }),
 	},
 	{
 		name: '--quiet',
@@ -174,6 +181,7 @@ const DEFAULTS: CliOptions = Object.freeze({
 	jevMaxCalls: undefined,
 	jevSendState: false,
 	allowNoFiles: false,
+	fix: false,
 });
 
 export function helpText(): string {
