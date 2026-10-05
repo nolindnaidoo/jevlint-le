@@ -298,6 +298,7 @@
     "package": "node -e \"require('fs').mkdirSync('release',{recursive:true})\" && bun run build:prod && vsce package --no-dependencies --out release/",
     "test:e2e-vsix": "node scripts/e2e-vsix.js",
     "validate": "bun scripts/validate-defects.ts",
+    "docs:rules": "bun scripts/build-rule-docs.ts",
     "cli": "bun run build:npm && node npm/cli.js",
     "test:cli": "bun run build:npm && node scripts/e2e-cli.js",
     "build:npm": "node scripts/build-npm.js",

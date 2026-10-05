@@ -95,7 +95,7 @@ mistakes that can be read from the text.
 | JEV311 | jev-answer-not-in-state | info | Jev reads the state written in the file as not holding what the question asks about |
 | JEV312 | jev-orders-in-state | info | Jev reads part of the state written in the file as giving orders to its reader |
 
-Each finding links to the TypeSafe documentation page it comes from.
+Each finding links to [its own page](https://github.com/nolindnaidoo/jevlint-le/blob/main/docs/rules/README.md), with an example that is flagged, one that is not, how to fix it and how to silence it. Each page links on to the TypeSafe documentation the rule comes from.
 
 ## Where it looks
 

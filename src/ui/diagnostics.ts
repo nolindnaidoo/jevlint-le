@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { RULES } from '../lint/rules';
+import { pageFor, RULES } from '../lint/rules';
 import type { ReportedFinding, Severity, Span } from '../types';
 
 export const SOURCE = 'jevlint-le';
@@ -22,9 +22,9 @@ export function toRange(
 	);
 }
 
-/** The docs link for a rule, as the copy this extension carries knows it. */
+/** The page for a rule, for the rules the copy this extension carries knows. */
 export const ownDocs = (code: string): string | undefined =>
-	(RULES as Readonly<Record<string, { docs: string } | undefined>>)[code]?.docs;
+	code in RULES ? pageFor(code) : undefined;
 
 /**
  * `docsFor` is the docs link for a rule as the copy that found it knows it.

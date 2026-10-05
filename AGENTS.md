@@ -89,6 +89,7 @@ services/diskDocument.ts  a file's text as a document, for a workspace run that 
 services/engines.ts       which linter a document gets: the project's copy or the bundled one
 services/loadModule.ts    loads a project's copy fresh, so an upgrade is picked up
 lib.ts                    what the npm package exports as a library, for the editor to load
+docs/rulePages.ts         the page for each rule, written from the registry and checked examples
 types.ts                 types only
 ```
 
@@ -407,7 +408,19 @@ family's files, copied unchanged from `regex-le`.
 - **`cli/run.ts` takes its filesystem and streams as arguments.** Only
   `cli/main.ts` touches the process, and `scripts/e2e-cli.js` is its test.
 - **A new rule ships with three tests:** it fires, it does not fire, and it
-  stays quiet on a value it cannot read.
+  stays quiet on a value it cannot read. A rule the linter runs offline also
+  ships with a pair in `fixtures/rule-examples.json`.
+- **Rule pages are generated, never edited.** `bun run docs:rules` writes
+  `docs/rules/` from the registry, the README's "What it means" column and
+  `fixtures/rule-examples.json`. `docs/rulePages.test.ts` runs the linter on
+  every example and fails when a page on disk is not what would be written
+  now. To change a page, change its source and run the script.
+- **A good example has nothing wrong with it.** The test runs every offline
+  rule over each one. An example that trips a second rule teaches the wrong
+  thing.
+- **`docs` is the vendor page and `page` is ours.** A finding links to
+  `pageFor(code)`, and the page links on to `docs`. The pages live on the
+  default branch, so a rule's page exists once the rule is merged.
 
 ## Toolchain
 
