@@ -323,6 +323,25 @@ const side = { type: 'choice', instructions: 'Heads or tails?', criteria: { head
 `jevlint-le-disable-line` covers the same line and `jevlint-le-disable` the whole file.
 Leave the code off to silence every rule.
 
+A comment that silences nothing is reported as `JEV010`, so one left behind
+after its finding was fixed cannot hide a new finding later.
+
+## Fixing
+
+Some findings can be mended without a decision from you: a Noul criteria key
+written `yes` where the API takes `true`, a mistyped question type, criteria
+in the wrong shape. `npx jevlint-le --fix` writes those, and the summary of
+any run says how many it would mend.
+
+In the editor, fix on save does the same:
+
+```json
+{ "editor.codeActionsOnSave": { "source.fixAll.jevlint-le": "explicit" } }
+```
+
+Adding a fallback option and pinning a model change what a working request
+does, so they are never written for you. They stay on the lightbulb.
+
 JSON has no comments, so use the setting:
 
 ```json

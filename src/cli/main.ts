@@ -67,6 +67,7 @@ run(process.argv.slice(2), {
 	version: version(),
 	env: process.env,
 	terminal: process.stdout.isTTY === true,
+	columns: process.stdout.columns,
 	fetch: ((url, init) => fetch(url, init)) as Fetch,
 	wait: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
 	stopSignal,

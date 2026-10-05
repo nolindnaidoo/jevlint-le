@@ -40,6 +40,8 @@ function disk(tree: Record<string, string>): Files {
 }
 
 type World = Readonly<{
+	/** The width of the terminal reading the output. */
+	columns?: number;
 	/** Changes the fake disk, to make part of it fail. */
 	files?: (disk: Files) => Files;
 	env?: Record<string, string>;
@@ -71,6 +73,7 @@ async function cli(
 		version: '9.9.9',
 		env: world.env ?? {},
 		terminal: false,
+		columns: world.columns,
 		fetch: world.fetch ?? offline(),
 		wait: async () => {},
 		stopSignal: () => world.signal ?? new AbortController().signal,
@@ -638,6 +641,28 @@ describe('the default format', () => {
 		// A file with nothing to say is not listed.
 		expect(result.out).not.toContain('src/ok.json');
 		expect(lines.at(-2)).toMatch(/^2 findings \(1 error, 0 warnings\)/);
+	});
+
+	it('wraps a long message to the terminal between words, keeping its indent', async () => {
+		const result = await cli(['src'], tree, '', { columns: 60 });
+		const lines = result.out.split('\n').slice(0, -2);
+		expect(lines.every((line) => line.length <= 60)).toBe(true);
+		const message = lines.slice(
+			2,
+			lines.findIndex((line, i) => i > 1 && /JEV006/.test(line)),
+		);
+		expect(message.length).toBeGreaterThan(1);
+		// Every line of the message starts under the first, and none breaks a word.
+		const indent = /^ +/.exec(message[0] ?? '')?.[0];
+		expect(message.every((line) => line.startsWith(indent ?? '!'))).toBe(true);
+		expect(message.map((line) => line.trim()).join(' ')).toContain(
+			'This Choice has no fallback option. When an input fits none of the options',
+		);
+	});
+
+	it('does not wrap when no terminal is reading', async () => {
+		const result = await cli(['src'], tree);
+		expect(result.out.split('\n')[2]?.length).toBeGreaterThan(120);
 	});
 
 	it('says how many findings --fix would mend', async () => {
