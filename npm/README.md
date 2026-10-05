@@ -25,7 +25,7 @@ past `--max-warnings`.
 
 | Option | What it does |
 |---|---|
-| `--format <stylish\|compact\|json\|github>` | How findings are printed. `stylish` groups them by file and is the default. `compact` is one per line as `path:line:column`. Also `-f` |
+| `--format <stylish\|compact\|json\|github\|sarif\|junit>` | How findings are printed. `stylish` groups them by file and is the default. `compact` is one per line as `path:line:column`. `sarif` is for code scanning and `junit` for test reporters. Also `-f` |
 | `--rule <CODE=level>` | Set one rule to `off`, `hint`, `info`, `warning` or `error`. A rule's name works in place of its code, and `warn` means `warning` |
 | `--config <file>` | Use this settings file, and no `jevlint-le.json` found near the files. Also `-c` |
 | `--max-warnings <n>` | Fail when more than `n` warnings are reported |

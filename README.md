@@ -229,7 +229,7 @@ read. Errors always fail a run. Warnings fail it only past `--max-warnings`.
 
 | Option | What it does |
 |---|---|
-| `--format <stylish\|compact\|json\|github>` | How findings are printed. `stylish` groups them by file and is the default. `compact` is one per line as `path:line:column`. Also `-f` |
+| `--format <stylish\|compact\|json\|github\|sarif\|junit>` | How findings are printed. `stylish` groups them by file and is the default. `compact` is one per line as `path:line:column`. `sarif` is for code scanning and `junit` for test reporters. Also `-f` |
 | `--rule <CODE=level>` | Set one rule to `off`, `hint`, `info`, `warning` or `error`. A rule's name works in place of its code, and `warn` means `warning` |
 | `--config <file>` | Use this settings file, and no `jevlint-le.json` found near the files. Also `-c` |
 | `--max-warnings <n>` | Fail when more than `n` warnings are reported |
@@ -249,6 +249,38 @@ The summary line always says how many questions could not be read in full
 and names any file skipped for its size and any folder or file it could not
 read. It does not follow linked folders. It does not run the checks that ask
 Jev, and it never uses the network, unless you pass `--jev`.
+
+### In CI and before a commit
+
+On GitHub, the action annotates a pull request:
+
+```yaml
+- uses: nolindnaidoo/jevlint-le@v0.3.0
+  with:
+    paths: src
+```
+
+For GitHub code scanning, write SARIF and upload it:
+
+```yaml
+- run: npx jevlint-le --format sarif src > jevlint.sarif
+  continue-on-error: true
+- uses: github/codeql-action/upload-sarif@v3
+  with:
+    sarif_file: jevlint.sarif
+```
+
+`--format junit` writes the XML that Jenkins, GitLab and most test reporters
+read. Only an error is a failed case there, since only an error fails a run.
+
+With [pre-commit](https://pre-commit.com):
+
+```yaml
+- repo: https://github.com/nolindnaidoo/jevlint-le
+  rev: v0.3.0
+  hooks:
+    - id: jevlint-le
+```
 
 ### Checking with Jev
 

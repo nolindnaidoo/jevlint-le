@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
 import type { Fetch } from '../jev/client';
+import { EXTENSIONS } from '../lint/lint';
 import { FLAG_NAMES, helpText, parseArgs } from './args';
 import type { Files } from './files';
 import { EXIT, type Io, run } from './run';
@@ -687,6 +688,100 @@ describe('the default format', () => {
 	});
 });
 
+describe('formats for other tools', () => {
+	const tree = {
+		'src/a.json': `\n${BAD}`,
+		'src/ok.json': CLEAN,
+		'src/<odd>&"name".json': BAD,
+	};
+
+	it('writes SARIF that names the tool, every rule, and each finding with its place', async () => {
+		const result = await cli(['--format', 'sarif', 'src/a.json'], tree);
+		const sarif = JSON.parse(result.out);
+		expect(sarif.version).toBe('2.1.0');
+		const [run] = sarif.runs;
+		expect(run.tool.driver).toMatchObject({
+			name: 'JevLint-LE',
+			version: '9.9.9',
+		});
+		const ids = run.tool.driver.rules.map((rule: { id: string }) => rule.id);
+		expect(ids).toContain('JEV004');
+		expect(
+			run.results.map((found: { ruleId: string; level: string }) => [
+				found.ruleId,
+				found.level,
+			]),
+		).toEqual([
+			['JEV004', 'note'],
+			['JEV006', 'error'],
+		]);
+		const [first] = run.results;
+		// The index must point at the rule it names, or a viewer shows the wrong help.
+		expect(ids[first.ruleIndex]).toBe(first.ruleId);
+		expect(first.locations[0].physicalLocation).toMatchObject({
+			artifactLocation: { uri: 'src/a.json' },
+			region: { startLine: 2 },
+		});
+		expect(result.status).toBe(EXIT.failed);
+	});
+
+	it('writes an empty SARIF run for a clean file, not an empty file', async () => {
+		const result = await cli(['--format', 'sarif', 'src/ok.json'], tree);
+		expect(JSON.parse(result.out).runs[0].results).toEqual([]);
+	});
+
+	it('writes JUnit with a suite per file, failing only on errors', async () => {
+		const result = await cli(
+			['--format', 'junit', 'src/a.json', 'src/ok.json'],
+			tree,
+		);
+		expect(result.out).toMatch(
+			/^<\?xml version="1\.0" encoding="UTF-8"\?>\n<testsuites name="jevlint-le" tests="3" failures="1" errors="0">/,
+		);
+		expect(result.out).toContain(
+			'<testsuite name="src/a.json" tests="2" failures="1" errors="0">',
+		);
+		// The info finding is a passing case that carries its message.
+		expect(result.out).toMatch(
+			/<testcase name="JEV004 no-fallback-option \(2:\d+\)" classname="src\/a\.json"><system-out>info: /,
+		);
+		expect(result.out).toMatch(
+			/<testcase name="JEV006 [^"]+" classname="src\/a\.json"><failure message="[^"]+" type="JEV006">src\/a\.json:2:\d+<\/failure>/,
+		);
+		// A clean file still shows as checked.
+		expect(result.out).toContain(
+			'<testcase name="no findings" classname="src/ok.json"/>',
+		);
+	});
+
+	it('escapes what XML reads as markup, in names and in messages', async () => {
+		const result = await cli(
+			['--format', 'junit', 'src/<odd>&"name".json'],
+			tree,
+		);
+		expect(result.out).toContain(
+			'classname="src/&lt;odd&gt;&amp;&quot;name&quot;.json"',
+		);
+		const body = result.out.replace(/&(amp|lt|gt|quot);/g, '');
+		expect(body).not.toContain('&');
+		// Every tag opened is closed.
+		expect(result.out.match(/<testsuite /g)?.length).toBe(
+			result.out.match(/<\/testsuite>/g)?.length,
+		);
+	});
+
+	it('never colours them', async () => {
+		const esc = String.fromCharCode(27);
+		for (const format of ['sarif', 'junit']) {
+			const result = await cli(
+				['--color', '--format', format, 'src/a.json'],
+				tree,
+			);
+			expect(result.out, format).not.toContain(esc);
+		}
+	});
+});
+
 describe('formats', () => {
 	const tree = { 'src/a.json': BAD };
 
@@ -1249,5 +1344,32 @@ describe('checking with Jev', () => {
 		expect(result.status).toBe(EXIT.unusable);
 		expect(result.err).toContain(said);
 		expect(fetch).not.toHaveBeenCalled();
+	});
+});
+
+describe('the files other tools run this through', () => {
+	const version = JSON.parse(readFileSync('package.json', 'utf8')).version;
+
+	it('pins the pre-commit hook to this release, and to the file types the tool reads', () => {
+		const hook = readFileSync('.pre-commit-hooks.yaml', 'utf8');
+		expect(hook).toContain(`entry: npx --yes jevlint-le@${version} `);
+		expect(hook).toContain(`rev: v${version}`);
+		const listed = /files: \\\.\(([^)]+)\)\$/.exec(hook)?.[1]?.split('|');
+		expect(listed?.sort()).toEqual(Object.keys(EXTENSIONS).sort());
+		// A named file of another type exits 2, so the hook must never be handed one.
+		expect(hook).toContain('--no-error-on-unmatched-pattern');
+	});
+
+	it('pins the GitHub Action to this release, and passes inputs as environment', () => {
+		const action = readFileSync('action.yml', 'utf8');
+		expect(action).toMatch(
+			new RegExp(
+				`version:[\\s\\S]*?default: ${version.replace(/\./g, '\\.')}\\n`,
+			),
+		);
+		expect(action).toContain(`uses: nolindnaidoo/jevlint-le@v${version}`);
+		// An input spliced into the script could be read as a command.
+		const script = action.slice(action.indexOf('      run: |'));
+		expect(script).not.toContain('${{');
 	});
 });

@@ -270,11 +270,129 @@ function asGithub(reports: ReadonlyArray<FileReport>, totals: Totals): string {
 	return [...lines, summarize(totals), ''].join('\n');
 }
 
-/** How the stylish format is drawn. The other formats ignore it. */
+const SARIF_LEVELS: Readonly<Record<Severity, string>> = Object.freeze({
+	error: 'error',
+	warning: 'warning',
+	info: 'note',
+	hint: 'note',
+});
+
+// SARIF 2.1.0, the shape GitHub code scanning and most security dashboards
+// read. Positions are one-based and the end column is the one after the last
+// character, which is how `locate` already counts.
+function asSarif(
+	reports: ReadonlyArray<FileReport>,
+	_totals: Totals,
+	look: Look,
+): string {
+	const codes = Object.keys(RULES) as ReadonlyArray<keyof typeof RULES>;
+	const results = rows(reports).map(({ path, finding, start, end }) => ({
+		ruleId: finding.code,
+		ruleIndex: codes.indexOf(finding.code),
+		level: SARIF_LEVELS[finding.severity],
+		message: { text: finding.message },
+		locations: [
+			{
+				physicalLocation: {
+					artifactLocation: { uri: path.replace(/\\/g, '/') },
+					region: {
+						startLine: start.line,
+						startColumn: start.column,
+						endLine: end.line,
+						endColumn: end.column,
+					},
+				},
+			},
+		],
+	}));
+	const sarif = {
+		$schema: 'https://json.schemastore.org/sarif-2.1.0.json',
+		version: '2.1.0',
+		runs: [
+			{
+				tool: {
+					driver: {
+						name: 'JevLint-LE',
+						version: look.version,
+						informationUri: 'https://github.com/nolindnaidoo/jevlint-le',
+						rules: codes.map((code) => ({
+							id: code,
+							name: RULES[code].name,
+							shortDescription: { text: RULES[code].name },
+							helpUri: RULES[code].docs,
+						})),
+					},
+				},
+				results,
+			},
+		],
+	};
+	return `${JSON.stringify(sarif, null, 2)}\n`;
+}
+
+const escapeXml = (text: string) =>
+	text
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		// Characters XML 1.0 has no way to hold, which would make the file unreadable.
+		// biome-ignore lint/suspicious/noControlCharactersInRegex: these are the characters being removed
+		.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '');
+
+// JUnit XML, for the test reporters CI systems already have. One suite per
+// file and one case per finding. Only an error is a failed case, because only
+// an error fails a run: a warning is a passing case that carries its message.
+function asJunit(reports: ReadonlyArray<FileReport>, totals: Totals): string {
+	const byPath = new Map<string, Row[]>();
+	for (const row of rows(reports))
+		byPath.set(row.path, [...(byPath.get(row.path) ?? []), row]);
+	const suites = reports.map((report) => {
+		const found = byPath.get(report.path) ?? [];
+		const failures = found.filter(
+			({ finding }) => finding.severity === 'error',
+		).length;
+		const name = escapeXml(report.path);
+		// A file with nothing to report is one passing case, so it still shows as checked.
+		const cases = found.length
+			? found.map(({ finding, start }) => {
+					const title = escapeXml(
+						`${finding.code} ${RULES[finding.code].name} (${start.line}:${start.column})`,
+					);
+					const said = escapeXml(finding.message);
+					const body =
+						finding.severity === 'error'
+							? `<failure message="${said}" type="${finding.code}">${escapeXml(`${report.path}:${start.line}:${start.column}`)}</failure>`
+							: `<system-out>${escapeXml(finding.severity)}: ${said}</system-out>`;
+					return `    <testcase name="${title}" classname="${name}">${body}</testcase>`;
+				})
+			: [`    <testcase name="no findings" classname="${name}"/>`];
+		return [
+			`  <testsuite name="${name}" tests="${cases.length}" failures="${failures}" errors="0">`,
+			...cases,
+			'  </testsuite>',
+		].join('\n');
+	});
+	const tests = reports.reduce(
+		(all, report) => all + Math.max(1, (byPath.get(report.path) ?? []).length),
+		0,
+	);
+	return [
+		'<?xml version="1.0" encoding="UTF-8"?>',
+		`<testsuites name="jevlint-le" tests="${tests}" failures="${totals.counts.error}" errors="0">`,
+		...suites,
+		'</testsuites>',
+		'',
+	].join('\n');
+}
+
+/** How a format is drawn. Each format reads only what it needs. */
 type Look = Readonly<{
 	paint: Paint;
 	/** The terminal's width, when one is reading. */
 	columns: number | undefined;
+	/** The tool's own version, for the formats that name the tool. */
+	version: string;
 }>;
 
 type Formatter = (
@@ -288,18 +406,27 @@ const FORMATTERS: Readonly<Record<Format, Formatter>> = Object.freeze({
 	compact: asCompact,
 	json: asJson,
 	github: asGithub,
+	sarif: asSarif,
+	junit: asJunit,
 });
 
-/** `color` and `columns` matter only to the stylish format. The others are read by programs. */
+export type FormatOptions = Readonly<{
+	/** Colour, which only the stylish format has. */
+	color?: boolean;
+	columns?: number | undefined;
+	version?: string;
+}>;
+
+/** Only the stylish format is for a person. The others are read by programs. */
 export function format(
 	kind: Format,
 	reports: ReadonlyArray<FileReport>,
 	totals: Totals,
-	color = false,
-	columns?: number,
+	options: FormatOptions = {},
 ): string {
 	return FORMATTERS[kind](reports, totals, {
-		paint: color ? ANSI : PLAIN,
-		columns,
+		paint: options.color ? ANSI : PLAIN,
+		columns: options.columns,
+		version: options.version ?? '',
 	});
 }

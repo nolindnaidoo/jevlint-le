@@ -644,7 +644,8 @@ under `--jev`. The probe is not in it.
 | | Behaviour |
 |---|---|
 | Paths | A directory is searched for the extensions in `EXTENSIONS`, skipping installed packages, build output and `.git`. No path means the current directory |
-| Formats | `stylish`, the default, grouped by file for a person to read. `compact`, one finding per line as `path:line:column`. `json`, with one-based positions, the rule name and its docs link. `github`, workflow annotations |
+| Formats | `stylish`, the default, grouped by file for a person to read. `compact`, one finding per line as `path:line:column`. `json`, with one-based positions, the rule name and its docs link. `github`, workflow annotations. `sarif`, version 2.1.0, for code scanning. `junit`, one suite per file, failing only on errors |
+| Integrations | `action.yml`, a composite GitHub Action, and `.pre-commit-hooks.yaml`. Both run the published package through `npx` at the version they ship with. Neither has been run by its host tool yet |
 | Fixing | `--fix` writes the fixes marked safe, then reports what is left. Never with standard input or `--mcp` |
 | Files | `exclude` in `jevlint-le.json` leaves files out, relative to that file. `--no-error-on-unmatched-pattern` passes a run with nothing to lint |
 | Exit status | 0 passed. 1 an error was found, or more warnings than `--max-warnings`. 2 the run could not be done as asked |
