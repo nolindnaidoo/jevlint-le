@@ -81,6 +81,8 @@ function heldBack(plan: ReviewPlan): ReadonlyArray<string> {
 }
 
 function describe(outcome: ReviewOutcome, plan: ReviewPlan): string {
+	if (outcome.kind === 'stale')
+		return `The file changed while Jev was answering, so nothing is shown. Jev had answered ${outcome.asked} of ${plural(plan.requests, 'request')}. Run the check again.`;
 	if (outcome.kind === 'failed') {
 		const sent = outcome.asked
 			? ` after ${plural(outcome.asked, 'request')}`
@@ -160,6 +162,11 @@ async function checkWithJev(deps: Deps): Promise<void> {
 		);
 		return;
 	}
+	// A second run would pay for the same answers and race the first to show them.
+	if (deps.reviewer.running(document)) {
+		blocked('Jev is already checking this file.');
+		return;
+	}
 	const found = await findKey(deps);
 	if ('missing' in found) {
 		reportNoKey(found.missing);
@@ -208,8 +215,8 @@ async function checkWithJev(deps: Deps): Promise<void> {
 		blocked(message);
 		return;
 	}
-	// A run the user stopped is worth saying even to someone who hides summaries.
-	if (outcome.cancelled) {
+	// A run that was stopped is worth saying even to someone who hides summaries.
+	if (outcome.kind === 'stale' || outcome.cancelled) {
 		caution(message);
 		return;
 	}

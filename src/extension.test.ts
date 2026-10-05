@@ -1015,6 +1015,68 @@ describe('when the editor fails', () => {
 
 	afterEach(() => vi.unstubAllGlobals());
 
+	it('shows nothing from Jev about text that was edited during the run', async () => {
+		const document = doc(TWO);
+		const fetch = vi.fn(async () => {
+			// The user types while the first answer is on its way back.
+			document.text = `// edited\n${TWO}`;
+			_state.listeners.change?.({ document });
+			return reply({ JEV302: { noul: 0.9 } });
+		});
+		vi.stubGlobal('fetch', fetch);
+		start(document);
+		_state.secrets.set('jevlint-le.typesafeApiKey', 'k');
+		await run(JEV_COMMANDS.checkWithJev);
+		expect(diagnostics('file:///a.ts#jevlint-le-jev')).toEqual([]);
+		// The edit also stops the run, so nothing more is paid for.
+		expect(fetch).toHaveBeenCalledTimes(1);
+		expect(_state.messages.at(-1)).toContain(
+			'The file changed while Jev was answering, so nothing is shown. Jev had answered 1 of 3 requests.',
+		);
+	});
+
+	it('shows nothing from Jev about a file that was closed during the run', async () => {
+		const document = doc(TWO);
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async () => {
+				_state.listeners.close?.(document);
+				return reply({ JEV302: { noul: 0.9 } });
+			}),
+		);
+		start(document);
+		_state.secrets.set('jevlint-le.typesafeApiKey', 'k');
+		await run(JEV_COMMANDS.checkWithJev);
+		expect(diagnostics('file:///a.ts#jevlint-le-jev')).toEqual([]);
+	});
+
+	it('does not start a second Jev check of a file while one is running', async () => {
+		let answer: (() => void) | undefined;
+		const fetch = vi.fn(
+			() =>
+				new Promise((resolve) => {
+					answer = () => resolve(reply({}));
+				}),
+		);
+		vi.stubGlobal('fetch', fetch);
+		start(doc(TWO));
+		_state.secrets.set('jevlint-le.typesafeApiKey', 'k');
+		const first = run(JEV_COMMANDS.checkWithJev);
+		await vi.waitFor(() => expect(fetch).toHaveBeenCalledTimes(1));
+		await run(JEV_COMMANDS.checkWithJev);
+		expect(_state.messages.at(-1)).toContain('already checking this file');
+		expect(fetch).toHaveBeenCalledTimes(1);
+		// Let the first run finish, one answer at a time.
+		for (let i = 0; i < 3; i += 1) {
+			await vi.waitFor(() => expect(answer).toBeDefined());
+			const settle = answer;
+			answer = undefined;
+			settle?.();
+		}
+		await first;
+		expect(fetch).toHaveBeenCalledTimes(3);
+	});
+
 	it('says a Jev check was cancelled, and how much of it ran', async () => {
 		// The user presses cancel while the first answer is on its way back.
 		const fetch = vi.fn(async () => {

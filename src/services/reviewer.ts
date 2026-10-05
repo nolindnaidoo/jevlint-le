@@ -24,7 +24,9 @@ export type ReviewOutcome =
 			inputTokens: number;
 			model: string;
 	  }>
-	| Readonly<{ kind: 'failed'; failure: Failure; asked: number }>;
+	| Readonly<{ kind: 'failed'; failure: Failure; asked: number }>
+	/** The document was edited or closed during the run, so what Jev said is about text that is gone. */
+	| Readonly<{ kind: 'stale'; asked: number }>;
 
 export type Reviewer = Readonly<{
 	/** `lint` is the settings that apply to the document: its rule levels and what it ignores. */
@@ -35,6 +37,9 @@ export type Reviewer = Readonly<{
 		signal: AbortSignal,
 		lint: LintOptions,
 	) => Promise<ReviewOutcome>;
+	/** True while a run on this document is still sending. */
+	running: (document: vscode.TextDocument) => boolean;
+	/** Drops what Jev said about a document, and ends a run on it that is still sending. */
 	clear: (document: vscode.TextDocument) => void;
 	dispose: () => void;
 }>;
@@ -50,6 +55,13 @@ export function createReviewer(deps: Deps): Reviewer {
 	// A separate collection, so linting as you type never wipes what a paid check found.
 	const collection =
 		vscode.languages.createDiagnosticCollection('jevlint-le-jev');
+
+	// The runs still sending, by document. An edit or a close marks the run as
+	// overtaken and stops it, so it neither spends more nor reports on old text.
+	const flights = new Map<
+		string,
+		{ stop: AbortController; overtaken: boolean }
+	>();
 
 	const settings = (lint: LintOptions): ReviewSettings => {
 		const { model, sendState, maxCalls } = deps.getConfiguration().jev;
@@ -69,12 +81,22 @@ export function createReviewer(deps: Deps): Reviewer {
 		signal: AbortSignal,
 		lint: LintOptions,
 	): Promise<ReviewOutcome> => {
+		const id = document.uri.toString();
+		const flight = { stop: new AbortController(), overtaken: false };
+		const stop = () => flight.stop.abort();
+		signal.addEventListener('abort', stop, { once: true });
+		if (signal.aborted) stop();
+		flights.set(id, flight);
 		const run = await runReview(
 			document.getText(),
 			syntaxFor(document.languageId),
 			settings(lint),
-			{ fetch: deps.fetch, wait: deps.wait, key, signal },
-		);
+			{ fetch: deps.fetch, wait: deps.wait, key, signal: flight.stop.signal },
+		).finally(() => {
+			flights.delete(id);
+			signal.removeEventListener('abort', stop);
+		});
+		if (flight.overtaken) return { kind: 'stale', asked: run.asked };
 		// What was answered before a failure is dropped: the message says the run failed.
 		if (run.failure)
 			return { kind: 'failed', failure: run.failure, asked: run.asked };
@@ -95,7 +117,19 @@ export function createReviewer(deps: Deps): Reviewer {
 	return Object.freeze({
 		plan,
 		review,
-		clear: (document: vscode.TextDocument) => collection.delete(document.uri),
-		dispose: () => collection.dispose(),
+		running: (document: vscode.TextDocument) =>
+			flights.has(document.uri.toString()),
+		clear: (document: vscode.TextDocument) => {
+			const flight = flights.get(document.uri.toString());
+			if (flight) {
+				flight.overtaken = true;
+				flight.stop.abort();
+			}
+			collection.delete(document.uri);
+		},
+		dispose: () => {
+			for (const flight of flights.values()) flight.stop.abort();
+			collection.dispose();
+		},
 	});
 }
