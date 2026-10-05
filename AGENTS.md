@@ -342,9 +342,9 @@ bun run validate -- --dry-run   # what would be sent to Jev, no key needed
 
 - No Rust port of the command line, by decision. See the roadmap in SPEC.md.
 - No localization or MCP registry listing, by decision. See the roadmap in
-  SPEC.md.
-- Not a member of the family's fleet check. See below. The sibling repos have all of these, and SPEC.md lists them under
-  Extended release 2.
+  SPEC.md. The sibling repos have these and the Rust port, and SPEC.md lists
+  them under Extended release 2.
+- Not compared by the family's fleet check. See below.
 - The shell does not yet follow the family layout: no `services/serviceFactory`,
   `ui/notifier`, `telemetry/` or `config/settings`.
 
@@ -384,10 +384,12 @@ difference matters when the family changes one.
 | `.github/workflows/release.yml` | Changed: publishes `npm/` with the `NPM_TOKEN` secret where the family uses trusted publishing, and has no MCP registry step |
 | `.github/dependabot.yml` | Cut down: no Rust ecosystems |
 
-- **This repo is not in `letools-site`'s fleet check.** That check holds the
-  sixteen family repos byte-identical on files this repo deliberately lacks or
-  changes. Joining it means adopting those, which was decided against. When a
-  copied file changes in the family, copy it here by hand.
+- **`letools-site`'s fleet check names this repo and does not compare it.** It
+  is listed in `OUTSIDE_FLEET` in the site's `scripts/check-fleet.ts`. The
+  check holds the sixteen family repos byte-identical on files this repo
+  deliberately lacks or changes. Joining it means adopting those, which was
+  decided against. When a copied file changes in the family, copy it here by
+  hand.
 - **CI pins Bun to the version that wrote `bun.lock`**, 1.3.14. Upgrading is
   one change: upgrade locally, regenerate the lockfile, and move both pins in
   `ci.yml` and the two in `release.yml`.

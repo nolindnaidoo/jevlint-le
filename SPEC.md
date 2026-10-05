@@ -879,8 +879,9 @@ the answer held at "damaged" through every variant with confidence between
 
 ## Roadmap
 
-Status: on hold since 2026-10-04, by the owner's decision. Nothing below is
-started. Each item waits on a go-ahead.
+Status: on hold since 2026-10-04, by the owner's decision. The site listing
+and the 0.1.0 release are done. Nothing else below is started, and each item
+waits on a go-ahead.
 
 ### More languages
 
@@ -929,20 +930,21 @@ loops.
 
 ### The LE Tools site
 
-Decided 2026-10-04, to be done later: the site will carry this tool, and it
-will allow a tool that differs from the other sixteen.
+Done on 2026-10-04, in `letools-site`. This is the one roadmap item that is
+not on hold. The site carries this tool and allows a tool that differs from
+the other sixteen.
 
 - **A featured section ahead of the other extensions**, with this tool in it,
   and the tool also listed among the rest in its right place.
-- **The site has to change to hold it.** Its registry and its copy state
+- **The site's claims are read per tool.** Its registry and its copy stated
   things of every tool, such as twelve locales and a Rust crate, that are not
-  true of this one. Those claims need to be read per
-  tool before this one is added, or the site would say something false.
-- **The fleet check needs a place for it.** That check holds the sixteen
-  byte-identical on files this repo lacks or has cut down. This repo can join
-  for the files it does copy unchanged, listed in AGENTS.md, and no others.
-
-Nothing in `letools-site` has been touched.
+  true of this one. The registry now declares what this tool has: one npm
+  package for the command line and the MCP server, its Open VSX namespace, no
+  MCP registry listing, and that one command sends on request.
+- **The fleet check names it and does not compare it.** `OUTSIDE_FLEET` in the
+  site's `scripts/check-fleet.ts` lists this repo, and a test there holds every
+  tool in exactly one list. The files this repo copies unchanged, listed in
+  AGENTS.md, are still kept equal by hand.
 
 ### Publishing
 
@@ -957,8 +959,9 @@ granted it, so the listing is verified. The family is to follow it there.
 
 Not planned for now: a Rust port of the command line, which every sibling
 has. The TypeScript one lints thousands of files in seconds, and a port would
-be every reader and rule kept in agreement twice. A listing in the MCP
-registry would sit on top of the npm package and waits on it.
+be every reader and rule kept in agreement twice. Nor a listing in the MCP
+registry. The npm package it would sit on is published, so it waits only on
+a go-ahead.
 
 ## Extended release 1: request-level rules
 
@@ -979,7 +982,7 @@ More sources: the Vercel AI SDK's `experimental_evaluate`.
   ignore-aware tree walk, and a shared fixture corpus with a parity check
   against the extension. The command line in `src/cli/` already gives CI an
   exit code, so this is about the family pattern and not a missing feature.
-- **MCP registry listing**, once the npm package is published.
+- **MCP registry listing.** The npm package it needs is published.
 - **Localization** into the family's 12 locales.
 
 ## Verification
