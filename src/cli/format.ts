@@ -20,6 +20,8 @@ export type Totals = Readonly<{
 	/** Folders and files that could not be read at all. */
 	unread: ReadonlyArray<string>;
 	counts: Readonly<Record<Severity, number>>;
+	/** Present only under `--fix`: what was written. */
+	fixed?: Readonly<{ findings: number; files: number }>;
 	/** Present only when the run was asked to check with Jev. */
 	jev?: JevTotals;
 }>;
@@ -101,6 +103,10 @@ export function summarize(totals: Totals): string {
 	if (totals.unread.length)
 		parts.push(
 			`${plural(totals.unread.length, 'path')} could not be read: ${totals.unread.join(', ')}.`,
+		);
+	if (totals.fixed)
+		parts.push(
+			`Fixed ${plural(totals.fixed.findings, 'finding')} in ${plural(totals.fixed.files, 'file')}.`,
 		);
 	if (totals.jev) parts.push(...describeJev(totals.jev));
 	return parts.join(' ');

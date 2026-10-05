@@ -13,6 +13,8 @@ export type Files = Readonly<{
 	/** The names inside a directory. */
 	list: (path: string) => ReadonlyArray<string>;
 	read: (path: string) => string;
+	/** Used only by `--fix`. */
+	write: (path: string, text: string) => void;
 }>;
 
 export type Found =

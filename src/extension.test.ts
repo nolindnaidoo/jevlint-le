@@ -197,6 +197,28 @@ describe('quick fix', () => {
 		) as vscode.CodeAction[];
 	};
 
+	it('fixes everything safe at once when asked by kind, as fix on save asks', () => {
+		const broken = `const q = { questions: { late: { type: 'noul', instructions: 'Did it arrive late?', criteria: { yes: 'Late', no: 'On time' } }, team: { type: 'choice', instructions: 'Which team?', criteria: { billing: 'Charges', technical: 'Faults' } } } };`;
+		const document = doc(broken);
+		start(document);
+		const provider = _state.provider as vscode.CodeActionProvider;
+		const asked = (only: unknown) =>
+			provider.provideCodeActions(
+				document,
+				{} as vscode.Range,
+				{ diagnostics: [], only } as never,
+				{} as never,
+			) as vscode.CodeAction[];
+		const [action] = asked(vscode.CodeActionKind.SourceFixAll);
+		const edit = action?.edit as unknown as { edits: { text: string }[] };
+		expect(edit.edits[0]?.text).toContain("{ true: 'Late', false: 'On time' }");
+		// Adding an option is the author's call, so fix on save leaves it.
+		expect(edit.edits[0]?.text).not.toContain('other');
+
+		document.text = `const q = { type: 'noul', instructions: 'Is it late?' };`;
+		expect(asked(vscode.CodeActionKind.SourceFixAll)).toEqual([]);
+	});
+
 	it('offers the fallback edit for the JEV004 diagnostic', () => {
 		const document = doc(BARE_CHOICE);
 		start(document);
@@ -686,6 +708,7 @@ describe('check with Jev', () => {
 				stat: (path) =>
 					path === 'a.json' ? { kind: 'file', size: 1 } : undefined,
 				list: () => [],
+				write: () => {},
 				read: () => TWO,
 			},
 			stdin: async () => '',
@@ -1310,6 +1333,7 @@ describe('a project settings file in the editor', () => {
 						? undefined
 						: { kind: 'file', size: 1 },
 				list: () => [],
+				write: () => {},
 				read: (path) =>
 					({ 'src/q.ts': NO_FALLBACK, 'jevlint-le.json': settings })[path] ??
 					'',

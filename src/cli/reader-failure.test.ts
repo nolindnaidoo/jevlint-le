@@ -29,6 +29,7 @@ async function cli(args: string[], tree: Record<string, string>) {
 						: { kind: 'file', size: 1 },
 			list: () => Object.keys(tree),
 			read: (path) => tree[path] ?? '',
+			write: () => {},
 		},
 		stdin: async () => '',
 		lines: async function* () {},

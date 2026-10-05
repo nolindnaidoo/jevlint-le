@@ -4,6 +4,7 @@ import {
 	readdirSync,
 	readFileSync,
 	statSync,
+	writeFileSync,
 } from 'node:fs';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
@@ -57,6 +58,7 @@ run(process.argv.slice(2), {
 		stat,
 		list: (path) => readdirSync(path),
 		read: (path) => readFileSync(path, 'utf8'),
+		write: (path, text) => writeFileSync(path, text),
 	},
 	stdin,
 	lines: () => createInterface({ input: process.stdin }),

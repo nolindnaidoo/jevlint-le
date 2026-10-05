@@ -163,7 +163,16 @@ export type RuleCode =
 
 export type TextEdit = Readonly<{ span: Span; text: string }>;
 
-export type Fix = Readonly<{ title: string; edits: ReadonlyArray<TextEdit> }>;
+export type Fix = Readonly<{
+	title: string;
+	edits: ReadonlyArray<TextEdit>;
+	/**
+	 * True when the edit only mends something the API would refuse, so it can
+	 * be applied unasked. False when it changes what a working request does,
+	 * such as adding an option or pinning a model: that is the author's call.
+	 */
+	safe: boolean;
+}>;
 
 export type Finding = Readonly<{
 	code: RuleCode;
