@@ -36,7 +36,9 @@ type Library = Readonly<{
 	lint: Engine['lint'];
 	fix: Engine['fix'];
 	syntaxes: ReadonlyArray<string>;
-	rules: Readonly<Record<string, { docs?: unknown } | undefined>>;
+	rules: Readonly<
+		Record<string, { docs?: unknown; page?: unknown } | undefined>
+	>;
 }>;
 
 function bundled(note?: Note): Engine {
@@ -104,8 +106,10 @@ export function createEngines(deps: Deps): Engines {
 				lint: library.lint,
 				fix: library.fix,
 				docsFor: (code) => {
-					const docs = library.rules[code]?.docs;
-					return typeof docs === 'string' ? docs : undefined;
+					// A copy from before rule pages has only the vendor page to give.
+					const rule = library.rules[code];
+					const link = rule?.page ?? rule?.docs;
+					return typeof link === 'string' ? link : undefined;
 				},
 				note: {
 					short: `project ${installed.version}`,

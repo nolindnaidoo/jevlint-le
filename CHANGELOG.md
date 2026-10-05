@@ -23,6 +23,11 @@
 - **A GitHub Action**, `nolindnaidoo/jevlint-le`, that annotates a pull
   request, and **a pre-commit hook**. Both run the published command line at
   the version they were released with.
+- **Every rule has its own page**, in `docs/rules/`: what it catches, an
+  example that is flagged with the message the linter gives, one that is not,
+  how to fix it and how to silence it. A finding in the editor links to its
+  page, which links on to the TypeSafe page the rule comes from. JSON output
+  and the MCP server's `list_rules` gain a `page` beside `docs`.
 - The npm package can be required as a library: `lint`, `fix`, `rules`,
   `syntaxes` and an `api` number. This is what the editor loads.
 - Check with Jev and the probe always run the extension's own code. They

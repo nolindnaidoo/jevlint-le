@@ -1,4 +1,4 @@
-import { RULES } from '../lint/rules';
+import { pageFor, RULES } from '../lint/rules';
 import type { ReportedFinding, Severity } from '../types';
 import type { Format } from './args';
 
@@ -232,6 +232,7 @@ export function toReport(reports: ReadonlyArray<FileReport>, totals: Totals) {
 				endLine: end.line,
 				endColumn: end.column,
 				docs: RULES[finding.code].docs,
+				page: pageFor(finding.code),
 			}),
 		),
 	}));

@@ -125,6 +125,7 @@ const library = require(join(root, 'npm', npmManifest.main));
 assert.strictEqual(library.api, 1);
 assert.deepStrictEqual([...library.syntaxes].sort(), ['go', 'js', 'python', 'rust']);
 assert.ok(library.rules.JEV004.docs.startsWith('https://'));
+assert.ok(library.rules.JEV004.page.endsWith('/docs/rules/JEV004.md'));
 const BROKEN_NOUL = '{ "questions": { "late": { "type": "noul", "instructions": "Did it arrive late?", "criteria": { "yes": "Late", "no": "On time" } } } }';
 const libraryOptions = { rules: {}, fallbackOptions: ['other'], ignore: [] };
 assert.deepStrictEqual(

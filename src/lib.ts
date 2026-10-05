@@ -1,6 +1,6 @@
 import { fixText } from './lint/fixAll';
 import { EXTENSIONS, lintText } from './lint/lint';
-import { RULES } from './lint/rules';
+import { pageFor, RULE_CODES, RULES } from './lint/rules';
 
 /**
  * What the npm package exports as a library. The editor extension loads this
@@ -18,8 +18,12 @@ export const syntaxes: ReadonlyArray<string> = Object.freeze([
 	...new Set(Object.values(EXTENSIONS)),
 ]);
 
-/** Every rule this copy has, by code: its name, default level and docs link. */
-export const rules = RULES;
+/** Every rule this copy has, by code: its name, default level, its own page and the vendor page behind it. */
+export const rules = Object.freeze(
+	Object.fromEntries(
+		RULE_CODES.map((code) => [code, { ...RULES[code], page: pageFor(code) }]),
+	),
+);
 
 /** The findings in a text. Pure: no filesystem and no network. */
 export const lint = lintText;

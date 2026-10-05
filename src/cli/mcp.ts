@@ -1,6 +1,6 @@
 import { readRules } from '../config/projectConfig';
 import { syntaxForPath } from '../lint/lint';
-import { RULE_CODES, RULES } from '../lint/rules';
+import { pageFor, RULE_CODES, RULES } from '../lint/rules';
 import { toReport } from './format';
 import {
 	createSettings,
@@ -104,6 +104,7 @@ function listRules(): Outcome {
 		name: RULES[code].name,
 		default: RULES[code].severity,
 		docs: RULES[code].docs,
+		page: pageFor(code),
 		// These ask Jev itself, which this server never does.
 		runsHere: !code.startsWith('JEV3'),
 	}));
@@ -149,7 +150,7 @@ const TOOLS: ReadonlyArray<Tool> = Object.freeze([
 	{
 		name: 'list_rules',
 		description:
-			'List every rule with its code, name, default level and the vendor page behind it.',
+			'List every rule with its code, name, default level, its own page with an example, and the vendor page behind it.',
 		inputSchema: { type: 'object', properties: {} },
 		call: () => listRules(),
 	},

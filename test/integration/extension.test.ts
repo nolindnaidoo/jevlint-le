@@ -184,7 +184,7 @@ describe('JevLint-LE in a real editor', function () {
 		});
 	}
 
-	it('maps severities and links each finding to its vendor page', async () => {
+	it('maps severities and links each finding to its own page', async () => {
 		await open('triage.ts');
 		await untilCodes(sample('triage.ts'), EXPECTED['triage.ts'] ?? []);
 		const bySeverity = Object.fromEntries(
@@ -203,7 +203,11 @@ describe('JevLint-LE in a real editor', function () {
 		for (const diagnostic of ours(sample('triage.ts'))) {
 			const code = diagnostic.code;
 			assert.ok(typeof code === 'object' && code.target, 'no docs link');
-			assert.strictEqual(code.target.authority, 'docs.typesafe.ai');
+			assert.strictEqual(code.target.authority, 'github.com');
+			assert.ok(
+				code.target.path.endsWith(`/docs/rules/${code.value}.md`),
+				code.target.path,
+			);
 		}
 	});
 
