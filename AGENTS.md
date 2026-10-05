@@ -346,7 +346,7 @@ bun run validate -- --dry-run   # what would be sent to Jev, no key needed
   them under Extended release 2.
 - Not compared by the family's fleet check. See below.
 - The shell does not yet follow the family layout: no `services/serviceFactory`,
-  `ui/notifier`, `telemetry/` or `config/settings`.
+  `telemetry/` or `config/settings`.
 
 ## Known limitations
 
