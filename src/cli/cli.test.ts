@@ -70,6 +70,7 @@ async function cli(
 		err: (text) => err.push(text),
 		version: '9.9.9',
 		env: world.env ?? {},
+		terminal: false,
 		fetch: world.fetch ?? offline(),
 		wait: async () => {},
 		stopSignal: () => world.signal ?? new AbortController().signal,
@@ -91,7 +92,7 @@ describe('arguments', () => {
 		const documented = FLAG_NAMES.filter(
 			(name) => name !== '--help' && name !== '--version',
 		);
-		expect(documented.filter((name) => !text.includes(`| \`${name}`))).toEqual(
+		expect(documented.filter((name) => !text.includes(`\`${name}`))).toEqual(
 			[],
 		);
 	});
@@ -158,7 +159,9 @@ describe('a run', () => {
 	});
 
 	it('fails on an error and prints each finding with its place', async () => {
-		const result = await cli(['a.json'], { 'a.json': `\n${BAD}` });
+		const result = await cli(['--format', 'compact', 'a.json'], {
+			'a.json': `\n${BAD}`,
+		});
 		expect(result.status).toBe(EXIT.failed);
 		const lines = result.out.split('\n');
 		expect(lines[0]).toMatch(/^a\.json:2:\d+ {2}info {2}JEV004 {2}/);
@@ -180,7 +183,7 @@ describe('a run', () => {
 	});
 
 	it('searches a directory, reads Python, and skips installed packages', async () => {
-		const result = await cli(['src'], {
+		const result = await cli(['--format', 'compact', 'src'], {
 			'src/a.json': CLEAN,
 			'src/deep/b.py': PYTHON,
 			'src/node_modules/x/c.json': BAD,
@@ -247,7 +250,11 @@ describe('a run', () => {
 	});
 
 	it('reads standard input under the name it is given', async () => {
-		const result = await cli(['--stdin-filename', 'q.py'], {}, PYTHON);
+		const result = await cli(
+			['--format', 'compact', '--stdin-filename', 'q.py'],
+			{},
+			PYTHON,
+		);
 		expect(result.out).toContain('q.py:2:');
 		const mixed = await cli(['--stdin-filename', 'q.py', 'a.json'], {
 			'a.json': CLEAN,
@@ -261,7 +268,15 @@ describe('settings', () => {
 
 	it('switches a rule with a flag', async () => {
 		const result = await cli(
-			['a.json', '--rule', 'JEV006=off', '--rule', 'JEV004=error'],
+			[
+				'a.json',
+				'-f',
+				'compact',
+				'--rule',
+				'JEV006=off',
+				'--rule',
+				'JEV004=error',
+			],
 			tree,
 		);
 		expect(result.out).toContain('error  JEV004');
@@ -556,6 +571,43 @@ describe('a disk that fails', () => {
 	});
 });
 
+describe('the default format', () => {
+	const tree = { 'src/a.json': `\n${BAD}`, 'src/ok.json': CLEAN };
+
+	it('groups findings under their file, with the rule named and the message on its own line', async () => {
+		const result = await cli(['src'], tree);
+		const lines = result.out.split('\n');
+		expect(lines[0]).toBe('src/a.json');
+		expect(lines[1]).toMatch(/^ +2:\d+ {2}info {5}JEV004 no-fallback-option$/);
+		expect(lines[2]).toMatch(/^ {2} +This Choice has no fallback option\./);
+		expect(lines[3]).toMatch(/^ +2:\d+ {2}error {4}JEV006 /);
+		// A file with nothing to say is not listed.
+		expect(result.out).not.toContain('src/ok.json');
+		expect(lines.at(-2)).toMatch(/^2 findings \(1 error, 0 warnings\)/);
+	});
+
+	it('says how many findings --fix would mend', async () => {
+		const result = await cli(['q.json'], {
+			'q.json': `{ "questions": { "late": { "type": "noul", "instructions": "Did it arrive late?", "criteria": { "yes": "Late", "no": "On time" } } } }`,
+		});
+		expect(result.out).toContain('2 can be fixed with --fix.');
+	});
+
+	it('is plain unless a terminal is reading or --color is given', async () => {
+		const esc = String.fromCharCode(27);
+		expect((await cli(['src'], tree)).out).not.toContain(esc);
+		expect((await cli(['--color', 'src'], tree)).out).toContain(`${esc}[31m`);
+	});
+
+	it('never colours the formats a program reads', async () => {
+		const esc = String.fromCharCode(27);
+		for (const format of ['compact', 'json', 'github']) {
+			const result = await cli(['--color', '--format', format, 'src'], tree);
+			expect(result.out, format).not.toContain(esc);
+		}
+	});
+});
+
 describe('formats', () => {
 	const tree = { 'src/a.json': BAD };
 
@@ -827,6 +879,7 @@ describe('checking with Jev', () => {
 			'skipped',
 			'unread',
 			'counts',
+			'fixable',
 		]);
 	});
 
@@ -872,7 +925,7 @@ describe('checking with Jev', () => {
 	it('reports what Jev flags, in its place, and says what was sent', async () => {
 		const fetch = jevSays({ JEV301: { noul: 0.02 }, JEV302: { noul: 0.91 } });
 		const result = await cli(
-			['--jev', 'q.ts'],
+			['--jev', '--format', 'compact', 'q.ts'],
 			{ 'q.ts': VAGUE },
 			'',
 			world(fetch),

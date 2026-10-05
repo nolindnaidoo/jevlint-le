@@ -20,6 +20,8 @@ export type Totals = Readonly<{
 	/** Folders and files that could not be read at all. */
 	unread: ReadonlyArray<string>;
 	counts: Readonly<Record<Severity, number>>;
+	/** Findings left that `--fix` would mend. */
+	fixable: number;
 	/** Present only under `--fix`: what was written. */
 	fixed?: Readonly<{ findings: number; files: number }>;
 	/** Present only when the run was asked to check with Jev. */
@@ -104,6 +106,7 @@ export function summarize(totals: Totals): string {
 		parts.push(
 			`${plural(totals.unread.length, 'path')} could not be read: ${totals.unread.join(', ')}.`,
 		);
+	if (totals.fixable) parts.push(`${totals.fixable} can be fixed with --fix.`);
 	if (totals.fixed)
 		parts.push(
 			`Fixed ${plural(totals.fixed.findings, 'finding')} in ${plural(totals.fixed.files, 'file')}.`,
@@ -135,7 +138,43 @@ function describeJev(jev: JevTotals): ReadonlyArray<string> {
 	return held ? [said, held] : [said];
 }
 
-function asText(reports: ReadonlyArray<FileReport>, totals: Totals): string {
+type Paint = (code: number, text: string) => string;
+const PLAIN: Paint = (_code, text) => text;
+const ANSI: Paint = (code, text) => `\u001b[${code}m${text}\u001b[0m`;
+const BOLD = 1;
+const DIM = 2;
+const UNDERLINE = 4;
+const SEVERITY_COLORS: Readonly<Record<Severity, number>> = Object.freeze({
+	error: 31,
+	warning: 33,
+	info: 34,
+	hint: DIM,
+});
+const SEVERITY_WIDTH = 'warning'.length;
+
+// Grouped by file, as ESLint's default is, with the message on its own line:
+// these messages say what to do about a finding and run long.
+function asStylish(
+	reports: ReadonlyArray<FileReport>,
+	totals: Totals,
+	paint: Paint,
+): string {
+	const byPath = new Map<string, Row[]>();
+	for (const row of rows(reports))
+		byPath.set(row.path, [...(byPath.get(row.path) ?? []), row]);
+	const blocks = [...byPath].map(([path, found]) => {
+		const places = found.map(({ start }) => `${start.line}:${start.column}`);
+		const width = Math.max(...places.map((place) => place.length));
+		const lines = found.flatMap(({ finding }, i) => [
+			`  ${(places[i] ?? '').padStart(width)}  ${paint(SEVERITY_COLORS[finding.severity], finding.severity.padEnd(SEVERITY_WIDTH))}  ${paint(BOLD, finding.code)} ${paint(DIM, RULES[finding.code].name)}`,
+			`  ${' '.repeat(width)}  ${finding.message}`,
+		]);
+		return [paint(UNDERLINE, path), ...lines, ''].join('\n');
+	});
+	return [...blocks, summarize(totals), ''].join('\n');
+}
+
+function asCompact(reports: ReadonlyArray<FileReport>, totals: Totals): string {
 	const lines = rows(reports).map(
 		({ path, finding, start }) =>
 			`${path}:${start.line}:${start.column}  ${finding.severity}  ${finding.code}  ${finding.message}`,
@@ -204,14 +243,25 @@ function asGithub(reports: ReadonlyArray<FileReport>, totals: Totals): string {
 	return [...lines, summarize(totals), ''].join('\n');
 }
 
-const FORMATTERS: Readonly<
-	Record<Format, (reports: ReadonlyArray<FileReport>, totals: Totals) => string>
-> = Object.freeze({ text: asText, json: asJson, github: asGithub });
+type Formatter = (
+	reports: ReadonlyArray<FileReport>,
+	totals: Totals,
+	paint: Paint,
+) => string;
 
+const FORMATTERS: Readonly<Record<Format, Formatter>> = Object.freeze({
+	stylish: asStylish,
+	compact: asCompact,
+	json: asJson,
+	github: asGithub,
+});
+
+/** `color` matters only to the stylish format. The others are read by programs. */
 export function format(
 	kind: Format,
 	reports: ReadonlyArray<FileReport>,
 	totals: Totals,
+	color = false,
 ): string {
-	return FORMATTERS[kind](reports, totals);
+	return FORMATTERS[kind](reports, totals, color ? ANSI : PLAIN);
 }

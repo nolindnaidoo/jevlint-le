@@ -3,7 +3,7 @@ import { ENV_KEY } from '../jev/client';
 import { DEFAULT_MAX_CALLS, DEFAULT_MODEL } from '../jev/review';
 import type { LintOptions } from '../types';
 
-export type Format = 'text' | 'json' | 'github';
+export type Format = 'stylish' | 'compact' | 'json' | 'github';
 
 export type CliOptions = Readonly<{
 	paths: ReadonlyArray<string>;
@@ -31,6 +31,8 @@ export type CliOptions = Readonly<{
 	allowNoFiles: boolean;
 	/** Write the safe fixes into the files before reporting. */
 	fix: boolean;
+	/** Colour in the stylish format. Undefined leaves it to whether a terminal is reading. */
+	color: boolean | undefined;
 }>;
 
 export type Parsed =
@@ -49,15 +51,15 @@ type Flag = Readonly<{
 	apply: (options: CliOptions, value: string) => Applied;
 }>;
 
-const FORMATS: ReadonlyArray<string> = ['text', 'json', 'github'];
+const FORMATS: ReadonlyArray<string> = ['stylish', 'compact', 'json', 'github'];
 
 // The help is printed from this table, so a flag cannot exist without its line.
 const FLAGS: ReadonlyArray<Flag> = Object.freeze([
 	{
 		name: '--format',
 		short: '-f',
-		value: 'text|json|github',
-		help: 'How findings are printed. github writes workflow annotations.',
+		value: 'stylish|compact|json|github',
+		help: 'How findings are printed. stylish groups them by file, compact is one per line as path:line:column, github writes workflow annotations.',
 		apply: (options, value) =>
 			FORMATS.includes(value)
 				? { ...options, format: value as Format }
@@ -139,6 +141,16 @@ const FLAGS: ReadonlyArray<Flag> = Object.freeze([
 		apply: (options) => ({ ...options, jevSendState: true }),
 	},
 	{
+		name: '--color',
+		help: 'Colour the stylish format even when no terminal is reading.',
+		apply: (options) => ({ ...options, color: true }),
+	},
+	{
+		name: '--no-color',
+		help: 'No colour, even in a terminal. NO_COLOR in the environment does the same.',
+		apply: (options) => ({ ...options, color: false }),
+	},
+	{
 		name: '--mcp',
 		help: 'Run as an MCP server on standard input and output, for AI agents.',
 		apply: (options) => ({ ...options, mcp: true }),
@@ -166,7 +178,7 @@ export const FLAG_NAMES: ReadonlyArray<string> = FLAGS.map((flag) => flag.name);
 
 const DEFAULTS: CliOptions = Object.freeze({
 	paths: [],
-	format: 'text',
+	format: 'stylish',
 	rules: {},
 	config: undefined,
 	maxWarnings: undefined,
@@ -182,6 +194,7 @@ const DEFAULTS: CliOptions = Object.freeze({
 	jevSendState: false,
 	allowNoFiles: false,
 	fix: false,
+	color: undefined,
 });
 
 export function helpText(): string {

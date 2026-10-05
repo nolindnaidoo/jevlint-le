@@ -37,6 +37,7 @@ async function cli(args: string[], tree: Record<string, string>) {
 		err: () => {},
 		version: '0',
 		env: {},
+		terminal: false,
 		fetch: (async () => {
 			throw new Error('offline');
 		}) as unknown as Fetch,
