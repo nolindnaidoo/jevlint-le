@@ -227,8 +227,8 @@ Scores sent with no levels.
   bound would be an invented threshold.
 - **YAML request bodies.** They need a YAML parser, and no real usage has been
   seen.
-- **Localization, the Rust CLI, the MCP server, the npm package and the Zed
-  extension.** See Extended release 2.
+- **Localization, the Rust CLI, the MCP server and the npm package.** See
+  Extended release 2.
 
 ## Wording rules
 
@@ -935,8 +935,8 @@ will allow a tool that differs from the other sixteen.
 - **A featured section ahead of the other extensions**, with this tool in it,
   and the tool also listed among the rest in its right place.
 - **The site has to change to hold it.** Its registry and its copy state
-  things of every tool, such as twelve locales, a Rust crate and a Zed
-  extension, that are not true of this one. Those claims need to be read per
+  things of every tool, such as twelve locales and a Rust crate, that are not
+  true of this one. Those claims need to be read per
   tool before this one is added, or the site would say something false.
 - **The fleet check needs a place for it.** That check holds the sixteen
   byte-identical on files this repo lacks or has cut down. This repo can join
@@ -958,8 +958,7 @@ granted it, so the listing is verified. The family is to follow it there.
 Not planned for now: a Rust port of the command line, which every sibling
 has. The TypeScript one lints thousands of files in seconds, and a port would
 be every reader and rule kept in agreement twice. A listing in the MCP
-registry and a Zed extension would both sit on top of the npm package and
-wait on it.
+registry would sit on top of the npm package and waits on it.
 
 ## Extended release 1: request-level rules
 
@@ -981,7 +980,6 @@ More sources: the Vercel AI SDK's `experimental_evaluate`.
   against the extension. The command line in `src/cli/` already gives CI an
   exit code, so this is about the family pattern and not a missing feature.
 - **MCP registry listing**, once the npm package is published.
-- **Zed extension.**
 - **Localization** into the family's 12 locales.
 
 ## Verification
