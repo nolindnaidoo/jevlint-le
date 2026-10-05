@@ -203,6 +203,7 @@ read. Errors always fail a run. Warnings fail it only past `--max-warnings`.
 | `--config <file>` | Use this settings file, and no `jevlint-le.json` found near the files. Also `-c` |
 | `--max-warnings <n>` | Fail when more than `n` warnings are reported |
 | `--stdin-filename <path>` | Lint standard input as if it were that file |
+| `--fix` | Write the fixes that only mend what the API would refuse |
 | `--quiet` | Print errors only |
 | `--jev` | Also ask Jev about each question. Sends them to TypeSafe |
 | `--jev-plan` | Say what `--jev` would send, and send nothing |

@@ -4,7 +4,31 @@ import { SOURCE, toRange } from './diagnostics';
 
 type Deps = Readonly<{
 	resultFor: (document: vscode.TextDocument) => LintResult | undefined;
+	/** The document's text with every safe fix applied, or undefined when there is none to apply. */
+	fixedText: (document: vscode.TextDocument) => string | undefined;
 }>;
+
+/** What `editor.codeActionsOnSave` asks for by name, as it does of other linters. */
+export const FIX_ALL = vscode.CodeActionKind.SourceFixAll.append('jevlint-le');
+
+// One edit for the whole file: the fixes were worked out together, so they go in together.
+function toFixAll(
+	document: vscode.TextDocument,
+	fixed: string,
+): vscode.CodeAction {
+	const action = new vscode.CodeAction(
+		'Fix all the Jev findings that can be fixed safely',
+		FIX_ALL,
+	);
+	const edit = new vscode.WorkspaceEdit();
+	edit.replace(
+		document.uri,
+		toRange(document, { start: 0, end: document.getText().length }),
+		fixed,
+	);
+	action.edit = edit;
+	return action;
+}
 
 function codeOf(diagnostic: vscode.Diagnostic): string {
 	const code = diagnostic.code;
@@ -119,6 +143,11 @@ export function createCodeActionProvider(
 			_range: vscode.Range,
 			context: vscode.CodeActionContext,
 		) => {
+			// Asked for by kind, on save or from the Source Action menu.
+			if (context.only?.contains(FIX_ALL)) {
+				const fixed = deps.fixedText(document);
+				return fixed === undefined ? [] : [toFixAll(document, fixed)];
+			}
 			const result = deps.resultFor(document);
 			if (!result) return [];
 			return context.diagnostics

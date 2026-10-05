@@ -6,11 +6,13 @@ import { registerProbeCommand } from './commands/probe';
 import { getConfiguration, SECTION } from './config/config';
 import type { ConfigFs } from './config/projectConfig';
 import type { Fetch } from './jev/client';
+import { fixText } from './lint/fixAll';
+import { syntaxFor } from './lint/lint';
 import { createLinter, LANGUAGES } from './services/linter';
 import { registerMcpProvider } from './services/mcpProvider';
 import { createProjectConfigs } from './services/projectConfigs';
 import { createReviewer } from './services/reviewer';
-import { createCodeActionProvider } from './ui/codeActions';
+import { createCodeActionProvider, FIX_ALL } from './ui/codeActions';
 import { createStatusBar } from './ui/statusBar';
 
 const DISK: ConfigFs = Object.freeze({
@@ -82,6 +84,23 @@ export function activate(
 		lintOpen();
 	};
 
+	const fixedText = (document: vscode.TextDocument): string | undefined => {
+		const resolved = lintOptionsFor(document);
+		if ('problem' in resolved) return undefined;
+		const text = document.getText();
+		// Asked for on every save, so a failure here must not block the save.
+		try {
+			const mended = fixText(
+				text,
+				resolved.options,
+				syntaxFor(document.languageId),
+			);
+			return mended.fixed ? mended.text : undefined;
+		} catch {
+			return undefined;
+		}
+	};
+
 	const mcp = registerMcpProvider(context);
 	if (mcp) context.subscriptions.push(mcp);
 
@@ -106,8 +125,8 @@ export function activate(
 		}),
 		vscode.languages.registerCodeActionsProvider(
 			LANGUAGES.map((language) => ({ language })),
-			createCodeActionProvider({ resultFor: linter.resultFor }),
-			{ providedCodeActionKinds: [vscode.CodeActionKind.QuickFix] },
+			createCodeActionProvider({ resultFor: linter.resultFor, fixedText }),
+			{ providedCodeActionKinds: [vscode.CodeActionKind.QuickFix, FIX_ALL] },
 		),
 		vscode.workspace.onDidOpenTextDocument((document) => linter.lint(document)),
 		vscode.workspace.onDidChangeTextDocument((event) => {

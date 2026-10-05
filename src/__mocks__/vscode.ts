@@ -118,7 +118,18 @@ export class WorkspaceEdit {
 	}
 }
 
-export const CodeActionKind = { QuickFix: 'quickfix' };
+const kind = (value: string) => ({
+	value,
+	append: (part: string) => kind(`${value}.${part}`),
+	// A kind contains itself and anything more specific.
+	contains: (other: { value: string }) =>
+		other.value === value || other.value.startsWith(`${value}.`),
+});
+
+export const CodeActionKind = {
+	QuickFix: 'quickfix',
+	SourceFixAll: kind('source.fixAll'),
+};
 
 export class CodeAction {
 	edit: WorkspaceEdit | undefined;

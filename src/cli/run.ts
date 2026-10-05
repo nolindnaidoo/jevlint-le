@@ -1,5 +1,6 @@
 import { createConfigLoader, parseConfig } from '../config/projectConfig';
 import { ENV_KEY, type Fetch } from '../jev/client';
+import { fixText } from '../lint/fixAll';
 import {
 	DEFAULT_FALLBACK_OPTIONS,
 	lintText,
@@ -158,6 +159,50 @@ async function gather(options: CliOptions, io: Io): Promise<Gathered> {
 	};
 }
 
+type Mended = Readonly<{
+	sources: ReadonlyArray<Source>;
+	fixed: NonNullable<Totals['fixed']>;
+}>;
+
+/** Writes the safe fixes into each file and hands back the text as it now is. */
+function fixSources(
+	sources: ReadonlyArray<Source>,
+	optionsFor: (file: string) => LintOptions | string,
+	files: Files,
+): Mended | string {
+	const mended: Source[] = [];
+	let findings = 0;
+	let changed = 0;
+	for (const source of sources) {
+		const options = optionsFor(source.path);
+		if (typeof options === 'string') return options;
+		const result = attemptFix(source, options);
+		if (!result.fixed) {
+			mended.push(source);
+			continue;
+		}
+		try {
+			files.write(source.path, result.text);
+		} catch {
+			// Files before this one are already written, so the run says where it stopped.
+			return `Could not write ${source.path}. Files before it were fixed.`;
+		}
+		mended.push({ path: source.path, text: result.text });
+		findings += result.fixed;
+		changed += 1;
+	}
+	return { sources: mended, fixed: { findings, files: changed } };
+}
+
+// A file the reader fails on is left as it is. Linting names it afterwards.
+function attemptFix(source: Source, options: LintOptions) {
+	try {
+		return fixText(source.text, options, syntaxForPath(source.path));
+	} catch {
+		return { text: source.text, fixed: 0 };
+	}
+}
+
 export function lintSource(
 	source: Source,
 	lintOptions: LintOptions,
@@ -247,7 +292,7 @@ export async function run(
 		io.out(`${io.version}\n`);
 		return EXIT.passed;
 	}
-	const refused = refuseJev(options, io);
+	const refused = refuseJev(options, io) ?? refuseFix(options);
 	if (refused) return unusable(refused);
 	if (options.mcp) {
 		await serve(io);
@@ -257,16 +302,25 @@ export async function run(
 	if (typeof gathered === 'string') return unusable(gathered);
 
 	const optionsFor = createOptions(io.files, options);
-	const linted = lintSources(gathered.sources, optionsFor, options.quiet);
+	const mended = options.fix
+		? fixSources(gathered.sources, optionsFor, io.files)
+		: undefined;
+	if (typeof mended === 'string') return unusable(mended);
+	const linted = lintSources(
+		mended?.sources ?? gathered.sources,
+		optionsFor,
+		options.quiet,
+	);
 	if (typeof linted === 'string') return unusable(linted);
+	const fixed = mended ? { fixed: mended.fixed } : {};
 	const { reports } = linted;
 	const left: Left = {
 		skipped: gathered.left.skipped,
 		unread: [...gathered.left.unread, ...linted.failed],
 	};
 	if (options.jev || options.jevPlan)
-		return runWithJev(options, io, reports, left, optionsFor);
-	const totals = total(reports, left);
+		return runWithJev(options, io, reports, left, optionsFor, fixed);
+	const totals = { ...total(reports, left), ...fixed };
 	io.out(format(options.format, reports, totals));
 	return fails(totals, options.maxWarnings) ? EXIT.failed : EXIT.passed;
 }
@@ -286,6 +340,15 @@ function refuseJev(options: CliOptions, io: Io): string | undefined {
 		return '--jev cannot be combined with --mcp. The server sends nothing.';
 	if (options.jev && !options.jevPlan && !io.env[ENV_KEY]?.trim())
 		return `--jev needs an API key in ${ENV_KEY}. Nothing was sent.`;
+	return undefined;
+}
+
+function refuseFix(options: CliOptions): string | undefined {
+	if (!options.fix) return undefined;
+	if (options.mcp) return '--fix cannot be combined with --mcp.';
+	// Piped text has no file to write the fix back to.
+	if (options.stdinFilename !== undefined)
+		return '--fix cannot be combined with --stdin-filename.';
 	return undefined;
 }
 
@@ -316,6 +379,7 @@ async function runWithJev(
 	linted: ReadonlyArray<FileReport>,
 	left: Left,
 	optionsFor: (file: string) => LintOptions | string,
+	fixed: Pick<Totals, 'fixed'>,
 ): Promise<number> {
 	const say = (message: string) => io.err(`jevlint-le: ${message}\n`);
 	const plan = planJev(linted, optionsFor, options);
@@ -324,7 +388,7 @@ async function runWithJev(
 		return EXIT.unusable;
 	}
 	if (options.jevPlan) {
-		const totals = { ...total(linted, left), jev: plan.totals };
+		const totals = { ...total(linted, left), ...fixed, jev: plan.totals };
 		io.out(format(options.format, linted, totals));
 		return fails(totals, options.maxWarnings) ? EXIT.failed : EXIT.passed;
 	}
@@ -339,7 +403,7 @@ async function runWithJev(
 		},
 		options.quiet,
 	);
-	const totals = { ...total(ran.reports, left), jev: ran.totals };
+	const totals = { ...total(ran.reports, left), ...fixed, jev: ran.totals };
 	io.out(format(options.format, ran.reports, totals));
 	const failure =
 		ran.failure && `${FAILURES[ran.failure.kind]} (${ran.failure.detail})`;

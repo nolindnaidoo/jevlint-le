@@ -53,12 +53,20 @@ export function fallbackFix(
 	return {
 		title: `Add ${/^[aeiou]/i.test(name) ? 'an' : 'a'} '${name}' option`,
 		edits: [{ span: { start: at, end: at }, text: inserted }],
+		// A new option is a new answer the caller's code has to be ready for.
+		safe: false,
 	};
 }
 
-const replace = (title: string, span: Span, text: string): Fix => ({
+const replace = (
+	title: string,
+	span: Span,
+	text: string,
+	safe = true,
+): Fix => ({
 	title,
 	edits: [{ span, text }],
+	safe,
 });
 
 // A string literal's own quote, so the edit matches the file around it.
@@ -88,6 +96,8 @@ export function pinModelFix(text: string, span: Span): Fix {
 		`Pin to '${KNOWN_VERSION}', the version current on ${VERIFIED_ON}`,
 		span,
 		requote(text, span, KNOWN_VERSION),
+		// Which version to pin is a choice, and this one goes stale.
+		false,
 	);
 }
 

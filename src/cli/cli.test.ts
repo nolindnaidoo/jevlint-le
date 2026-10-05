@@ -33,6 +33,9 @@ function disk(tree: Record<string, string>): Files {
 		},
 		list: children,
 		read: (path) => tree[path] ?? '',
+		write: (path, text) => {
+			tree[path] = text;
+		},
 	};
 }
 
@@ -400,6 +403,63 @@ describe('the project settings file', () => {
 		expect(
 			JSON.parse(JSON.parse(result.out).result.content[0].text).totals.counts,
 		).toMatchObject({ error: 0, info: 0 });
+	});
+});
+
+describe('--fix', () => {
+	const BROKEN = `{ "questions": { "late": { "type": "noul", "instructions": "Did it arrive late?", "criteria": { "yes": "After the day promised", "no": "On or before it" } }, "team": { "type": "choice", "instructions": "Which team?", "criteria": { "billing": "Charges", "technical": "Faults" } } } }`;
+
+	it('writes the safe fixes, and reports what is left', async () => {
+		const tree = { 'q.json': BROKEN, 'ok.json': CLEAN };
+		const result = await cli(['--fix', '.'], tree);
+		expect(tree['q.json']).toContain('"true": "After the day promised"');
+		expect(tree['ok.json']).toBe(CLEAN);
+		expect(result.out).not.toContain('JEV006');
+		// The missing fallback is the author's call, so it is reported and not written.
+		expect(result.out).toContain('JEV004');
+		expect(tree['q.json']).not.toContain('"other"');
+		expect(result.out).toContain('Fixed 2 findings in 1 file.');
+		expect(result.status).toBe(EXIT.passed);
+	});
+
+	it('writes nothing without the flag', async () => {
+		const tree = { 'q.json': BROKEN };
+		const result = await cli(['q.json'], tree);
+		expect(tree['q.json']).toBe(BROKEN);
+		expect(result.status).toBe(EXIT.failed);
+		expect(result.out).not.toContain('Fixed');
+	});
+
+	it('says in JSON what it wrote', async () => {
+		const result = await cli(['--fix', '--format', 'json', 'q.json'], {
+			'q.json': BROKEN,
+		});
+		expect(JSON.parse(result.out).totals.fixed).toEqual({
+			findings: 2,
+			files: 1,
+		});
+	});
+
+	it('stops and says so when a file cannot be written', async () => {
+		const result = await cli(['--fix', 'q.json'], { 'q.json': BROKEN }, '', {
+			files: (files) => ({
+				...files,
+				write: () => {
+					throw new Error('EROFS: read-only file system');
+				},
+			}),
+		});
+		expect(result.status).toBe(EXIT.unusable);
+		expect(result.err).toContain('Could not write q.json.');
+	});
+
+	it.each([
+		[['--fix', '--stdin-filename', 'q.json'], '--stdin-filename'],
+		[['--fix', '--mcp'], '--mcp'],
+	])('refuses %j', async (args, said) => {
+		const result = await cli(args, {}, BROKEN);
+		expect(result.status).toBe(EXIT.unusable);
+		expect(result.err).toContain(`--fix cannot be combined with ${said}`);
 	});
 });
 
