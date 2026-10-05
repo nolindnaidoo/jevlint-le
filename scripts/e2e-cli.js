@@ -68,6 +68,27 @@ assert.strictEqual(wrong.status, 2);
 assert.match(wrong.err, /Unknown option '--fromat'/);
 assert.strictEqual(wrong.out, '');
 
+// A reader that closes the pipe early, as `head` does, must not crash the tool.
+// The report has to be larger than a pipe holds for the write to fail at all.
+const { mkdtempSync, writeFileSync } = require('node:fs');
+const { tmpdir } = require('node:os');
+const big = join(mkdtempSync(join(tmpdir(), 'jevlint-le-')), 'big.json');
+const question = (i) => `"q${i}": {"type":"choice","instructions":"Which team is it?","criteria":{"a":"A","b":"B"}}`;
+writeFileSync(big, `{"questions": {${Array.from({ length: 3000 }, (_, i) => question(i)).join(',')}}}`);
+const closedEarly = spawnSync(
+	process.execPath,
+	['-e', `
+		const { spawn } = require('node:child_process');
+		const child = spawn(process.execPath, [${JSON.stringify(bin)}, '--format', 'json', ${JSON.stringify(big)}], { stdio: ['ignore', 'pipe', 'pipe'] });
+		let err = '';
+		child.stderr.on('data', (chunk) => { err += chunk; });
+		child.stdout.once('data', () => child.stdout.destroy());
+		child.on('close', () => { process.stdout.write(err); });
+	`],
+	{ encoding: 'utf8' },
+);
+assert.strictEqual(closedEarly.stdout, '', 'crashed when its reader closed the pipe');
+
 // The Jev checks, as far as they go with nothing sent: the plan, and the refusal without a key.
 const plan = cli(['--jev-plan', '--format', 'json', 'clean.ts']);
 assert.strictEqual(plan.status, 0, plan.err);
