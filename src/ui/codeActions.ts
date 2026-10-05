@@ -104,8 +104,9 @@ function toSilencers(
 	finding: ReportedFinding,
 ): ReadonlyArray<vscode.CodeAction> {
 	const comment = COMMENTS[document.languageId];
-	// Inside a string a comment would become part of the JSON.
-	if (!comment || finding.inString) return [];
+	// Inside a string a comment would become part of the JSON. And a comment to
+	// silence the report of an unused comment would be one more of them.
+	if (!comment || finding.inString || finding.code === 'JEV010') return [];
 	const text = document.getText();
 	const lineStart = text.lastIndexOf('\n', finding.span.start - 1) + 1;
 	const indent = /^[ \t]*/.exec(text.slice(lineStart))?.[0] ?? '';

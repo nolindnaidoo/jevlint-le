@@ -69,6 +69,7 @@ mistakes that can be read from the text.
 | JEV007 | invalid-question | error | The type is missing or unknown, or the instructions are an empty string |
 | JEV008 | numeric-levels | warning | Score levels are bare numbers. Jev matches the state against each description and never sees its position |
 | JEV009 | too-few-options | info | A Choice with one option or a Score with one level gives every input the same answer |
+| JEV010 | unused-disable | warning | A `jevlint-le-disable` comment silences nothing, so it can only hide a finding added later |
 | JEV101 | double-negative | info | A question negates twice in one clause, or a negation sits directly on another |
 | JEV102 | arithmetic | warning | The question asks Jev to count or compare numbers |
 | JEV103 | date-comparison | info | The question asks Jev to order two times or measure the gap between them |

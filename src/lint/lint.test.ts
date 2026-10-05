@@ -691,13 +691,67 @@ describe('suppression', () => {
 		).toEqual([]);
 	});
 
-	it('leaves other rules and other lines alone', () => {
+	it('leaves other rules and other lines alone, and reports the comment that silenced nothing', () => {
 		expect(
 			codes(`// jevlint-le-disable-next-line JEV001\nconst q = ${bare};`),
-		).toEqual(['JEV004']);
+		).toEqual(['JEV010', 'JEV004']);
 		expect(
 			codes(`// jevlint-le-disable-next-line JEV004\n\nconst q = ${bare};`),
-		).toEqual(['JEV004']);
+		).toEqual(['JEV010', 'JEV004']);
+	});
+
+	describe('a comment that silences nothing', () => {
+		const clean = `{ type: 'noul', instructions: 'Did the parcel arrive after the promised day?' }`;
+		const found = (text: string, rules = {}) =>
+			lintText(text, { rules, fallbackOptions: ['other'], ignore: [] })
+				.findings;
+
+		it('is reported, at the comment', () => {
+			const text = `// jevlint-le-disable-next-line JEV004\nconst q = ${clean};`;
+			const [finding] = found(text);
+			expect(finding?.code).toBe('JEV010');
+			expect(finding?.severity).toBe('warning');
+			expect(text.slice(finding?.span.start, finding?.span.end)).toBe(
+				'jevlint-le-disable-next-line JEV004',
+			);
+		});
+
+		it('is not reported when it silences a finding', () => {
+			expect(
+				codes(`// jevlint-le-disable-next-line JEV004\nconst q = ${bare};`),
+			).toEqual([]);
+			expect(codes(`// jevlint-le-disable\nconst q = ${bare};`)).toEqual([]);
+		});
+
+		it('is reported when the rule it names is switched off, since that rule reports nothing', () => {
+			const text = `// jevlint-le-disable-next-line JEV004\nconst q = ${bare};`;
+			expect(found(text, { JEV004: 'off' }).map((f) => f.code)).toEqual([
+				'JEV010',
+			]);
+		});
+
+		it('is not reported when it names only rules that Jev checks, which linting never runs', () => {
+			expect(
+				codes(
+					`// jevlint-le-disable-next-line JEV303 JEV305\nconst q = ${clean};`,
+				),
+			).toEqual([]);
+		});
+
+		it('says to name the rule when it names none', () => {
+			const [finding] = found(`// jevlint-le-disable\nconst q = ${clean};`);
+			expect(finding?.message).toContain('name the rule');
+		});
+
+		it('can be switched off, and is not silenced by the comment it reports', () => {
+			const text = `// jevlint-le-disable\nconst q = ${clean};`;
+			expect(found(text).map((f) => f.code)).toEqual(['JEV010']);
+			expect(found(text, { JEV010: 'off' })).toEqual([]);
+		});
+
+		it('costs nothing in a file with no such comment', () => {
+			expect(codes(`const q = ${clean};`)).toEqual([]);
+		});
 	});
 
 	it('drops a finding listed in the ignore setting', () => {
