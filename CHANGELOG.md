@@ -1,10 +1,12 @@
 # Changelog
 
-## 0.2.0 — unreleased
+## 0.2.0 — 2026-10-05
 
-- `--jev` on the command line runs the checks that ask Jev itself, `JEV301`
-  to `JEV312`, the same ones the editor's **Check with Jev** command runs. It
-  sends the same requests the editor sends for the same file.
+### Check with Jev from the command line
+
+- `--jev` runs the checks that ask Jev itself, `JEV301` to `JEV312`, the same
+  ones the editor's **Check with Jev** command runs. It sends the same
+  requests the editor sends for the same file.
 - The key is read from `TYPESAFE_API_KEY`. Nothing in a settings file can
   turn `--jev` on.
 - `--jev-plan` says what would be sent and sends nothing.
@@ -12,33 +14,47 @@
   for the whole run, and a run that needs more exits 2.
 - A rejected key, a failed request or a stopped run exits 2 and says how many
   requests were answered of how many were planned.
-- JSON output gains `totals.jev` when `--jev` or `--jev-plan` is given.
-- `-h`, `-v`, `-f` and `-c` work. `-h` used to answer "No such file or
-  directory: -h".
+
+### Fixing
+
+- `--fix` writes the fixes that only mend what the API would refuse: a
+  renamed criteria key, a mistyped question type, criteria in the wrong
+  shape. The summary of any run says how many findings it would mend.
+- The editor offers the same as `source.fixAll.jevlint-le`, so fix on save
+  works.
+- Adding a fallback option and pinning a model are never written unasked.
+  They change what a working request does, and stay on the lightbulb.
+
+### New rule and settings
+
+- `JEV010 unused-disable` reports a `jevlint-le-disable` comment that
+  silences nothing. On by default as a warning.
+- `exclude` in `jevlint-le.json` lists files and folders not to lint. The
+  command line, the MCP server and the editor leave out the same files.
 - A rule can be named by its name as well as its code, and `warn` is taken as
   `warning`, in `--rule` and in `jevlint-le.json`.
+
+### Command line
+
+- `-h`, `-v`, `-f` and `-c` work. `-h` used to answer "No such file or
+  directory: -h".
 - `--no-error-on-unmatched-pattern` passes a run that finds no file to lint,
   for lint-staged and for packages with no Jev code. Without it that run
   still exits 2.
-- **`--fix`** writes the fixes that only mend what the API would refuse: a
-  renamed criteria key, a mistyped question type, criteria in the wrong
-  shape. The editor offers the same as `source.fixAll.jevlint-le`, so fix on
-  save works. Adding a fallback option and pinning a model are never written
-  unasked.
-- **The terminal output is grouped by file**, with the rule named and the
-  message on its own line, in colour when a terminal is reading. This
-  replaces the old default. The one-line `path:line:column` form is now
-  `--format compact`, and `--format text` is gone. `--color` and `--no-color`
-  override, and `NO_COLOR` is respected.
-- The summary says how many findings `--fix` would mend. JSON output gains
-  `totals.fixable`, and `totals.fixed` under `--fix`.
-- **`exclude` in `jevlint-le.json`** lists files and folders not to lint. The
-  command line, the MCP server and the editor leave out the same files. JSON
-  output gains `totals.excluded`.
-- **`JEV010 unused-disable`** reports a `jevlint-le-disable` comment that
-  silences nothing. On by default as a warning.
+- `--color` and `--no-color`. `NO_COLOR` is respected.
 
-Fixed, from a review of how the tool fails:
+### Changed
+
+- **The terminal output is grouped by file**, with the rule named and the
+  message wrapped under it, in colour when a terminal is reading. The
+  one-line `path:line:column` form is now `--format compact`. **`--format
+  text` is removed**, so a script that passes it needs `compact`.
+- JSON output gains `totals.fixable`, `totals.excluded` and `totals.unread`
+  on every run, `totals.fixed` under `--fix`, and `totals.jev` under `--jev`
+  or `--jev-plan`.
+- The README lists every command with its id, for binding to keys.
+
+### Fixed
 
 - **A reply from TypeSafe that was not a Jev reply crashed the run.** A proxy
   or sign-in page answering 200 threw out of the client. The command line

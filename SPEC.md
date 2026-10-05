@@ -1,6 +1,7 @@
 # JevLint-LE — specification
 
-**Status: released as 0.1.0 on 2026-10-04.** The exact rules, the wording rules, the
+**Status: released as 0.1.0 on 2026-10-04. 0.2.0 is on `main` and not yet
+published.** The exact rules, the wording rules, the
 four sources, the VS Code shell and their tests exist and pass. Everything
 under an "Extended release" heading is intent and none of it is built.
 
