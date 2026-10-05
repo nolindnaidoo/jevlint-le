@@ -190,6 +190,11 @@ so there a finding is silenced with `ignore`.
 The same linting runs outside the editor, for CI and for any editor that is
 not VS Code.
 
+To pin the version a project uses, install it as a dev dependency with
+`npm install --save-dev jevlint-le` and run it from a script. The editor
+lints with the copy the extension carries. When that is a different version
+from the one the project installs, the status bar says so.
+
 ![The command line reporting three findings on a small request](assets/demo-cli.gif)
 
 ```bash

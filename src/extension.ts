@@ -8,12 +8,13 @@ import type { ConfigFs } from './config/projectConfig';
 import type { Fetch } from './jev/client';
 import { fixText } from './lint/fixAll';
 import { syntaxFor } from './lint/lint';
+import { createInstalledLookup } from './services/installedCopies';
 import { createLinter, LANGUAGES } from './services/linter';
 import { registerMcpProvider } from './services/mcpProvider';
 import { createProjectConfigs } from './services/projectConfigs';
 import { createReviewer } from './services/reviewer';
 import { createCodeActionProvider, FIX_ALL } from './ui/codeActions';
-import { createStatusBar } from './ui/statusBar';
+import { createStatusBar, type Note } from './ui/statusBar';
 
 const DISK: ConfigFs = Object.freeze({
 	isFile: (path: string) =>
@@ -42,7 +43,20 @@ export function activate(
 			statusBar.warn(problem);
 			return;
 		}
-		statusBar.show(linter.resultFor(document));
+		statusBar.show(linter.resultFor(document), versionNote(document));
+	};
+
+	const own = String(context.extension.packageJSON.version);
+	const installedFor = createInstalledLookup(fs);
+	// The editor lints with the copy it carries. A project that installs another
+	// version runs that one in CI, and the two can report different findings.
+	const versionNote = (document: vscode.TextDocument): Note | undefined => {
+		const installed = installedFor(document);
+		if (!installed || installed.version === own) return undefined;
+		return {
+			short: `project has ${installed.version}`,
+			detail: `This project installs jevlint-le ${installed.version}. The editor is linting with its own ${own}, so findings here can differ from the project's command line.`,
+		};
 	};
 
 	const linter = createLinter({

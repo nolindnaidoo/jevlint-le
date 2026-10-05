@@ -1326,6 +1326,34 @@ describe('a project settings file in the editor', () => {
 		expect(diagnostics('file:///work/app/src/q.ts')).toEqual([]);
 	});
 
+	describe('a copy of the tool installed in the project', () => {
+		const installed = (version: string) => ({
+			'/work/app/node_modules/jevlint-le/package.json': `{ "version": "${version}" }`,
+		});
+
+		it("is named in the status bar when its version is not the editor's", () => {
+			_state.workspaceFolder = '/work/app';
+			within(installed('0.0.1'), file());
+			expect(_state.statusBar.text).toBe(
+				'$(checklist) Jev 1 · project has 0.0.1',
+			);
+			expect(_state.statusBar.tooltip).toContain(
+				`This project installs jevlint-le 0.0.1. The editor is linting with its own ${manifest.version}`,
+			);
+		});
+
+		it('is not mentioned when the versions are the same', () => {
+			_state.workspaceFolder = '/work/app';
+			within(installed(manifest.version), file());
+			expect(_state.statusBar.text).toBe('$(checklist) Jev 1');
+		});
+
+		it('is not mentioned when the project has none', () => {
+			within({}, file());
+			expect(_state.statusBar.text).toBe('$(checklist) Jev 1');
+		});
+	});
+
 	it('does not lint a file the settings file leaves out, as the command line does not', () => {
 		within(
 			{ '/work/app/jevlint-le.json': '{ "exclude": ["src/q.ts"] }' },

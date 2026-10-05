@@ -80,9 +80,11 @@ commands/                lint file, lint workspace, open settings
 commands/jev.ts          check with Jev, set and clear the API key
 commands/probe.ts        probe the question at the cursor
 config/config.ts         getConfiguration() snapshot; CONFIG_DEFAULTS
+config/installed.ts      the copy of this tool a project has installed, read from its manifest
 config/projectConfig.ts  jevlint-le.json: parsing it and finding the one that applies.
                          No `vscode`, so the command line shares it
 services/projectConfigs.ts  the settings for a document, and a watch on the files
+services/installedCopies.ts  the installed copy for a document, kept for a few seconds
 types.ts                 types only
 ```
 
@@ -344,6 +346,10 @@ family's files, copied unchanged from `regex-le`.
   the reason the file was not linted.
 - **One workspace run at a time.** A second would reset the findings the
   first is adding to.
+- **A project's installed copy is found by reading its manifest, and only
+  that.** `config/installed.ts` looks in the `node_modules` nearest the file,
+  no higher than the workspace folder. Running anything from it is a separate
+  decision that needs workspace trust.
 - **File size is counted in bytes in both places.**
 - **The pinned model and the call limit are defined once,** in
   `jev/review.ts`. The editor's defaults and the command line's read them.
