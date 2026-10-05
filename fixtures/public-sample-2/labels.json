@@ -1,0 +1,3079 @@
+[
+ {
+  "repo": "cannacre8ive/switchboard-ai",
+  "path": "src/decision/jev-router.mjs",
+  "id": "toolPython",
+  "type": "noul",
+  "hash": "7f828cb8ba6218f3",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "cannacre8ive/switchboard-ai",
+  "path": "src/decision/jev-router.mjs",
+  "id": "toolDrive",
+  "type": "noul",
+  "hash": "7088673736b91494",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "marwan404/Jev-gate",
+  "path": "jev_gate.py",
+  "id": "risk",
+  "type": "score",
+  "hash": "5b3a7b94d4b7ad3d",
+  "defects": [],
+  "borderline": [
+   "JEV110"
+  ],
+  "skipped": false
+ },
+ {
+  "repo": "kellystuard/jev-gmail-classifier",
+  "path": "spikes/155-smoke.js",
+  "id": "q1",
+  "type": "noul",
+  "hash": "73a10145b5a878ae",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "diegomejia17/backend-promotarjetas.site",
+  "path": "integrations/typesafe.go",
+  "id": "categoria",
+  "type": "choice",
+  "hash": "d90384bfd335b0b2",
+  "defects": [],
+  "borderline": [],
+  "skipped": true
+ },
+ {
+  "repo": "scottweiss/jevagotchi",
+  "path": "packages/core/src/psyche.ts",
+  "id": "ready_to_evolve",
+  "type": "noul",
+  "hash": "f24639bc6400451f",
+  "defects": [
+   "JEV104",
+   "JEV112"
+  ],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "clusterflick/scripts",
+  "path": "common/ask-jev-to-categorise.js",
+  "id": "isScreened",
+  "type": "noul",
+  "hash": "13a3df0bb0831490",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "badroneai/eventlive-sa",
+  "path": "scripts/jev-quality-reporter.mjs",
+  "id": "is_real_event",
+  "type": "noul",
+  "hash": "8af540de749742b5",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "FORHU/ilovelawyer-api",
+  "path": "src/utils/authority-stance-jev.ts",
+  "id": "stance",
+  "type": "choice",
+  "hash": "bd4517f89d67279c",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "CristianAlCubo/FindmeAJob",
+  "path": "src/core/job-fit.js",
+  "id": "question",
+  "type": "noul",
+  "hash": "2dde9e7337fe963e",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "UditJain2622004/Jev-Trading",
+  "path": "scripts/jev_sol_backtest_exp_f.py",
+  "id": "hit_tp_first",
+  "type": "choice",
+  "hash": "715a14d8bb7469a7",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "MaxiPawlowski/story-orchestrator",
+  "path": "server-plugin/story-orchestrator-judge/plugin.test.mjs",
+  "id": "a",
+  "type": "choice",
+  "hash": "2d711642b726b044",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "reiswaffel78/jev-agent-toolkit",
+  "path": "examples/direct-api/triage.mjs",
+  "id": "hasTriedSelfService",
+  "type": "noul",
+  "hash": "95c9730c928c8af2",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "ramyasri848/ai-cookbook",
+  "path": "models/jev/patterns/01-speculative-fan-out.py",
+  "id": "reproducible",
+  "type": "noul",
+  "hash": "8c69d19850268ac0",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "acoyfellow/nightglass",
+  "path": "src/jev-reference.mjs",
+  "id": "label",
+  "type": "choice",
+  "hash": "39557ee00122d9a0",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "scottweiss/jevagotchi",
+  "path": "packages/core/src/psyche.ts",
+  "id": "is_getting_sick",
+  "type": "noul",
+  "hash": "7d320520fb320f66",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "cannacre8ive/switchboard-ai",
+  "path": "src/decision/jev-router.mjs",
+  "id": "executor",
+  "type": "choice",
+  "hash": "53d6c8534a654238",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "kaanyavuzer/discord-live-voice-bot",
+  "path": "src/jev.js",
+  "id": "addressed",
+  "type": "noul",
+  "hash": "ad2959a69225721c",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "modu-ai/moai-adk",
+  "path": "scripts/jev/route.py",
+  "id": "owner",
+  "type": "choice",
+  "hash": "3cdecafbb8a80679",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "milanboers/jev-plays-pokemon",
+  "path": "jev_plays_pokemon/agent.py",
+  "id": "menu_open",
+  "type": "noul",
+  "hash": "2a44ae257ede31c8",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "hbar-systems/brainfoundry-nous",
+  "path": "scripts/cc/cc-bridge.py",
+  "id": "intent",
+  "type": "noul",
+  "hash": "213a3bbec8fd63f3",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "GregDixonMXN/paldron",
+  "path": "internal/jev/jev.go",
+  "id": "secret_exposure",
+  "type": "noul",
+  "hash": "c335706b7063efee",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "mit-bach/jev-library",
+  "path": "debug-test-frontends/engineering/engineers/sedge/trees/AntonioCoppe--jev-harness/recipes/agent-comm-harness/message-route.ts",
+  "id": "urgency",
+  "type": "score",
+  "hash": "0a8d19bbf9b7252c",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "CristianAlCubo/FindmeAJob",
+  "path": "src/core/job-fit.js",
+  "id": "question",
+  "type": "noul",
+  "hash": "91ff2b8630d7d271",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "Fei2-Labs/skill-genie",
+  "path": "skills/chinese-humanizer/scripts/humanlike_check.py",
+  "id": null,
+  "type": "noul",
+  "hash": "b1ba0a705a563367",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "imikerussell/beebots",
+  "path": "src/jev.ts",
+  "id": "ok",
+  "type": "choice",
+  "hash": "9b5bacaca22e72c4",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "plune-ai/cairn",
+  "path": "tests/unit/decider-client.test.ts",
+  "id": null,
+  "type": "score",
+  "hash": "6476c1c910a0e1f0",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "lttr/ai-sandbox",
+  "path": "guess-race-with-jev/game.mjs",
+  "id": "answer",
+  "type": "noul",
+  "hash": "3b541693b2586cc2",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "hbar-systems/brainfoundry-nous",
+  "path": "scripts/cc/cc-bridge.py",
+  "id": "safe",
+  "type": "noul",
+  "hash": "efad759b54635d1b",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "marcusquinn/aidevops",
+  "path": ".agents/scripts/jev-example.py",
+  "id": "repair",
+  "type": "noul",
+  "hash": "e1762acd4c726740",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "modu-ai/moai-adk",
+  "path": "scripts/jev/route.py",
+  "id": "reversible",
+  "type": "noul",
+  "hash": "ba97bb0a2e4af585",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "shengjidaguai-china/goutoujunshi-jev-chat",
+  "path": "integrations/jev_mac/jev.py",
+  "id": "reply_strategy",
+  "type": "choice",
+  "hash": "bd7fdafb4671808a",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "kaanyavuzer/discord-live-voice-bot",
+  "path": "src/jev.js",
+  "id": "kind",
+  "type": "choice",
+  "hash": "98ead9ffc32502f3",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "ax-llm/ax",
+  "path": "ir/conformance/axai/typesafe-adapter-threshold-default.json",
+  "id": "urgent",
+  "type": "noul",
+  "hash": "0317f7739baa41b5",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "KonghaYao/laya-jev",
+  "path": "tests/jev.test.ts",
+  "id": "frustration",
+  "type": "score",
+  "hash": "abe22c3dddc876be",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "KonghaYao/laya-jev",
+  "path": "tests/jev.test.ts",
+  "id": "choice",
+  "type": "choice",
+  "hash": "8ce33c6c86e991f7",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "OneWave-AI/claude-skills",
+  "path": "jev-eval/scripts/sweep.py",
+  "id": null,
+  "type": "noul",
+  "hash": "14b4035526671323",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "botassembly/thinkthen",
+  "path": "probes/find-0040/recording/42ccc85db1a0b070e3952fc1d2657712e7d2b23cb39e5170b1f7ac6a89cd7ac4.json",
+  "id": "q1",
+  "type": "noul",
+  "hash": "c6eb72c15871815b",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "stakwork/aws-advisor",
+  "path": "src/triage.ts",
+  "id": "severity",
+  "type": "score",
+  "hash": "df1ab8def781f6d8",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "SpecialSouth2004/AutoGPT",
+  "path": "autogpt_platform/backend/backend/copilot/gate/jev.py",
+  "id": "q3",
+  "type": "noul",
+  "hash": "5b43cc55411fcae0",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "masseater/cc-jev-teacher",
+  "path": "src/config-relax.ts",
+  "id": "relax",
+  "type": "noul",
+  "hash": "b6f8cb49c8e6b1c6",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "stakwork/aws-advisor",
+  "path": "src/triage.ts",
+  "id": "expected",
+  "type": "noul",
+  "hash": "e9c345463703c992",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "muneeebnaveeed/jev-browser-standalone",
+  "path": "src/questions.ts",
+  "id": "goal_done",
+  "type": "noul",
+  "hash": "64cb2b28b14b6b42",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "miles990/jev-newbie",
+  "path": "examples/js/quickstart.mjs",
+  "id": "needsReply",
+  "type": "noul",
+  "hash": "af9e6bd4058172af",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "rishi-raj-jain/date-with-jev",
+  "path": "src/lib/analyze.ts",
+  "id": "communication_style",
+  "type": "choice",
+  "hash": "24d42bbf78bf3c24",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "shahparshva72/boundary-bytes-go-backend",
+  "path": "internal/ai/jev.go",
+  "id": "is_cricket",
+  "type": "noul",
+  "hash": "0955a418f526b64f",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "KonghaYao/laya-jev",
+  "path": "tests/jev.test.ts",
+  "id": "refund_requested",
+  "type": "noul",
+  "hash": "896996edc03dea08",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "Cyli00/dsh-delegation-rust",
+  "path": "src/routing.rs",
+  "id": "route",
+  "type": "choice",
+  "hash": "cd225ed7649009f8",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "Gachon-Cocone-School/gcs-pulse",
+  "path": "apps/server/app/lib/typesafe_snippet_evaluator.py",
+  "id": null,
+  "type": "choice",
+  "hash": "182ee2d97d435cec",
+  "defects": [],
+  "borderline": [],
+  "skipped": true
+ },
+ {
+  "repo": "00xmario/Linkedin-Slop-Detector",
+  "path": "background.js",
+  "id": "slop_severity",
+  "type": "score",
+  "hash": "a4cf0017f34f3f4d",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "thaddywu/AgentProperties",
+  "path": "packages/adapters/src/jev-auto-review.ts",
+  "id": "decision",
+  "type": "choice",
+  "hash": "7392289f4b8b10bf",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "mheers/tobbie2",
+  "path": "tools/nl-eval/main.go",
+  "id": null,
+  "type": "noul",
+  "hash": "b6e34f20320b21d9",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "k3dom/openwapp",
+  "path": ".agents/repos/effect/packages/ai/typesafe/test/TypeSafeClient.test.ts",
+  "id": "urgent",
+  "type": "noul",
+  "hash": "b1bf6f66bf95b994",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "forhetale/agenthub",
+  "path": "packages/server/src/modules/studio/services/jev/client.ts",
+  "id": "sentiment",
+  "type": "choice",
+  "hash": "234e820b0e06b72c",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "jozso39/jev-model-router-for-claude",
+  "path": "src/config.mjs",
+  "id": "task_complexity",
+  "type": "score",
+  "hash": "48d3822807d8b427",
+  "defects": [
+   "JEV110"
+  ],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "madhavmadupu/talos",
+  "path": "src/lib/ai/jev-client.ts",
+  "id": "routing_action",
+  "type": "choice",
+  "hash": "51988ca40805be1c",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "scottweiss/jevagotchi",
+  "path": "packages/core/src/psyche.ts",
+  "id": "is_overfed",
+  "type": "noul",
+  "hash": "6c22f138f6350415",
+  "defects": [],
+  "borderline": [
+   "JEV112"
+  ],
+  "skipped": false
+ },
+ {
+  "repo": "botassembly/thinkthen",
+  "path": "probes/find-0040/recording/5adcaea424ddc2b122548ebf14b83f81e573a7c6157e871d15d90885b0bda1d7.json",
+  "id": "q1",
+  "type": "noul",
+  "hash": "ef08fd49da278d29",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "miles990/jev-newbie",
+  "path": "examples/js/quickstart.mjs",
+  "id": "urgency",
+  "type": "score",
+  "hash": "e8866905cb082576",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "marcusquinn/aidevops",
+  "path": ".agents/scripts/jev-example.py",
+  "id": "useful",
+  "type": "noul",
+  "hash": "82b739176425d847",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "CristianAlCubo/FindmeAJob",
+  "path": "src/core/job-fit.js",
+  "id": "question",
+  "type": "noul",
+  "hash": "513b01e271aeb4e8",
+  "defects": [
+   "JEV102"
+  ],
+  "borderline": [
+   "JEV112"
+  ],
+  "skipped": false
+ },
+ {
+  "repo": "vitas/dsh-jev-subagent-dispatch",
+  "path": "test/verdict.test.mjs",
+  "id": "effort",
+  "type": "score",
+  "hash": "6cdfd271da635d49",
+  "defects": [
+   "JEV110"
+  ],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "miles990/jev-newbie",
+  "path": "examples/js/quickstart.mjs",
+  "id": "kind",
+  "type": "choice",
+  "hash": "01cdd5731776edc8",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "AIAnytime/jev-crash-course",
+  "path": "06-jev-in-sql/jevsql.py",
+  "id": "topic",
+  "type": "choice",
+  "hash": "c7cf4ae8471e7ebf",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "dagucloud/dagu",
+  "path": "internal/runtime/builtin/decision/decision_test.go",
+  "id": "urgency",
+  "type": "score",
+  "hash": "648f8fc1734a8b6f",
+  "defects": [],
+  "borderline": [
+   "JEV110"
+  ],
+  "skipped": false
+ },
+ {
+  "repo": "daveebbelaar/ai-cookbook",
+  "path": "models/jev/patterns/02-confidence-gated-routing.py",
+  "id": "action",
+  "type": "choice",
+  "hash": "dc7da26bcf7ddd25",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "viraatdas/league-of-jev",
+  "path": "jev/fight.py",
+  "id": "gank_coming",
+  "type": "noul",
+  "hash": "d08482febe884250",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "hbar-systems/brainfoundry-nous",
+  "path": "scripts/cc/cc-bridge.py",
+  "id": "risk",
+  "type": "score",
+  "hash": "1c04da899eb6b487",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "Nekzus/LIOP",
+  "path": "sdks/typescript/tests/infra/production-audit/entrypoints/blg.ts",
+  "id": "requires_alert",
+  "type": "noul",
+  "hash": "1da933b186cd1958",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "chunxiaoxx/nautilus-compass",
+  "path": "runtime/typesafe_proof/bench_pair.py",
+  "id": "urgency",
+  "type": "noul",
+  "hash": "1822b1fe2eb85079",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "pekth/draftpulse",
+  "path": "server/analyze.ts",
+  "id": "dwell_structure",
+  "type": "score",
+  "hash": "9ab589d592099661",
+  "defects": [],
+  "borderline": [
+   "JEV110"
+  ],
+  "skipped": false
+ },
+ {
+  "repo": "32Lwk/medicine-recommend-system",
+  "path": "scripts/eval_jev_intent_router_10.py",
+  "id": "counseling_needed",
+  "type": "noul",
+  "hash": "afc148ad61ab2f24",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "shahparshva72/boundary-bytes-go-backend",
+  "path": "internal/ai/jev.go",
+  "id": "phase",
+  "type": "choice",
+  "hash": "f9831896152d6603",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "AntonioCoppe/jev-harness",
+  "path": "recipes/confidence-front-door/model-router.ts",
+  "id": "tier",
+  "type": "choice",
+  "hash": "ce16537b33a9ce3c",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "mit-bach/jev-library",
+  "path": "debug-test-frontends/engineering/engineers/sedge/trees/AntonioCoppe--jev-harness/recipes/agent-comm-harness/message-route.ts",
+  "id": "escalate",
+  "type": "noul",
+  "hash": "b497b6b7dbfabd92",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "Kizo07/quantflow",
+  "path": "backend/tests/test_typesafe_client.py",
+  "id": null,
+  "type": "noul",
+  "hash": "4b10efae706afa3d",
+  "defects": [],
+  "borderline": [],
+  "skipped": true
+ },
+ {
+  "repo": "ramyasri848/ai-cookbook",
+  "path": "models/jev/misclassification.py",
+  "id": "team",
+  "type": "choice",
+  "hash": "78d76f7ef15bc87e",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "madhavmadupu/talos",
+  "path": "src/lib/ai/jev-client.ts",
+  "id": "fraud_risk_score",
+  "type": "score",
+  "hash": "4f7a2f0197d1f9dd",
+  "defects": [],
+  "borderline": [
+   "JEV110"
+  ],
+  "skipped": false
+ },
+ {
+  "repo": "daveebbelaar/ai-cookbook",
+  "path": "models/jev/patterns/03-composite-scoring.py",
+  "id": "urgency",
+  "type": "score",
+  "hash": "e40efa3c567376aa",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "botassembly/thinkthen",
+  "path": "probes/find-0040/recording/2b99498f47ce7333eab9ee3f3c591852c90311351413279326eb965922923ec5.json",
+  "id": "q1",
+  "type": "noul",
+  "hash": "bbcb4b9291a827e1",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "AIAnytime/jev-crash-course",
+  "path": "10-play-a-game/app.py",
+  "id": "has_pattern",
+  "type": "noul",
+  "hash": "a4d69f66484f89a9",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "rishi-raj-jain/date-with-jev",
+  "path": "src/lib/analyze.ts",
+  "id": "boundary_pushing",
+  "type": "noul",
+  "hash": "c02e04ebc31a68f0",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "dagucloud/dagu",
+  "path": "internal/runtime/builtin/decision/decision_test.go",
+  "id": "department",
+  "type": "choice",
+  "hash": "da243390037d65b4",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "AIAnytime/jev-crash-course",
+  "path": "06-jev-in-sql/jevsql.py",
+  "id": "churn_risk",
+  "type": "score",
+  "hash": "f2d73f03a487570b",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "hemanth/traffic-guard",
+  "path": "python/traffic_guard/battery.py",
+  "id": "risk_level",
+  "type": "score",
+  "hash": "12027a62cf4bcb7b",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "alexj11324/open-jev-approvals",
+  "path": "internal/jev/client.go",
+  "id": "egress_authorized",
+  "type": "noul",
+  "hash": "5c479e6ad9946e94",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "Nicksxs/Nicksxs.github.io",
+  "path": "downloads/jev/jev-smoke-test-2026-09-20.json",
+  "id": "explicit_refund",
+  "type": "noul",
+  "hash": "9c8806ff7d7d4846",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "grizzlypeaksoftware/jev-demo",
+  "path": "triage.js",
+  "id": "is_urgent",
+  "type": "noul",
+  "hash": "8539ff2df097f751",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "32Lwk/medicine-recommend-system",
+  "path": "scripts/eval_jev_intent_router_10.py",
+  "id": "security_risk",
+  "type": "noul",
+  "hash": "c3535f7e209ac991",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "sidmanale643/atlas-jev",
+  "path": "src/atlas_jev/gate.py",
+  "id": "operation",
+  "type": "choice",
+  "hash": "2cd0c9641ed413d1",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "edoigtrd/Mirave",
+  "path": "exemple.py",
+  "id": "is_urgent",
+  "type": "noul",
+  "hash": "68c29cc72e65d0c1",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "pekth/draftpulse",
+  "path": "server/analyze.ts",
+  "id": "category",
+  "type": "choice",
+  "hash": "8abbf2d2b27414c7",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "rishi-raj-jain/date-with-jev",
+  "path": "src/lib/analyze.ts",
+  "id": "threat",
+  "type": "noul",
+  "hash": "9fa50c9b84e95f5a",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "bahramzada/jev-taxi-dispatch",
+  "path": "server.js",
+  "id": "saxta_sifaris",
+  "type": "noul",
+  "hash": "55c99a82f70a7934",
+  "defects": [],
+  "borderline": [],
+  "skipped": true
+ },
+ {
+  "repo": "juanuicich/writegood",
+  "path": "src-tauri/src/jev.rs",
+  "id": "q0",
+  "type": "noul",
+  "hash": "ecde693842a989f4",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "ISHANTARE/Stock-analysis-decision-model",
+  "path": "typesafe_client.py",
+  "id": "pricing_power",
+  "type": "score",
+  "hash": "094805b69d61772f",
+  "defects": [],
+  "borderline": [
+   "JEV110"
+  ],
+  "skipped": false
+ },
+ {
+  "repo": "reiswaffel78/jev-agent-toolkit",
+  "path": "examples/direct-api/triage.mjs",
+  "id": "isRefundRequest",
+  "type": "noul",
+  "hash": "28c379315ab4c0ba",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "joaquinCastellano350/incident-command-center",
+  "path": "packages/adapters/src/jev.ts",
+  "id": "serviceBreadth",
+  "type": "choice",
+  "hash": "0744489566bb95e7",
+  "defects": [],
+  "borderline": [
+   "JEV102"
+  ],
+  "skipped": false
+ },
+ {
+  "repo": "itsmostafa/system-one-connector",
+  "path": "cmd/evaluate/evaluate_test.go",
+  "id": "q",
+  "type": "noul",
+  "hash": "1e170500f0eb98ff",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "madhavmadupu/talos",
+  "path": "src/lib/ai/jev-client.ts",
+  "id": "is_novel_anomaly",
+  "type": "noul",
+  "hash": "1a10c4cdef533c7b",
+  "defects": [],
+  "borderline": [
+   "JEV105"
+  ],
+  "skipped": false
+ },
+ {
+  "repo": "GregDixonMXN/paldron",
+  "path": "internal/jev/jev.go",
+  "id": "hostile_action",
+  "type": "noul",
+  "hash": "782394a750ba65ce",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "alexj11324/open-jev-approvals",
+  "path": "internal/jev/client.go",
+  "id": "narrowly_scoped",
+  "type": "noul",
+  "hash": "8198dc8e601a6e4b",
+  "defects": [],
+  "borderline": [
+   "JEV104"
+  ],
+  "skipped": false
+ },
+ {
+  "repo": "alexj11324/open-jev-approvals",
+  "path": "internal/jev/client.go",
+  "id": "persistent_security_weakening",
+  "type": "noul",
+  "hash": "a5e48fc4ec8a7ba2",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "freed-project/freed",
+  "path": "packages/desktop/src-tauri/src/jev.rs",
+  "id": "test",
+  "type": "noul",
+  "hash": "8365adb7f0ef7af2",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "ramyasri848/ai-cookbook",
+  "path": "models/jev/patterns/01-speculative-fan-out.py",
+  "id": "category",
+  "type": "choice",
+  "hash": "6e817305e48db68c",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "davila7/claude-code-templates",
+  "path": "scripts/jev-spike.mjs",
+  "id": "tier",
+  "type": "choice",
+  "hash": "f4ead38ba8f453c4",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "JustRelaXD/context-pack",
+  "path": "apps/server/src/ai/jev.ts",
+  "id": "action",
+  "type": "choice",
+  "hash": "955a2d302d838eb1",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "xl31415926535/Capstone-PoC",
+  "path": "providers.mjs",
+  "id": "missing_conditions",
+  "type": "choice",
+  "hash": "f4e1a9f4155f8ed6",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "shahparshva72/boundary-bytes-go-backend",
+  "path": "internal/ai/jev.go",
+  "id": "league",
+  "type": "choice",
+  "hash": "0263f357f2261f9a",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "Fast-Editor/Lynkr",
+  "path": "src/routing/jev-router.js",
+  "id": "tier",
+  "type": "choice",
+  "hash": "1caa701851670c4d",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "hemanth/traffic-guard",
+  "path": "python/traffic_guard/battery.py",
+  "id": "traffic_type",
+  "type": "choice",
+  "hash": "f617fdc5dc8da7b3",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "dobromirmontauk/spectre-remake",
+  "path": "test/validation/jev-ai/2026-09-30/example-call-full-response.json",
+  "id": "tank_0",
+  "type": "choice",
+  "hash": "9744ecc3ddb5a4d8",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "MichaelKinsy/PiG",
+  "path": "ai/typesafe_system_one_upstream_test.go",
+  "id": "question",
+  "type": "score",
+  "hash": "acd3e23146b16c09",
+  "defects": [
+   "JEV110"
+  ],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "Nicksxs/Nicksxs.github.io",
+  "path": "downloads/jev/jev-smoke-test-2026-09-20.json",
+  "id": "urgency",
+  "type": "score",
+  "hash": "c63f8a1736347988",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "Fei2-Labs/skill-genie",
+  "path": "skills/chinese-humanizer/scripts/humanlike_check.py",
+  "id": null,
+  "type": "noul",
+  "hash": "b8849208ad268cfa",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "chenjingdev-archive/jev",
+  "path": "chess/checkmate.py",
+  "id": "is_checkmate",
+  "type": "noul",
+  "hash": "230dc73d2ba195a2",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "marwan404/Jev-gate",
+  "path": "jev_gate.py",
+  "id": "category",
+  "type": "choice",
+  "hash": "2098a4aef28ca6eb",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "betty2310/afm-translator",
+  "path": "src/typesafe.ts",
+  "id": "is_vietnamese",
+  "type": "noul",
+  "hash": "bf161da78754b278",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "dagucloud/dagu",
+  "path": "internal/runtime/builtin/decision/decision_test.go",
+  "id": "urgency",
+  "type": "score",
+  "hash": "57dbda0ef625e2f4",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "etweisberg/jev-ui",
+  "path": "apps/demo/scripts/check-key.mjs",
+  "id": "chart_view",
+  "type": "choice",
+  "hash": "f33fce1d25d12813",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "kaanyavuzer/discord-live-voice-bot",
+  "path": "src/jev.js",
+  "id": "asks",
+  "type": "noul",
+  "hash": "be3a7ccbe087c3fa",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "HARISRUJAN/RLCD",
+  "path": "examples/jev-kb.mjs",
+  "id": "topic",
+  "type": "choice",
+  "hash": "fc5e6037762bc216",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "viraatdas/league-of-jev",
+  "path": "jev/fight.py",
+  "id": "trade_worth",
+  "type": "noul",
+  "hash": "929e0f5d0b308318",
+  "defects": [
+   "JEV102"
+  ],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "32Lwk/medicine-recommend-system",
+  "path": "scripts/eval_jev_intent_router_10.py",
+  "id": "store_inquiry",
+  "type": "noul",
+  "hash": "0f97d58953b7d9fd",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "marcusquinn/aidevops",
+  "path": ".agents/scripts/jev-example.py",
+  "id": "category",
+  "type": "choice",
+  "hash": "12b02361ceabf3b9",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "digitopvn/motion-mcp",
+  "path": "packages/jev-router/test/jev-router.test.ts",
+  "id": null,
+  "type": "choice",
+  "hash": "88ab0ae7b1af8c0e",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "chunxiaoxx/nautilus-compass",
+  "path": "runtime/typesafe_proof/bench_pair_v2.py",
+  "id": "severity",
+  "type": "score",
+  "hash": "ffd85cc713ce6e22",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "jeffdhooton/scry",
+  "path": "internal/memory/assess/client.go",
+  "id": "assertion",
+  "type": "choice",
+  "hash": "45f61f0ef7918d4f",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "Michi4/deal-radar",
+  "path": "packages/deal_radar/decision.py",
+  "id": "condition",
+  "type": "score",
+  "hash": "2bab645e26862ab3",
+  "defects": [
+   "JEV110"
+  ],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "Sheshiyer/urania-137",
+  "path": "functions/__tests__/jev-client.test.ts",
+  "id": null,
+  "type": "score",
+  "hash": "cadb74af34bae328",
+  "defects": [
+   "JEV110"
+  ],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "Bollo444/Bollo-Harness",
+  "path": "crates/bollo-classifier/src/typesafe.rs",
+  "id": "credential_access",
+  "type": "noul",
+  "hash": "f52f577fbac11308",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "phamhongviet/pi-ext-model-router",
+  "path": "eval_router.py",
+  "id": "model",
+  "type": "choice",
+  "hash": "b2b9f68086103037",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "casungo/noflow-runtime",
+  "path": "src/runtime/jevPolicy.ts",
+  "id": "ambiguous_intent",
+  "type": "noul",
+  "hash": "b884d133f128a3c8",
+  "defects": [],
+  "borderline": [
+   "JEV112"
+  ],
+  "skipped": false
+ },
+ {
+  "repo": "narphorium/nl-logic-interpreter",
+  "path": "src/server/aiUnifier.ts",
+  "id": "participants",
+  "type": "noul",
+  "hash": "cc9056a185c00717",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "hemanth/traffic-guard",
+  "path": "python/traffic_guard/battery.py",
+  "id": "is_bot",
+  "type": "noul",
+  "hash": "138891bf39648650",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "sandeco/pix-golpe",
+  "path": "src/jev.rs",
+  "id": "tipo",
+  "type": "choice",
+  "hash": "2d99aede7d46d789",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "houke/fluxby",
+  "path": "apps/tauri/src/commands.rs",
+  "id": "connection",
+  "type": "noul",
+  "hash": "a9890d7c25aab292",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "stakwork/aws-advisor",
+  "path": "src/triage.ts",
+  "id": "kind",
+  "type": "choice",
+  "hash": "568c1688959bcc79",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "marwan404/Jev-gate",
+  "path": "jev_gate.py",
+  "id": "needs_confirmation",
+  "type": "noul",
+  "hash": "ed983a908b3fabfd",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "Fei2-Labs/skill-genie",
+  "path": "skills/chatgpt-web-delegation/scripts/route.py",
+  "id": "route",
+  "type": "choice",
+  "hash": "f29f0577a7919137",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "meganemura/archstrict",
+  "path": "test/config-meaning.test.ts",
+  "id": "rule",
+  "type": "choice",
+  "hash": "088081079ee0a44d",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "JackZH26/Jev-Live",
+  "path": "scripts/validate-jev-cloud.cjs",
+  "id": "action",
+  "type": "choice",
+  "hash": "52f47f556ab6c244",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "HARISRUJAN/RLCD",
+  "path": "examples/jev-kb.mjs",
+  "id": "supported",
+  "type": "noul",
+  "hash": "89205f048a5a843c",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "CodeWithJuber/wisdomlens",
+  "path": "skills/decision-engine/scripts/jev-adapter.mjs",
+  "id": "problem_class",
+  "type": "choice",
+  "hash": "fb6b36bb774c1614",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "advision-development/jevicle",
+  "path": "skills/runtime/jev-workers/templates/jev-client.test.ts",
+  "id": null,
+  "type": "noul",
+  "hash": "251a2c8f0df2ac54",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "advision-development/jevicle",
+  "path": "skills/runtime/jev-workers/templates/jev-client.test.ts",
+  "id": null,
+  "type": "score",
+  "hash": "18b5c86df23c3cff",
+  "defects": [
+   "JEV110"
+  ],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "SaurabhDvdi/medical-report-analyzer",
+  "path": "backend/tests/benchmark_jev_latency.py",
+  "id": "intent",
+  "type": "choice",
+  "hash": "330387a37c1f967c",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "MrChessT/JevState-",
+  "path": "src/jev/jev.test.ts",
+  "id": "estado",
+  "type": "score",
+  "hash": "a0e51ae985240a99",
+  "defects": [
+   "JEV110"
+  ],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "MrChessT/JevState-",
+  "path": "src/jev/jev.test.ts",
+  "id": "intencion",
+  "type": "choice",
+  "hash": "a4949e2c96de2668",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "aaddrick/building-with-typesafe-jev",
+  "path": "evals/runs/2026-09-26T11-43-49Z-none/outputs/email-facts/with-4/extract.py",
+  "id": "defect_count",
+  "type": "score",
+  "hash": "3f60f5b036390eab",
+  "defects": [
+   "JEV102"
+  ],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "Vatsa10/typesafe-computer-use-win",
+  "path": "typesafe_computer_use_win/intent.py",
+  "id": "heard",
+  "type": "noul",
+  "hash": "adf923cc86eb56fb",
+  "defects": [],
+  "borderline": [
+   "JEV112"
+  ],
+  "skipped": false
+ },
+ {
+  "repo": "mheers/tobbie2",
+  "path": "tools/nl-eval/main.go",
+  "id": null,
+  "type": "choice",
+  "hash": "f1f504a14dc091e7",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "thienchi2109/qltbyt-nam-phong",
+  "path": "scripts/jev-change-risk.mjs",
+  "id": "change_risk",
+  "type": "score",
+  "hash": "1eaa7ff9e3875aba",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "Nicksxs/Nicksxs.github.io",
+  "path": "downloads/jev/jev-smoke-test-2026-09-20.json",
+  "id": "route",
+  "type": "choice",
+  "hash": "d98b5ef537810ad5",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "advision-development/jevicle",
+  "path": "skills/runtime/jev-workers/templates/jev-client.test.ts",
+  "id": null,
+  "type": "choice",
+  "hash": "8910469034b5cce7",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "forhetale/agenthub",
+  "path": "packages/server/src/modules/studio/services/jev/client.ts",
+  "id": "quality",
+  "type": "score",
+  "hash": "4dfae5c3684dba62",
+  "defects": [
+   "JEV110"
+  ],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "sanjaykannan8/segue",
+  "path": "app/backend/segue/model/client.py",
+  "id": "needs_assistance",
+  "type": "noul",
+  "hash": "9e531e5fb615c5c0",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "NickYCLin/lattice-term",
+  "path": "src-tauri/src/jev.rs",
+  "id": "category",
+  "type": "choice",
+  "hash": "68c66a95b5410dbd",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "paramjeetn/jev-cookbook",
+  "path": "examples/01-customer-support-triage/triage.py",
+  "id": "category",
+  "type": "choice",
+  "hash": "9ec676bf788628f8",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "MrChessT/JevState-",
+  "path": "src/jev/jev.test.ts",
+  "id": "ambiguo",
+  "type": "noul",
+  "hash": "493989d327b019db",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "clusterflick/scripts",
+  "path": "common/ask-jev-to-categorise.js",
+  "id": "hasFeature",
+  "type": "noul",
+  "hash": "9f96c8040ba89e3c",
+  "defects": [
+   "JEV102"
+  ],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "sanjaykannan8/segue",
+  "path": "app/backend/segue/model/client.py",
+  "id": "ground_dispatch",
+  "type": "choice",
+  "hash": "e54d7dbc6823522a",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "dwamianm/prism",
+  "path": "benchmarks/results/research/2026-09-17/jev-product-alignment-development-v1-registration.json",
+  "id": "same_manufacturer",
+  "type": "noul",
+  "hash": "42c1c6f48f5c62a1",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "Sheshiyer/urania-137",
+  "path": "functions/__tests__/jev-client.test.ts",
+  "id": null,
+  "type": "noul",
+  "hash": "25de0f98714e6448",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "XiaoConstantine/sgrep",
+  "path": "bench/jev/jev.go",
+  "id": "abstraction_layer",
+  "type": "choice",
+  "hash": "b6b9641a8cff3365",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "aaddrick/building-with-typesafe-jev",
+  "path": "evals/runs/2026-09-26T11-43-49Z-none/outputs/reply-grader/with-1/grade.py",
+  "id": "politeness",
+  "type": "score",
+  "hash": "f53c87d6bcedcba9",
+  "defects": [],
+  "borderline": [
+   "JEV109"
+  ],
+  "skipped": false
+ },
+ {
+  "repo": "sandeco/pix-golpe",
+  "path": "src/jev.rs",
+  "id": "golpe",
+  "type": "noul",
+  "hash": "8e869d5368163312",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "muneeebnaveeed/jev-browser-standalone",
+  "path": "src/questions.ts",
+  "id": "stuck",
+  "type": "noul",
+  "hash": "08af376161bdcd7c",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "amberwhitehead/jevscript",
+  "path": "spike/m0.mjs",
+  "id": "has_repro",
+  "type": "noul",
+  "hash": "9e11c77f94d0e280",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "aaddrick/building-with-typesafe-jev",
+  "path": "evals/runs/2026-09-26T11-43-49Z-none/outputs/reply-grader/with-1/grade.py",
+  "id": "resolution",
+  "type": "score",
+  "hash": "0b238ab46dd6ef3e",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "sandeco/pix-golpe",
+  "path": "src/jev.rs",
+  "id": "urgencia",
+  "type": "score",
+  "hash": "e66992537f73ad79",
+  "defects": [],
+  "borderline": [
+   "JEV110"
+  ],
+  "skipped": false
+ },
+ {
+  "repo": "MarcoLoDico/pi-jev-router",
+  "path": "src/jev.mjs",
+  "id": "difficulty",
+  "type": "choice",
+  "hash": "4be1fe5f2e66a3c5",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "modu-ai/moai-adk",
+  "path": "scripts/jev/route.py",
+  "id": "needs_measurement",
+  "type": "noul",
+  "hash": "e34ba01c95402f60",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "badroneai/eventlive-sa",
+  "path": "scripts/jev-quality-reporter.mjs",
+  "id": "source_is_authoritative",
+  "type": "noul",
+  "hash": "2e20edb3451b3e9b",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "lahfir/agent-desktop",
+  "path": "scripts/jev/policy.mjs",
+  "id": "destructive",
+  "type": "noul",
+  "hash": "7939c286de899e07",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "reiswaffel78/jev-agent-toolkit",
+  "path": "examples/direct-api/triage.mjs",
+  "id": "subsystem",
+  "type": "choice",
+  "hash": "1099fee053b5259b",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "dwamianm/prism",
+  "path": "benchmarks/results/research/2026-09-17/jev-product-alignment-development-v1-registration.json",
+  "id": "same_name",
+  "type": "noul",
+  "hash": "ed248bfe441743db",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "00xmario/Linkedin-Slop-Detector",
+  "path": "background.js",
+  "id": "is_slop",
+  "type": "noul",
+  "hash": "44f40a9b5c49f764",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "deepanwadhwa/OpenDecision",
+  "path": "examples/m3_typesafe_sdk_demo.py",
+  "id": "urgent",
+  "type": "noul",
+  "hash": "0ae2d38682c4fb00",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "UditJain2622004/Jev-Trading",
+  "path": "scripts/jev_sol_backtest_exp_f.py",
+  "id": "looks_like",
+  "type": "choice",
+  "hash": "20ff1efff0243ec4",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "thisisnsh/aithing",
+  "path": "aithing-desktop/src/main.js",
+  "id": "urgent",
+  "type": "noul",
+  "hash": "9bfc32f19d626c99",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "AskTheWay/dsh-jev-interceptor",
+  "path": "scripts/smoke.mjs",
+  "id": "irreversible",
+  "type": "noul",
+  "hash": "aebbed2feb73556f",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "Marcus-Boni/ISPer",
+  "path": "crates/isper-llm/src/systemone.rs",
+  "id": null,
+  "type": "choice",
+  "hash": "453675e496e91274",
+  "defects": [],
+  "borderline": [],
+  "skipped": true
+ },
+ {
+  "repo": "eugene-tulu/Siro",
+  "path": "src/integrations/jev.js",
+  "id": "intent",
+  "type": "choice",
+  "hash": "204bb0083183ff07",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "itsmostafa/system-one-connector",
+  "path": "cmd/evaluate/evaluate_test.go",
+  "id": "q",
+  "type": "noul",
+  "hash": "de7d1b721a1e0632",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "hemanth/pkg-gate",
+  "path": "src/questions.js",
+  "id": "script_intent",
+  "type": "choice",
+  "hash": "e9c80d5e8acf1ab2",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "SpecialSouth2004/AutoGPT",
+  "path": "autogpt_platform/backend/backend/copilot/gate/jev.py",
+  "id": "q2",
+  "type": "noul",
+  "hash": "c3c36f4e00753083",
+  "defects": [],
+  "borderline": [
+   "JEV107"
+  ],
+  "skipped": false
+ },
+ {
+  "repo": "paramjeetn/jev-cookbook",
+  "path": "examples/02-trading-signal-extraction/signal_extractor.py",
+  "id": "guidance_revision",
+  "type": "choice",
+  "hash": "92f6f353ddb086c2",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "joaquinCastellano350/incident-command-center",
+  "path": "packages/adapters/src/jev.ts",
+  "id": "regionalReach",
+  "type": "choice",
+  "hash": "fcc54271d1144d0c",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "maestri33/notify.supletivo.net.br",
+  "path": "ai/typesafe.py",
+  "id": "departamento",
+  "type": "choice",
+  "hash": "3e536ae68c3d99c8",
+  "defects": [],
+  "borderline": [],
+  "skipped": true
+ },
+ {
+  "repo": "DanielKillenberger/telperion",
+  "path": "crates/telperion-jev/tests/fixtures/replay/oregon-white-oak/tape/jev/4eb4e18d5decd8c6d0f63601cd7579a3.json",
+  "id": "level",
+  "type": "score",
+  "hash": "d29dd218b46ce99f",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "harlanljones/jev-experiments",
+  "path": "mapreduce/run-bench.mjs",
+  "id": "topic",
+  "type": "choice",
+  "hash": "8ca137b02711d087",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "Bornholm/genai",
+  "path": "llm/provider/typesafe/decision_test.go",
+  "id": null,
+  "type": "noul",
+  "hash": "0a8ca2729f788f0b",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "nassim-arifette/jevgrep",
+  "path": "experiments/jev-contract/offline-worker.mjs",
+  "id": "q_blue",
+  "type": "noul",
+  "hash": "da8b910edfc6e5c8",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "JYeswak/jev_playground",
+  "path": "work/p3-calibration/h2_feas.py",
+  "id": "testfile",
+  "type": "noul",
+  "hash": "0f4c64a55d4926ba",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "SpecialSouth2004/AutoGPT",
+  "path": "autogpt_platform/backend/backend/copilot/gate/jev.py",
+  "id": "q4",
+  "type": "noul",
+  "hash": "474064f9c0409537",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "narphorium/nl-logic-interpreter",
+  "path": "src/server/aiUnifier.ts",
+  "id": "relation",
+  "type": "choice",
+  "hash": "a764cd6ef13b1eff",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "jeffdhooton/scry",
+  "path": "internal/memory/assess/client.go",
+  "id": "durable",
+  "type": "noul",
+  "hash": "efb4cc736c6d7f5d",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "davila7/claude-code-templates",
+  "path": "scripts/jev-spike.mjs",
+  "id": "effort",
+  "type": "score",
+  "hash": "e940d0c53bf627d3",
+  "defects": [
+   "JEV110"
+  ],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "MarcoLoDico/pi-jev-router",
+  "path": "src/jev.mjs",
+  "id": null,
+  "type": "noul",
+  "hash": "8f7b9b651ad9046b",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "ISHANTARE/Stock-analysis-decision-model",
+  "path": "typesafe_client.py",
+  "id": "accounting_red_flags",
+  "type": "noul",
+  "hash": "cc602fd1bb25ed9a",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "lalitsonawane/jev-one-system",
+  "path": "src/lib/triage-questions.ts",
+  "id": "department",
+  "type": "choice",
+  "hash": "199b82f69174d18e",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "pekth/draftpulse",
+  "path": "server/analyze.ts",
+  "id": "hook",
+  "type": "score",
+  "hash": "13f3bfded1e493fd",
+  "defects": [],
+  "borderline": [
+   "JEV110"
+  ],
+  "skipped": false
+ },
+ {
+  "repo": "cassiomc1/forgeloop",
+  "path": "src/adapters/typesafe/engine.js",
+  "id": "healthy",
+  "type": "noul",
+  "hash": "d92ba0b7ab7173d7",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "wsoule/dispatch",
+  "path": "packages/server/src/judgments/landingChecklist.ts",
+  "id": null,
+  "type": "noul",
+  "hash": "36a744129889a25d",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "pavan142/jev-experiments",
+  "path": "src/usecases/cricket-batsman/index.ts",
+  "id": "dismissed",
+  "type": "noul",
+  "hash": "2d4bf5ca9cf6b036",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "lStanev00/PvP-Scalpel-backend",
+  "path": "src/services/Service-Helpers/CFPNotes/judgeBluePost.js",
+  "id": "retail",
+  "type": "noul",
+  "hash": "a1561237f08814fe",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "mit-bach/jev-library",
+  "path": "debug-test-frontends/engineering/engineers/sedge/trees/AntonioCoppe--jev-harness/recipes/agent-comm-harness/message-route.ts",
+  "id": "contains_secrets",
+  "type": "noul",
+  "hash": "72a4a34e18ffdd3e",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "maestri33/notify.supletivo.net.br",
+  "path": "ai/typesafe.py",
+  "id": "risco_juridico",
+  "type": "noul",
+  "hash": "197b34729c239011",
+  "defects": [],
+  "borderline": [],
+  "skipped": true
+ },
+ {
+  "repo": "MaxiPawlowski/story-orchestrator",
+  "path": "server-plugin/story-orchestrator-judge/plugin.test.mjs",
+  "id": "greeting",
+  "type": "noul",
+  "hash": "a3eb69e2ae3929ce",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "Michi4/deal-radar",
+  "path": "packages/deal_radar/decision.py",
+  "id": "image_matches",
+  "type": "noul",
+  "hash": "036040cd7c78d101",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "MaxiPawlowski/story-orchestrator",
+  "path": "server-plugin/story-orchestrator-judge/plugin.test.mjs",
+  "id": "e",
+  "type": "noul",
+  "hash": "36a9e7f1c95b82ff",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "forhetale/agenthub",
+  "path": "packages/server/src/modules/studio/services/jev/client.ts",
+  "id": "working",
+  "type": "noul",
+  "hash": "48c8543c43654f13",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "jeffdhooton/scry",
+  "path": "internal/memory/assess/client.go",
+  "id": "supported",
+  "type": "noul",
+  "hash": "e6250ad8cf04a136",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "amberwhitehead/jevscript",
+  "path": "spike/m0.mjs",
+  "id": "kind",
+  "type": "choice",
+  "hash": "df75a18d1818b082",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "AntonioCoppe/jev-harness",
+  "path": "recipes/verify-gate/pr-risk-gate.ts",
+  "id": "disposition",
+  "type": "choice",
+  "hash": "7538f95fad30ad07",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "RainLib/open-review-platform",
+  "path": "internal/agentdecision/backend.go",
+  "id": "admission",
+  "type": "choice",
+  "hash": "3df54a18f42a16d6",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "up1/demo-jev-bug-serverity-assignment",
+  "path": "src/bug.js",
+  "id": "severity",
+  "type": "choice",
+  "hash": "8f4a030e4a64205f",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "soloa715/Valorant-Mc",
+  "path": "tools/typesafe_eval.py",
+  "id": "architectural_layer",
+  "type": "choice",
+  "hash": "c95375a0142804aa",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "AntonioCoppe/jev-harness",
+  "path": "recipes/verify-gate/pr-risk-gate.ts",
+  "id": "secrets",
+  "type": "noul",
+  "hash": "537e8eb76272f5b2",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "ggozad/haiku.rag",
+  "path": "evaluations/tests/test_system_one.py",
+  "id": "answer_equivalent",
+  "type": "noul",
+  "hash": "e2305275188609d2",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "casungo/noflow-runtime",
+  "path": "src/runtime/jevPolicy.ts",
+  "id": "requires_confirmation",
+  "type": "noul",
+  "hash": "11b00a54b0c876cf",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "lalitsonawane/jev-one-system",
+  "path": "src/lib/triage-questions.ts",
+  "id": "refund_requested",
+  "type": "noul",
+  "hash": "b1827e52d18723d1",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "Gachon-Cocone-School/gcs-pulse",
+  "path": "apps/server/app/lib/typesafe_snippet_evaluator.py",
+  "id": null,
+  "type": "noul",
+  "hash": "be54632d6e04802f",
+  "defects": [],
+  "borderline": [],
+  "skipped": true
+ },
+ {
+  "repo": "viraatdas/league-of-jev",
+  "path": "jev/fight.py",
+  "id": "in_danger",
+  "type": "noul",
+  "hash": "65499521fa598f49",
+  "defects": [
+   "JEV102"
+  ],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "paramjeetn/jev-cookbook",
+  "path": "examples/01-customer-support-triage/triage.py",
+  "id": "is_enterprise",
+  "type": "noul",
+  "hash": "ee79f990bc9f5039",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "grizzlypeaksoftware/jev-demo",
+  "path": "triage.js",
+  "id": "churn_risk",
+  "type": "noul",
+  "hash": "2b702cf9832181f0",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "sidmanale643/atlas-jev",
+  "path": "src/atlas_jev/gate.py",
+  "id": null,
+  "type": "choice",
+  "hash": "b59130b7ed97c40b",
+  "defects": [],
+  "borderline": [
+   "JEV103"
+  ],
+  "skipped": false
+ },
+ {
+  "repo": "henrilhos/compasso",
+  "path": "packages/scrapers/src/lib/cultural-event-classification.ts",
+  "id": "is_cultural_event",
+  "type": "noul",
+  "hash": "bbcc6246d4b4fccf",
+  "defects": [],
+  "borderline": [],
+  "skipped": true
+ },
+ {
+  "repo": "eugene-tulu/Siro",
+  "path": "src/integrations/jev.js",
+  "id": "visual_request",
+  "type": "choice",
+  "hash": "ea7cf4da9a473f30",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "thisisnsh/aithing",
+  "path": "aithing-desktop/src/main.js",
+  "id": "category",
+  "type": "choice",
+  "hash": "016c9d8cfd3b0a21",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "maestri33/notify.supletivo.net.br",
+  "path": "ai/typesafe.py",
+  "id": "urgencia",
+  "type": "score",
+  "hash": "c9c897a6238993f6",
+  "defects": [],
+  "borderline": [],
+  "skipped": true
+ },
+ {
+  "repo": "ishizakahiroshi/many-ai-cli",
+  "path": "internal/hub/jev_evaluate.go",
+  "id": "needs_strong_model",
+  "type": "noul",
+  "hash": "34483743dc212ec0",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "quanticstudios/pitwall",
+  "path": "internal/decide/jev.go",
+  "id": "ok",
+  "type": "noul",
+  "hash": "b401b9117b7ca998",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "soloa715/Valorant-Mc",
+  "path": "tools/typesafe_eval.py",
+  "id": "security_hazard",
+  "type": "noul",
+  "hash": "d49087c62082224a",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "T-Lind/accessor",
+  "path": "src/route.rs",
+  "id": "addressed",
+  "type": "noul",
+  "hash": "eeb56ba9f18a07f7",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "dwamianm/prism",
+  "path": "benchmarks/results/research/2026-09-17/jev-product-alignment-development-v1-registration.json",
+  "id": "compatible_price",
+  "type": "noul",
+  "hash": "2d321dccaa9acfdd",
+  "defects": [
+   "JEV102"
+  ],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "mavericksxx/typesafe-jev-history-globe",
+  "path": "scripts/probe-composite.mjs",
+  "id": "impact",
+  "type": "score",
+  "hash": "c5006efc37a9f32b",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "JustRelaXD/context-pack",
+  "path": "apps/server/src/ai/jev.ts",
+  "id": "mentionsWeather",
+  "type": "noul",
+  "hash": "c054fa92f7c8d90d",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "Sheshiyer/urania-137",
+  "path": "functions/__tests__/jev-client.test.ts",
+  "id": null,
+  "type": "choice",
+  "hash": "71aaea0dce185f2f",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "smart-coder-labs/nexus-mind",
+  "path": "apps/backend/src/factory/jev.rs",
+  "id": "needs_human",
+  "type": "noul",
+  "hash": "ba2d011d4f99eeaf",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "digitopvn/motion-mcp",
+  "path": "packages/jev-router/test/jev-router.test.ts",
+  "id": "needs_opus",
+  "type": "noul",
+  "hash": "8d89d508b446878e",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "FogMoe/necro",
+  "path": "results/phase4/selected/source/necro/training/release/package_verification.py",
+  "id": null,
+  "type": "choice",
+  "hash": "d4fabcd32304ec23",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "Bollo444/Bollo-Harness",
+  "path": "crates/bollo-classifier/src/typesafe.rs",
+  "id": "risk",
+  "type": "score",
+  "hash": "801cdd8d6c41b1e2",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "hemanth/pkg-gate",
+  "path": "src/questions.js",
+  "id": "accesses_secrets",
+  "type": "noul",
+  "hash": "7de0fcb1342eab0d",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "ISHANTARE/Stock-analysis-decision-model",
+  "path": "typesafe_client.py",
+  "id": "earnings_sentiment",
+  "type": "choice",
+  "hash": "1cebe67b4aeee367",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "shaun0927/openchrome",
+  "path": "tests/pilot/decider/decider.test.ts",
+  "id": "q",
+  "type": "choice",
+  "hash": "50a830a6b47b4634",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "XiaoConstantine/sgrep",
+  "path": "bench/jev/jev.go",
+  "id": "answers_query",
+  "type": "noul",
+  "hash": "5ec21a7fa082a8fd",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "T-Lind/accessor",
+  "path": "src/route.rs",
+  "id": "relevant",
+  "type": "noul",
+  "hash": "d099e5d47442eda7",
+  "defects": [
+   "JEV104"
+  ],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "hemanth/pkg-gate",
+  "path": "src/questions.js",
+  "id": "threat_severity",
+  "type": "score",
+  "hash": "4e846d1bc80be72c",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "grizzlypeaksoftware/jev-demo",
+  "path": "triage.js",
+  "id": "department",
+  "type": "choice",
+  "hash": "6dc49c476f496d91",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "Anil-matcha/awesome-jev-by-typesafe",
+  "path": "examples/typescript/quickstart.ts",
+  "id": "isUrgent",
+  "type": "noul",
+  "hash": "e0441d60d8ed6209",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "lambertsj/beatjevv",
+  "path": "src/worker.js",
+  "id": "is_spam",
+  "type": "noul",
+  "hash": "ad7ee7cb103e38c1",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "lemma-work/lemma-platform",
+  "path": "lemma-frontend/src/call/jev-router.ts",
+  "id": "action",
+  "type": "choice",
+  "hash": "4ba65c1a3fe83894",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "xl31415926535/Capstone-PoC",
+  "path": "providers.mjs",
+  "id": "syllabus_scope",
+  "type": "choice",
+  "hash": "ad2b33bbbb7c9f37",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "alecstein/rceb-repair-form",
+  "path": "netlify/lib/typesafe-ai.mjs",
+  "id": "category",
+  "type": "choice",
+  "hash": "8e137016db311aa8",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "amberwhitehead/jevscript",
+  "path": "spike/m0.mjs",
+  "id": "urgent",
+  "type": "noul",
+  "hash": "adae327b8450837c",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "MauroPello/stop-the-slop",
+  "path": "benchmark/run.js",
+  "id": "is_ai",
+  "type": "choice",
+  "hash": "2912e8bf048ef703",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "soloa715/Valorant-Mc",
+  "path": "tools/typesafe_eval.py",
+  "id": "maintainability_score",
+  "type": "score",
+  "hash": "e43e2f6598498b88",
+  "defects": [],
+  "borderline": [
+   "JEV109"
+  ],
+  "skipped": false
+ },
+ {
+  "repo": "Zafer-Liu/jev-xiangqi",
+  "path": "server.py",
+  "id": "ok",
+  "type": "noul",
+  "hash": "295b76cfec647ae5",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "msharafh/jev-lab",
+  "path": "triage.py",
+  "id": "promo",
+  "type": "noul",
+  "hash": "7166311245ea3b99",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "joaquinCastellano350/incident-command-center",
+  "path": "packages/adapters/src/jev.ts",
+  "id": "priorityAssessment",
+  "type": "choice",
+  "hash": "dc25205dc76c6519",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "mheers/tobbie2",
+  "path": "tools/nl-eval/main.go",
+  "id": "side",
+  "type": "choice",
+  "hash": "f35fab49dee02891",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "T-Lind/accessor",
+  "path": "src/route.rs",
+  "id": "response",
+  "type": "noul",
+  "hash": "47c9c9518a47adf4",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "edoigtrd/Mirave",
+  "path": "exemple.py",
+  "id": "frustration",
+  "type": "score",
+  "hash": "b3e07c786e9e0483",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "daveebbelaar/ai-cookbook",
+  "path": "models/jev/04-noul.py",
+  "id": "refund_requested",
+  "type": "noul",
+  "hash": "d116d3fe58ec6084",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "lttr/ai-sandbox",
+  "path": "guess-race-with-jev/game.mjs",
+  "id": "isIdentityGuess",
+  "type": "noul",
+  "hash": "61864acc156c5cd0",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "YosemiteCrew/Yosemite-Crew",
+  "path": "scripts/roadmap/judgment.mjs",
+  "id": null,
+  "type": "score",
+  "hash": "25be937f18133567",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "lStanev00/PvP-Scalpel-backend",
+  "path": "src/services/Service-Helpers/CFPNotes/judgeBluePost.js",
+  "id": "pvp",
+  "type": "noul",
+  "hash": "c1ad98505ac021fa",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "zchee/decision-model-sdk-go",
+  "path": "internal/testsupport/naive/naive_test.go",
+  "id": null,
+  "type": "noul",
+  "hash": "a6fc5c63a56e0ba6",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "yceffort/blog",
+  "path": "apps/blog/scripts/generate-related-posts.mjs",
+  "id": "next",
+  "type": "noul",
+  "hash": "75595c14cc1e174f",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "ishizakahiroshi/many-ai-cli",
+  "path": "internal/hub/jev_evaluate.go",
+  "id": "task_type",
+  "type": "choice",
+  "hash": "9aade66179c20382",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "Fast-Editor/Lynkr",
+  "path": "src/routing/jev-router.js",
+  "id": "risky",
+  "type": "noul",
+  "hash": "9701f2f8a67c3146",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "edoigtrd/Mirave",
+  "path": "exemple.py",
+  "id": "intent",
+  "type": "choice",
+  "hash": "5e48cc6b8bd3e2fd",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "platform-q-ai/quecto",
+  "path": "quecto-agentic-harness/src/infrastructure/search/typesafe_judge.rs",
+  "id": "relevant",
+  "type": "noul",
+  "hash": "88e0c855a7504855",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "ishizakahiroshi/many-ai-cli",
+  "path": "internal/hub/jev_evaluate.go",
+  "id": "complexity",
+  "type": "score",
+  "hash": "0ee9d4a6003a66bb",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "deepanwadhwa/OpenDecision",
+  "path": "examples/m3_typesafe_sdk_demo.py",
+  "id": "department",
+  "type": "choice",
+  "hash": "19bb9d7391294627",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "sidmanale643/atlas-jev",
+  "path": "src/atlas_jev/gate.py",
+  "id": "worth_remembering",
+  "type": "noul",
+  "hash": "40bdb63cfc38b564",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "thienchi2109/qltbyt-nam-phong",
+  "path": "scripts/jev-change-risk.mjs",
+  "id": "review_route",
+  "type": "choice",
+  "hash": "7c0b197ff1240bf3",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "jozso39/jev-model-router-for-claude",
+  "path": "src/config.mjs",
+  "id": "reasoning_required",
+  "type": "score",
+  "hash": "c2f2319d1e9e5595",
+  "defects": [
+   "JEV110"
+  ],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "XiaoConstantine/sgrep",
+  "path": "bench/jev/jev.go",
+  "id": "evidence_type",
+  "type": "choice",
+  "hash": "bc67284f44f45b87",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "Marcus-Boni/ISPer",
+  "path": "crates/isper-llm/src/systemone.rs",
+  "id": null,
+  "type": "noul",
+  "hash": "cbc042864e4d4c86",
+  "defects": [],
+  "borderline": [],
+  "skipped": true
+ },
+ {
+  "repo": "JustRelaXD/context-pack",
+  "path": "apps/server/src/ai/jev.ts",
+  "id": "scope",
+  "type": "choice",
+  "hash": "f896a8616a918f9f",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "hijohnnylin/neuronpedia",
+  "path": "apps/webapp/lib/external/autointerp-scorer-jev.ts",
+  "id": "rating",
+  "type": "score",
+  "hash": "089979ead252df90",
+  "defects": [],
+  "borderline": [
+   "JEV102"
+  ],
+  "skipped": false
+ },
+ {
+  "repo": "lalitsonawane/jev-one-system",
+  "path": "src/lib/triage-questions.ts",
+  "id": "is_urgent",
+  "type": "noul",
+  "hash": "bf1fed48aec2606a",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "bestony/bestony-userscripts",
+  "path": "xdeck-smart-filter.user.js",
+  "id": "blocked",
+  "type": "noul",
+  "hash": "5916820d87bdbd2a",
+  "defects": [],
+  "borderline": [],
+  "skipped": true
+ },
+ {
+  "repo": "msharafh/jev-lab",
+  "path": "triage.py",
+  "id": "substance",
+  "type": "score",
+  "hash": "0a863a0838a33d5b",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "MohtashamMurshid/jev-design-lint",
+  "path": "test/jev.test.ts",
+  "id": "design_review",
+  "type": "choice",
+  "hash": "86e5e00e22d0ad83",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "svngoku/GenerathonHack",
+  "path": "jua/tools/jev_route.py",
+  "id": "task",
+  "type": "choice",
+  "hash": "10ace1989f4e10ae",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "svngoku/GenerathonHack",
+  "path": "jua/tools/jev_route.py",
+  "id": "phase",
+  "type": "choice",
+  "hash": "b52eb4158e8fdac5",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "Michi4/deal-radar",
+  "path": "packages/deal_radar/decision.py",
+  "id": "is_exact_product",
+  "type": "noul",
+  "hash": "f16c9fe0ce581733",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "FogMoe/necro",
+  "path": "results/phase4/selected/source/necro/training/release/package_verification.py",
+  "id": "level",
+  "type": "score",
+  "hash": "62f5e58d61018871",
+  "defects": [],
+  "borderline": [],
+  "skipped": true
+ },
+ {
+  "repo": "plune-ai/cairn",
+  "path": "tests/unit/decider-client.test.ts",
+  "id": null,
+  "type": "choice",
+  "hash": "5d8a995a6fa7cf7c",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "microsoft/agent-framework",
+  "path": "python/packages/typesafe/samples/mcp_function_calling.py",
+  "id": "succeeded",
+  "type": "noul",
+  "hash": "9394523612f1b074",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "Nekzus/LIOP",
+  "path": "sdks/typescript/tests/infra/production-audit/entrypoints/blg.ts",
+  "id": "is_threat",
+  "type": "noul",
+  "hash": "157cab7f72dd9652",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "HARISRUJAN/RLCD",
+  "path": "examples/alert-10k-compare.mjs",
+  "id": "incident",
+  "type": "noul",
+  "hash": "0fa35dee41b78013",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "kerpopule/hermes-jev-skills",
+  "path": "jevkit/client.py",
+  "id": "ok",
+  "type": "noul",
+  "hash": "c3d3fc5e143eb196",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "AskTheWay/dsh-jev-interceptor",
+  "path": "scripts/smoke.mjs",
+  "id": "risk",
+  "type": "choice",
+  "hash": "00d131a87bfa1e9b",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "plune-ai/cairn",
+  "path": "tests/unit/decider-client.test.ts",
+  "id": null,
+  "type": "noul",
+  "hash": "f57f358c04ffae6c",
+  "defects": [],
+  "borderline": [],
+  "skipped": false
+ },
+ {
+  "repo": "badroneai/eventlive-sa",
+  "path": "scripts/jev-quality-reporter.mjs",
+  "id": "date_is_reliable",
+  "type": "noul",
+  "hash": "43fcf2af9b42d72b",
+  "defects": [
+   "JEV103"
+  ],
+  "borderline": [],
+  "skipped": false
+ }
+]
