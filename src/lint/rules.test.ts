@@ -28,8 +28,9 @@ describe('rule registry', () => {
 		for (const code of RULE_CODES) expect(RULES[code].code).toBe(code);
 	});
 
-	it('points every rule at a vendor page', () => {
-		for (const code of RULE_CODES)
+	it('points every rule about a question at a vendor page', () => {
+		// JEV010 is about this tool's own comments, which no vendor page covers.
+		for (const code of RULE_CODES.filter((code) => code !== 'JEV010'))
 			expect(RULES[code].docs).toMatch(/^https:\/\/docs\.typesafe\.ai\//);
 	});
 });

@@ -74,6 +74,13 @@ export const RULES: Readonly<Record<RuleCode, Rule>> = Object.freeze({
 		severity: 'info',
 		docs: DOCS.choice,
 	},
+	JEV010: {
+		code: 'JEV010',
+		name: 'unused-disable',
+		severity: 'warning',
+		// The one rule about this tool's own comments, so the one with no vendor page.
+		docs: 'https://github.com/nolindnaidoo/jevlint-le#suppressing-a-finding',
+	},
 	JEV101: {
 		code: 'JEV101',
 		name: 'double-negative',
