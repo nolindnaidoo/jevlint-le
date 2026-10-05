@@ -166,12 +166,20 @@ export type ConfigLoader = Readonly<{
 // The directory a path is in, by whichever separator the path uses. Node's own
 // function for this reads only the running platform's, so a Windows path on
 // another system, or a forward-slash path on Windows, would be read wrongly.
-function parent(path: string): string {
+export function parent(path: string): string {
 	const cut = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'));
 	if (cut === -1) return '.';
 	// The root is its own parent: `/`, or a drive such as `C:\\`.
 	const drive = cut === 2 && path[1] === ':';
 	return cut === 0 || drive ? path.slice(0, cut + 1) : path.slice(0, cut);
+}
+
+/** A path under a directory, written with the separator the directory already uses. */
+export function under(dir: string, ...names: ReadonlyArray<string>): string {
+	const separator = dir.includes('\\') && !dir.includes('/') ? '\\' : '/';
+	const base =
+		dir === '.' ? '' : dir.endsWith(separator) ? dir : `${dir}${separator}`;
+	return `${base}${names.join(separator)}`;
 }
 
 // The settings file in a directory, written with the separator the directory

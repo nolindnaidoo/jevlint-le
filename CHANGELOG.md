@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0 — unreleased
+
+- **The editor says when a project installs a different version.** A project
+  can pin `jevlint-le` in its `package.json` for CI while the editor lints
+  with the copy the extension carries. When the two versions differ, the
+  status bar says which the project has, since their findings can differ.
+  Only the installed copy's manifest is read. Nothing in it is run.
+
 ## 0.2.0 — 2026-10-05
 
 ### Check with Jev from the command line
