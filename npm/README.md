@@ -64,6 +64,13 @@ TYPESAFE_API_KEY=... npx jevlint-le --jev src/    # send it
 - These findings are warnings or less by default, so they fail a run only
   when `--rule` raises one or `--max-warnings` is passed.
 
+## In the editor
+
+Installed in a project's dev dependencies, this package is also what the
+[JevLint-LE extension](https://marketplace.visualstudio.com/items?itemName=nolindnaidoo.jevlint-le)
+lints with in VS Code, so the editor and CI report the same findings from the
+same version. It needs 0.3.0 or newer and a trusted workspace.
+
 ## Settings
 
 A `jevlint-le.json` in your project sets rule levels, and the VS Code

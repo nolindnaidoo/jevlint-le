@@ -2,7 +2,8 @@ import * as vscode from 'vscode';
 import type { Configuration } from '../config/config';
 import { lintText, syntaxFor } from '../lint/lint';
 import type { LintResult } from '../types';
-import { SOURCE, toDiagnostic } from '../ui/diagnostics';
+import { ownDocs, SOURCE, toDiagnostic } from '../ui/diagnostics';
+import type { Engine } from './engines';
 import type { Resolved } from './projectConfigs';
 
 export type Outcome =
@@ -35,6 +36,10 @@ export type Linter = Readonly<{
 }>;
 
 type Deps = Readonly<{
+	/** The linter to use for a document. Without one it is the copy the extension carries. */
+	engineFor?: (
+		document: vscode.TextDocument,
+	) => Pick<Engine, 'lint' | 'docsFor'>;
 	getConfiguration: () => Configuration;
 	lintOptionsFor: (document: vscode.TextDocument) => Resolved;
 	onResult: (document: vscode.TextDocument) => void;
@@ -53,6 +58,7 @@ export const LANGUAGES: ReadonlyArray<string> = Object.freeze([
 ]);
 
 const DEBOUNCE_MS = 250;
+const BUNDLED = Object.freeze({ lint: lintText, docsFor: ownDocs });
 
 export function createLinter(deps: Deps): Linter {
 	const collection = vscode.languages.createDiagnosticCollection(SOURCE);
@@ -95,6 +101,7 @@ export function createLinter(deps: Deps): Linter {
 			return { kind: 'skipped', reason: 'config', detail: resolved.problem };
 		}
 		problems.delete(document.uri.toString());
+		const engine = deps.engineFor?.(document) ?? BUNDLED;
 		if (resolved.excluded) {
 			// Left out by the project's settings file, as the command line leaves it out.
 			clear(document);
@@ -103,7 +110,11 @@ export function createLinter(deps: Deps): Linter {
 		}
 		let result: LintResult;
 		try {
-			result = lintText(text, resolved.options, syntaxFor(document.languageId));
+			result = engine.lint(
+				text,
+				resolved.options,
+				syntaxFor(document.languageId),
+			);
 		} catch (error) {
 			// This runs in a timer or an event, where a throw is lost and the old
 			// findings would stay on screen as if the file had been read.
@@ -116,7 +127,9 @@ export function createLinter(deps: Deps): Linter {
 		results.set(document.uri.toString(), result);
 		collection.set(
 			document.uri,
-			result.findings.map((finding) => toDiagnostic(document, finding)),
+			result.findings.map((finding) =>
+				toDiagnostic(document, finding, engine.docsFor),
+			),
 		);
 		deps.onResult(document);
 		return { kind: 'linted', result };

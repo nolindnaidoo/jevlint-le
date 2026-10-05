@@ -85,6 +85,9 @@ config/projectConfig.ts  jevlint-le.json: parsing it and finding the one that ap
                          No `vscode`, so the command line shares it
 services/projectConfigs.ts  the settings for a document, and a watch on the files
 services/installedCopies.ts  the installed copy for a document, kept for a few seconds
+services/engines.ts       which linter a document gets: the project's copy or the bundled one
+services/loadModule.ts    loads a project's copy fresh, so an upgrade is picked up
+lib.ts                    what the npm package exports as a library, for the editor to load
 types.ts                 types only
 ```
 
@@ -348,8 +351,23 @@ family's files, copied unchanged from `regex-le`.
   first is adding to.
 - **A project's installed copy is found by reading its manifest, and only
   that.** `config/installed.ts` looks in the `node_modules` nearest the file,
-  no higher than the workspace folder. Running anything from it is a separate
-  decision that needs workspace trust.
+  no higher than the workspace folder.
+- **A project's copy is loaded only in a trusted workspace.** Loading it runs
+  code from the project. `services/engines.ts` is the one place that decides,
+  and `extension.test.ts` fails if an untrusted workspace loads anything.
+- **The editor never stops linting for want of a project copy.** No copy, an
+  untrusted workspace, a copy too old, one that fails to load or one that
+  does not read the file's language all fall back to the bundled linter. Every
+  fallback but "none installed" is named in the status bar with its reason.
+- **`src/lib.ts` is a promise.** The npm package exports it and editors of
+  other versions load it. Add names freely. Change or remove one only by
+  raising `api`, which makes older editors fall back instead of misreading.
+  `scripts/e2e-cli.js` holds the names and the `main` entry that locates it.
+- **A finding can carry a rule this extension does not know.** A project's
+  copy can be newer. `toDiagnostic` takes the docs link from the copy that
+  found it and must not index `RULES` with a foreign code.
+- **Check with Jev and the probe never use a project's copy.** They spend the
+  user's key, so they run the code the user installed as an extension.
 - **File size is counted in bytes in both places.**
 - **The pinned model and the call limit are defined once,** in
   `jev/review.ts`. The editor's defaults and the command line's read them.
@@ -364,7 +382,7 @@ family's files, copied unchanged from `regex-le`.
   new language adds its extension there, a reader in `LANGUAGES` in
   `lint/lint.ts`, an `onLanguage` activation event and an entry in the
   linter service's `LANGUAGES`.
-- **One npm package is both the command line and the MCP server.** It is
+- **One npm package is the command line, the MCP server and the library.** It is
   assembled in `npm/` by `bun run build:npm`, which writes the root manifest's
   version into `npm/package.json`. Never edit that version by hand.
   `scripts/e2e-cli.js` fails if the two differ or if anything but the bundle,

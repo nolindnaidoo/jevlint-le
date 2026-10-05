@@ -663,6 +663,32 @@ The help is printed from the table the parser reads, so a flag cannot exist
 without its line. `scripts/e2e-cli.js` runs the built bundle as a real
 process on `samples/`.
 
+### The project's own copy in the editor
+
+Built for 0.3.0, as Biome's extension does it. A project that lists
+`jevlint-le` in its dev dependencies is linted in the editor by that copy.
+
+| The project has | The editor lints with |
+|---|---|
+| A copy at 0.3.0 or newer, in a trusted workspace | The project's copy |
+| A copy, in an untrusted workspace | The bundled copy, with the reason |
+| A copy older than 0.3.0, or one that does not load | The bundled copy, with the reason |
+| A copy that does not read the file's language | The bundled copy for that file, with the reason |
+| No copy, or the version the extension carries | The bundled copy, silently |
+
+The npm package's `main` is `lib.js`, built from `src/lib.ts`: `lint`,
+`fix`, `rules`, `syntaxes` and `api`. The extension reads the installed
+manifest for the version and the `main` path, loads that file once per
+version, and checks `api` before using it. Findings, quick fixes and fix on
+save come from the project's copy. The Jev-backed checks and the probe do
+not.
+
+Verified in a real editor: the integration test installs a marked copy into
+the samples' `node_modules` and expects its finding.
+
+Not built: a setting to force the bundled copy, and loading from a global
+install.
+
 ### Check with Jev from the command line
 
 Built, in 0.2.0. `--jev` runs the Jev-backed checks after linting, through

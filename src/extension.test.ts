@@ -1300,6 +1300,10 @@ describe('the MCP server offered to agents in the editor', () => {
 
 describe('a project settings file in the editor', () => {
 	const NO_FALLBACK = `const r = { questions: { team: { type: 'choice', instructions: 'Which team?', criteria: { billing: 'Charges', technical: 'Faults' } } } };`;
+	// What stands in for loading a project's own copy. A test sets it.
+	let load: (path: string) => unknown = () => {
+		throw new Error('nothing to load');
+	};
 	const within = (tree: Record<string, string>, ...documents: Doc[]) => {
 		_state.textDocuments = documents;
 		_state.activeTextEditor = documents[0]
@@ -1313,6 +1317,7 @@ describe('a project settings file in the editor', () => {
 				extension: { packageJSON: { version: manifest.version } },
 			} as unknown as vscode.ExtensionContext,
 			{ isFile: (path) => path in tree, read: (path) => tree[path] ?? '' },
+			(path) => load(path),
 		);
 	};
 	const file = () => doc(NO_FALLBACK, 'file:///work/app/src/q.ts');
@@ -1327,30 +1332,202 @@ describe('a project settings file in the editor', () => {
 	});
 
 	describe('a copy of the tool installed in the project', () => {
-		const installed = (version: string) => ({
-			'/work/app/node_modules/jevlint-le/package.json': `{ "version": "${version}" }`,
+		const LIBRARY = '/work/app/node_modules/jevlint-le/lib.js';
+		const installed = (version: string, main = true) => ({
+			'/work/app/node_modules/jevlint-le/package.json': JSON.stringify(
+				main ? { version, main: 'lib.js' } : { version },
+			),
+		});
+		// A copy that reports one finding of a rule this extension has never heard of.
+		const copy = (over: Record<string, unknown> = {}) => ({
+			api: 1,
+			syntaxes: ['js', 'python'],
+			rules: { JEV999: { docs: 'https://docs.typesafe.ai/new' } },
+			lint: () => ({
+				findings: [
+					{
+						code: 'JEV999',
+						message: 'From the project copy.',
+						span: { start: 6, end: 7 },
+						questionId: undefined,
+						fix: undefined,
+						severity: 'warning',
+					},
+				],
+				questionCount: 1,
+				unreadableCount: 0,
+			}),
+			fix: (text: string) => ({
+				text: `${text} // mended by the project`,
+				fixed: 1,
+			}),
+			...over,
+		});
+		const messages = () =>
+			diagnostics('file:///work/app/src/q.ts').map((found) => found.message);
+		const BUNDLED = 'This Choice has no fallback option.';
+
+		beforeEach(() => {
+			_state.workspaceFolder = '/work/app';
+			load = () => {
+				throw new Error('nothing to load');
+			};
 		});
 
-		it("is named in the status bar when its version is not the editor's", () => {
-			_state.workspaceFolder = '/work/app';
-			within(installed('0.0.1'), file());
-			expect(_state.statusBar.text).toBe(
-				'$(checklist) Jev 1 · project has 0.0.1',
-			);
+		it("does the linting, so the editor reports what the project's command line would", () => {
+			const loaded: string[] = [];
+			load = (path) => {
+				loaded.push(path);
+				return copy();
+			};
+			within(installed('0.9.0'), file());
+			expect(messages()).toEqual(['From the project copy.']);
+			expect(loaded).toEqual([LIBRARY]);
+			expect(_state.statusBar.text).toBe('$(checklist) Jev 1 · project 0.9.0');
 			expect(_state.statusBar.tooltip).toContain(
-				`This project installs jevlint-le 0.0.1. The editor is linting with its own ${manifest.version}`,
+				"Linting with this project's own jevlint-le 0.9.0",
 			);
 		});
 
-		it('is not mentioned when the versions are the same', () => {
-			_state.workspaceFolder = '/work/app';
+		it('links a rule the extension has never heard of to the page its copy names', () => {
+			load = () => copy();
+			within(installed('0.9.0'), file());
+			const [found] = diagnostics('file:///work/app/src/q.ts');
+			const code = found?.code as
+				| { value: string; target: unknown }
+				| undefined;
+			expect(code?.value).toBe('JEV999');
+			expect(String(code?.target)).toContain('docs.typesafe.ai/new');
+		});
+
+		it('does the fixing on save too', () => {
+			load = () => copy();
+			const document = file();
+			within(installed('0.9.0'), document);
+			const provider = _state.provider as vscode.CodeActionProvider;
+			const [action] = provider.provideCodeActions(
+				document,
+				{} as vscode.Range,
+				{ diagnostics: [], only: vscode.CodeActionKind.SourceFixAll } as never,
+				{} as never,
+			) as vscode.CodeAction[];
+			const edit = action?.edit as unknown as { edits: { text: string }[] };
+			expect(edit.edits[0]?.text).toContain('// mended by the project');
+		});
+
+		it('is loaded once, not on every keystroke', () => {
+			let loads = 0;
+			load = () => {
+				loads += 1;
+				return copy();
+			};
+			const document = file();
+			within(installed('0.9.0'), document);
+			for (let i = 0; i < 5; i += 1) {
+				_state.listeners.change?.({ document });
+				vi.advanceTimersByTime(300);
+			}
+			expect(loads).toBe(1);
+		});
+
+		it.each([
+			[
+				'is not used in an untrusted workspace',
+				() => {
+					_state.trusted = false;
+					load = () => copy();
+					return installed('0.9.0');
+				},
+			],
+			[
+				'is too old for the editor to use',
+				() => {
+					load = () => copy();
+					return installed('0.2.0', false);
+				},
+			],
+			['the editor could not load', () => installed('0.9.0')],
+			[
+				'the editor could not load',
+				() => {
+					load = () => copy({ api: 2 });
+					return installed('0.9.0');
+				},
+			],
+			[
+				'the editor could not load',
+				() => {
+					load = () => ({ api: 1 });
+					return installed('0.9.0');
+				},
+			],
+			[
+				'does not read this kind of file',
+				() => {
+					load = () => copy({ syntaxes: ['python'] });
+					return installed('0.9.0');
+				},
+			],
+		])('gives way to the bundled copy, and says it %s', (why, arrange) => {
+			within(arrange(), file());
+			expect(messages().join(' ')).toContain(BUNDLED);
+			expect(_state.statusBar.text).toMatch(/· project has 0\.\d\.0$/);
+			expect(_state.statusBar.tooltip).toContain(why);
+			expect(_state.statusBar.tooltip).toContain(
+				`The editor is linting with its own ${manifest.version}`,
+			);
+		});
+
+		it('is never loaded in an untrusted workspace', () => {
+			let loads = 0;
+			load = () => {
+				loads += 1;
+				return copy();
+			};
+			_state.trusted = false;
+			within(installed('0.9.0'), file());
+			expect(loads).toBe(0);
+		});
+
+		it('takes over as soon as the workspace is trusted', () => {
+			load = () => copy();
+			_state.trusted = false;
+			within(installed('0.9.0'), file());
+			expect(messages().join(' ')).toContain(BUNDLED);
+			_state.trusted = true;
+			_state.listeners.trust?.(undefined);
+			expect(messages()).toEqual(['From the project copy.']);
+		});
+
+		it('is not loaded when it is the version the extension carries', () => {
+			let loads = 0;
+			load = () => {
+				loads += 1;
+				return copy();
+			};
 			within(installed(manifest.version), file());
+			expect(loads).toBe(0);
 			expect(_state.statusBar.text).toBe('$(checklist) Jev 1');
 		});
 
-		it('is not mentioned when the project has none', () => {
+		it('does not stop the editor linting when the project has none', () => {
 			within({}, file());
+			expect(messages().join(' ')).toContain(BUNDLED);
 			expect(_state.statusBar.text).toBe('$(checklist) Jev 1');
+		});
+
+		it("says the file could not be linted when the project's copy throws", () => {
+			load = () =>
+				copy({
+					lint: () => {
+						throw new Error('broken copy');
+					},
+				});
+			within(installed('0.9.0'), file());
+			expect(diagnostics('file:///work/app/src/q.ts')).toEqual([]);
+			expect(_state.statusBar.tooltip).toContain(
+				'could not be linted: broken copy',
+			);
 		});
 	});
 
