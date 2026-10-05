@@ -417,7 +417,9 @@ difference matters when the family changes one.
   absolute local path. CI runs the same check on every pushed commit.
 - **Releases are manual**, from the `Release` workflow, with the Marketplace,
   Open VSX and npm as separate opt-ins. A version cannot be republished, so
-  each is chosen on purpose.
+  each is chosen on purpose. The workflow refuses a version whose changelog
+  heading is not `## <version> — <date>`, and runs the integration and
+  installed-VSIX tests on the file it is about to publish.
 - **Three repo secrets do the publishing:** `VSCE_PAT`, `OVSX_PAT` and
   `NPM_TOKEN`. They are kept in Doppler under `extensions` / `prd` and are the
   same ones the rest of the family uses. npm publishes by token, by the
