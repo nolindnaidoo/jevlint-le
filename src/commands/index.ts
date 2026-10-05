@@ -19,6 +19,7 @@ const SKIP_REASONS = Object.freeze({
 	language:
 		'JevLint-LE reads JSON, JavaScript, TypeScript, Python, Rust and Go files. This file is none of those.',
 	size: 'This file is larger than `jevlint-le.maxFileSizeBytes` and was not linted.',
+	excluded: 'This file is left out by `exclude` in jevlint-le.json.',
 });
 
 type Tally = {

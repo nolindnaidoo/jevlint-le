@@ -12,6 +12,7 @@ export const CONFIG_KEYS: ReadonlyArray<string> = [
 	'rules',
 	'fallbackOptions',
 	'ignore',
+	'exclude',
 ];
 export const LEVELS: ReadonlyArray<string> = [
 	'off',
@@ -82,11 +83,63 @@ export function parseConfig(text: string | undefined): LintOptions | string {
 		return `'${unknown}' is not a setting. Use ${CONFIG_KEYS.join(', ')}.`;
 	const rules = readRules(config.rules);
 	if (typeof rules === 'string') return rules;
-	const { fallbackOptions = DEFAULT_FALLBACK_OPTIONS, ignore = [] } = config;
+	const {
+		fallbackOptions = DEFAULT_FALLBACK_OPTIONS,
+		ignore = [],
+		exclude = [],
+	} = config;
 	if (!isStrings(fallbackOptions))
 		return "'fallbackOptions' must be a list of strings.";
 	if (!isStrings(ignore)) return "'ignore' must be a list of strings.";
-	return { rules, fallbackOptions, ignore };
+	if (!isStrings(exclude)) return "'exclude' must be a list of strings.";
+	return { rules, fallbackOptions, ignore, exclude };
+}
+
+const SPECIAL = /[.+^${}()|[\]\\]/g;
+
+// One pattern as a test of a path written with forward slashes. `**` crosses
+// folders, `*` and `?` stay inside one. A pattern with no slash matches at any
+// depth, and a match on a folder covers what is in it, as in a .gitignore.
+function toTest(pattern: string): RegExp {
+	const trimmed = pattern.replace(/^\.?\//, '').replace(/\/$/, '');
+	const anywhere = trimmed.includes('/') ? trimmed : `**/${trimmed}`;
+	const parts = anywhere.split('/');
+	const body = parts
+		.map((part, i) => {
+			const last = i === parts.length - 1;
+			// `**` stands for any number of folders, none included.
+			if (part === '**') return last ? '.*' : '(?:.*/)?';
+			const name = part
+				.replace(SPECIAL, '\\$&')
+				.replace(/\*/g, '[^/]*')
+				.replace(/\?/g, '[^/]');
+			return last ? name : `${name}/`;
+		})
+		.join('');
+	return new RegExp(`^${body}(?:/.*)?$`);
+}
+
+/**
+ * True when a settings file leaves this file out. `base` is the folder the
+ * patterns are relative to: the settings file's own.
+ */
+export function isExcluded(
+	patterns: ReadonlyArray<string> | undefined,
+	base: string,
+	file: string,
+): boolean {
+	if (!patterns?.length) return false;
+	const slashed = (path: string) => path.replace(/\\/g, '/');
+	const root = base === '.' ? '' : `${slashed(base).replace(/\/$/, '')}/`;
+	const path = slashed(file).replace(/^\.\//, '');
+	if (!path.startsWith(root)) return false;
+	const relative = path.slice(root.length);
+	return patterns.some((pattern) => toTest(pattern).test(relative));
+}
+
+/** The folder a settings file is in, which its `exclude` patterns are relative to. */
+export function folderOf(configPath: string): string {
+	return parent(configPath);
 }
 
 export type ConfigFs = Readonly<{

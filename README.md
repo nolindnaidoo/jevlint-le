@@ -165,9 +165,14 @@ both read it, so what you see while writing is what CI reports.
 {
   "rules": { "JEV004": "error", "JEV112": "off" },
   "fallbackOptions": ["other", "none", "unsure"],
-  "ignore": ["JEV004:department"]
+  "ignore": ["JEV004:department"],
+  "exclude": ["fixtures", "**/*.generated.ts"]
 }
 ```
+
+`exclude` lists files and folders not to lint, relative to the settings file.
+`**` crosses folders, `*` stays inside one, and a name with no slash matches
+at any depth. The editor and the command line leave out the same files.
 
 The nearest file wins, looking from the linted file upward, so a folder can
 have its own. Where one applies, it replaces the `rules`, `fallbackOptions`

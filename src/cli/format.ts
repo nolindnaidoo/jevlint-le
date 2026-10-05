@@ -15,6 +15,8 @@ export type Totals = Readonly<{
 	questions: number;
 	/** Questions with a part built at runtime, which no rule could read in full. */
 	unreadable: number;
+	/** Files a settings file leaves out with `exclude`. */
+	excluded: number;
 	/** Files left unread for being over the size limit. */
 	skipped: ReadonlyArray<string>;
 	/** Folders and files that could not be read at all. */
@@ -98,6 +100,8 @@ export function summarize(totals: Totals): string {
 		parts.push(
 			`${plural(totals.unreadable, 'question')} could not be read in full.`,
 		);
+	if (totals.excluded)
+		parts.push(`${plural(totals.excluded, 'file')} excluded by settings.`);
 	if (totals.skipped.length)
 		parts.push(
 			`${plural(totals.skipped.length, 'file')} over the size limit not read: ${totals.skipped.join(', ')}.`,

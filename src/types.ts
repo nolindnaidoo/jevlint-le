@@ -193,6 +193,8 @@ export type LintOptions = Readonly<{
 	rules: Readonly<Partial<Record<RuleCode, Severity | 'off'>>>;
 	fallbackOptions: ReadonlyArray<string>;
 	ignore: ReadonlyArray<string>;
+	/** Files a settings file leaves out, as patterns relative to that file. Only a settings file sets it. */
+	exclude?: ReadonlyArray<string>;
 }>;
 
 export type LintResult = Readonly<{
