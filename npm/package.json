@@ -34,11 +34,17 @@
     "url": "https://github.com/nolindnaidoo/jevlint-le/issues"
   },
   "type": "commonjs",
+  "main": "lib.js",
+  "exports": {
+    ".": "./lib.js",
+    "./package.json": "./package.json"
+  },
   "bin": {
     "jevlint-le": "cli.js"
   },
   "files": [
     "cli.js",
+    "lib.js",
     "README.md",
     "LICENSE"
   ],

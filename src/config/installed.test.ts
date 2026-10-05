@@ -20,6 +20,7 @@ describe('the copy a project has installed', () => {
 		expect(findInstalled('/work/app/src/q.ts', '/work', fs)).toEqual({
 			dir: '/work/app/node_modules/jevlint-le',
 			version: '0.2.0',
+			library: undefined,
 		});
 		expect(findInstalled('/work/lib/q.ts', '/work', fs)?.version).toBe('0.1.0');
 	});
@@ -46,6 +47,22 @@ describe('the copy a project has installed', () => {
 	])('is nothing when its manifest holds %s', (_, manifest) => {
 		const fs = disk({ '/work/node_modules/jevlint-le/package.json': manifest });
 		expect(findInstalled('/work/q.ts', '/work', fs)).toBeUndefined();
+	});
+
+	it('names the library file when the manifest has one, inside the package', () => {
+		const at = '/work/node_modules/jevlint-le/package.json';
+		const found = (main: string) =>
+			findInstalled(
+				'/work/q.ts',
+				'/work',
+				disk({ [at]: `{ "version": "0.3.0", "main": "${main}" }` }),
+			)?.library;
+		expect(found('lib.js')).toBe('/work/node_modules/jevlint-le/lib.js');
+		expect(found('./lib.js')).toBe('/work/node_modules/jevlint-le/lib.js');
+		// An absolute path in a manifest must not send the editor elsewhere.
+		expect(found('/etc/lib.js')).toBe(
+			'/work/node_modules/jevlint-le/etc/lib.js',
+		);
 	});
 
 	it('reads Windows paths as they are written', () => {

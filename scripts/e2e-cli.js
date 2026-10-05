@@ -118,11 +118,28 @@ assert.deepStrictEqual(replies[1].result.tools.map((tool) => tool.name), ['lint_
 const linted = JSON.parse(replies[2].result.content[0].text);
 assert.strictEqual(linted.files[0].findings.length, 7);
 
-// What would be uploaded: the bundle, its manifest, the readme and the license, and nothing else.
+// The library the editor loads from a project's node_modules, required the way
+// the editor requires it: by the file the manifest names.
+const npmManifest = require(join(root, 'npm', 'package.json'));
+const library = require(join(root, 'npm', npmManifest.main));
+assert.strictEqual(library.api, 1);
+assert.deepStrictEqual([...library.syntaxes].sort(), ['go', 'js', 'python', 'rust']);
+assert.ok(library.rules.JEV004.docs.startsWith('https://'));
+const BROKEN_NOUL = '{ "questions": { "late": { "type": "noul", "instructions": "Did it arrive late?", "criteria": { "yes": "Late", "no": "On time" } } } }';
+const libraryOptions = { rules: {}, fallbackOptions: ['other'], ignore: [] };
+assert.deepStrictEqual(
+	library.lint(BROKEN_NOUL, libraryOptions, 'js').findings.map((finding) => finding.code),
+	['JEV006', 'JEV006'],
+);
+assert.strictEqual(library.fix(BROKEN_NOUL, libraryOptions, 'js').fixed, 2);
+// Requiring it must not start the command line or touch the process.
+assert.strictEqual(process.exitCode, undefined);
+
+// What would be uploaded: the bundles, the manifest, the readme and the license, and nothing else.
 const packed = spawnSync('npm', ['pack', '--dry-run', '--json'], { cwd: join(root, 'npm'), encoding: 'utf8' });
 assert.strictEqual(packed.status, 0, packed.stderr);
 const [tarball] = JSON.parse(packed.stdout);
-assert.deepStrictEqual(tarball.files.map((file) => file.path).sort(), ['LICENSE', 'README.md', 'cli.js', 'package.json']);
+assert.deepStrictEqual(tarball.files.map((file) => file.path).sort(), ['LICENSE', 'README.md', 'cli.js', 'lib.js', 'package.json']);
 assert.strictEqual(tarball.version, require(join(root, 'package.json')).version);
 // One homepage on every listing. A link to a page that does not exist yet shipped once.
 assert.strictEqual(

@@ -1,4 +1,6 @@
 import * as assert from 'node:assert';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import * as vscode from 'vscode';
 
 const EXTENSION_ID = 'nolindnaidoo.jevlint-le';
@@ -343,6 +345,46 @@ describe('JevLint-LE in a real editor', function () {
 				undefined,
 				vscode.ConfigurationTarget.Global,
 			);
+		}
+	});
+
+	it("lints with the copy of the tool the project installs, in place of the extension's own", async () => {
+		const folder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? '';
+		const dir = path.join(folder, 'node_modules', 'jevlint-le');
+		const manifest = path.join(dir, 'package.json');
+		const library = path.join(dir, 'lib.js');
+		// A copy that reports one finding no real version has, so its work cannot
+		// be mistaken for the extension's own.
+		const copy = `module.exports = {
+			api: 1,
+			syntaxes: ['js'],
+			rules: {},
+			lint: () => ({
+				findings: [{ code: 'JEV777', message: 'From the installed copy.', span: { start: 0, end: 1 }, questionId: undefined, fix: undefined, severity: 'warning' }],
+				questionCount: 1,
+				unreadableCount: 0,
+			}),
+			fix: (text) => ({ text, fixed: 0 }),
+		};`;
+		fs.mkdirSync(dir, { recursive: true });
+		fs.writeFileSync(manifest, '{ "name": "jevlint-le", "version": "9.9.9", "main": "lib.js" }');
+		fs.writeFileSync(library, copy);
+		try {
+			const editor = await open('clean.ts');
+			const uri = sample('clean.ts');
+			// The extension keeps what it knows of a folder's packages for a few
+			// seconds, so the file is nudged until the new copy is noticed.
+			const deadline = Date.now() + 40_000;
+			while (Date.now() < deadline && codes(uri).join() !== 'JEV777') {
+				await editor.edit((builder) => builder.insert(new vscode.Position(0, 0), ' '));
+				await new Promise((resolve) => setTimeout(resolve, 1000));
+			}
+			assert.deepStrictEqual(codes(uri), ['JEV777']);
+			assert.strictEqual(ours(uri)[0]?.message, 'From the installed copy.');
+		} finally {
+			fs.unlinkSync(library);
+			fs.unlinkSync(manifest);
+			fs.rmdirSync(dir);
 		}
 	});
 

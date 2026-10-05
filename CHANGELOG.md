@@ -2,11 +2,21 @@
 
 ## 0.3.0 — unreleased
 
-- **The editor says when a project installs a different version.** A project
-  can pin `jevlint-le` in its `package.json` for CI while the editor lints
-  with the copy the extension carries. When the two versions differ, the
-  status bar says which the project has, since their findings can differ.
-  Only the installed copy's manifest is read. Nothing in it is run.
+- **The editor lints with the copy a project installs.** Add `jevlint-le` to
+  a project's dev dependencies and the extension uses that copy, for findings
+  and for fix on save, so the editor and the project's command line report
+  the same things and the version changes only when `package.json` does. The
+  status bar says which copy is in use.
+- **With none installed, nothing changes.** The extension lints with the copy
+  it carries, with no setup, as before.
+- **It falls back to its own copy and says why** when the project's copy
+  cannot be used: the workspace is not trusted, the copy is older than 0.3.0,
+  it does not load, or it does not read that kind of file. The status bar
+  names the project's version, since findings can then differ from CI.
+- The npm package can be required as a library: `lint`, `fix`, `rules`,
+  `syntaxes` and an `api` number. This is what the editor loads.
+- Check with Jev and the probe always run the extension's own code. They
+  spend your key, and are not handed to code from a workspace.
 
 ## 0.2.0 — 2026-10-05
 

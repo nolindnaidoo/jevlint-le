@@ -86,6 +86,7 @@ benchmark-results.json
 crate/target/
 # The npm package's bundle and license are built into npm/ by `bun run build:npm`.
 npm/cli.js
+npm/lib.js
 npm/LICENSE
 
 # The shared corpus is the contract between the two frontends, so every

@@ -6,15 +6,16 @@ import { registerProbeCommand } from './commands/probe';
 import { getConfiguration, SECTION } from './config/config';
 import type { ConfigFs } from './config/projectConfig';
 import type { Fetch } from './jev/client';
-import { fixText } from './lint/fixAll';
 import { syntaxFor } from './lint/lint';
+import { createEngines } from './services/engines';
 import { createInstalledLookup } from './services/installedCopies';
 import { createLinter, LANGUAGES } from './services/linter';
+import { loadModule } from './services/loadModule';
 import { registerMcpProvider } from './services/mcpProvider';
 import { createProjectConfigs } from './services/projectConfigs';
 import { createReviewer } from './services/reviewer';
 import { createCodeActionProvider, FIX_ALL } from './ui/codeActions';
-import { createStatusBar, type Note } from './ui/statusBar';
+import { createStatusBar } from './ui/statusBar';
 
 const DISK: ConfigFs = Object.freeze({
 	isFile: (path: string) =>
@@ -26,6 +27,7 @@ const DISK: ConfigFs = Object.freeze({
 export function activate(
 	context: vscode.ExtensionContext,
 	fs: ConfigFs = DISK,
+	load: (path: string) => unknown = loadModule,
 ): void {
 	const statusBar = createStatusBar(COMMANDS.lintFile);
 	const active = () => vscode.window.activeTextEditor?.document;
@@ -43,23 +45,19 @@ export function activate(
 			statusBar.warn(problem);
 			return;
 		}
-		statusBar.show(linter.resultFor(document), versionNote(document));
+		statusBar.show(linter.resultFor(document), engines.for(document).note);
 	};
 
-	const own = String(context.extension.packageJSON.version);
-	const installedFor = createInstalledLookup(fs);
-	// The editor lints with the copy it carries. A project that installs another
-	// version runs that one in CI, and the two can report different findings.
-	const versionNote = (document: vscode.TextDocument): Note | undefined => {
-		const installed = installedFor(document);
-		if (!installed || installed.version === own) return undefined;
-		return {
-			short: `project has ${installed.version}`,
-			detail: `This project installs jevlint-le ${installed.version}. The editor is linting with its own ${own}, so findings here can differ from the project's command line.`,
-		};
-	};
+	// A project that installs its own copy is linted with that copy, so the
+	// editor and the project's command line report the same findings.
+	const engines = createEngines({
+		installedFor: createInstalledLookup(fs),
+		load,
+		own: String(context.extension.packageJSON.version),
+	});
 
 	const linter = createLinter({
+		engineFor: engines.for,
 		getConfiguration,
 		lintOptionsFor,
 		onResult: (document) => {
@@ -104,11 +102,9 @@ export function activate(
 		const text = document.getText();
 		// Asked for on every save, so a failure here must not block the save.
 		try {
-			const mended = fixText(
-				text,
-				resolved.options,
-				syntaxFor(document.languageId),
-			);
+			const mended = engines
+				.for(document)
+				.fix(text, resolved.options, syntaxFor(document.languageId));
 			return mended.fixed ? mended.text : undefined;
 		} catch {
 			return undefined;
@@ -154,6 +150,11 @@ export function activate(
 		}),
 		vscode.workspace.onDidChangeConfiguration((event) => {
 			if (event.affectsConfiguration(SECTION)) settingsChanged();
+		}),
+		// Trust is what lets a project's own copy be loaded, so it changes the linter in use.
+		vscode.workspace.onDidGrantWorkspaceTrust(() => {
+			lintOpen();
+			showActive();
 		}),
 		vscode.window.onDidChangeActiveTextEditor(showActive),
 	);

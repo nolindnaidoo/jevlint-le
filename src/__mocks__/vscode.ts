@@ -255,6 +255,7 @@ export const workspace = {
 	onDidChangeTextDocument: listen('change'),
 	onDidCloseTextDocument: listen('close'),
 	onDidChangeConfiguration: listen('config'),
+	onDidGrantWorkspaceTrust: listen('trust'),
 	get textDocuments() {
 		return _state.textDocuments;
 	},

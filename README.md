@@ -190,10 +190,30 @@ so there a finding is silenced with `ignore`.
 The same linting runs outside the editor, for CI and for any editor that is
 not VS Code.
 
-To pin the version a project uses, install it as a dev dependency with
-`npm install --save-dev jevlint-le` and run it from a script. The editor
-lints with the copy the extension carries. When that is a different version
-from the one the project installs, the status bar says so.
+### One version for the editor and CI
+
+Install it in the project, as you would any linter:
+
+```bash
+npm install --save-dev jevlint-le
+```
+
+The editor then lints with that copy, not the one the extension carries, so
+what you see while typing is what `npx jevlint-le` reports in CI. The version
+changes when `package.json` does, and for everyone at once. The status bar
+shows `project 0.3.0` while a project's copy is in use.
+
+With nothing installed the extension lints with its own copy, with no setup.
+
+It also uses its own copy, and the status bar says `project has 0.2.0` with
+the reason in its tooltip, when the project's copy cannot be used:
+
+- the workspace is not trusted, because loading the copy runs code from it
+- the copy is older than 0.3.0, the first version an editor can load
+- the copy fails to load, or does not read that kind of file
+
+**Check This File with Jev** and the probe always run the extension's own
+code, whatever the project installs.
 
 ![The command line reporting three findings on a small request](assets/demo-cli.gif)
 
