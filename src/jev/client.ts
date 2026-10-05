@@ -7,6 +7,7 @@ export const ENV_KEY = 'TYPESAFE_API_KEY';
 type Response = Readonly<{
 	ok: boolean;
 	status: number;
+	headers?: Readonly<{ get: (name: string) => string | null }>;
 	json: () => Promise<unknown>;
 	text: () => Promise<string>;
 }>;
@@ -28,8 +29,15 @@ export type Reply = Readonly<{
 }>;
 
 export type Failure = Readonly<{
-	kind: 'key' | 'rejected' | 'busy' | 'network';
+	/**
+	 * `key` and `rejected` are the caller's to fix. `busy` and `server` are
+	 * TypeSafe's, and are tried again. `network` got no answer, and `garbled`
+	 * got one that is not a Jev reply.
+	 */
+	kind: 'key' | 'rejected' | 'busy' | 'server' | 'network' | 'garbled';
 	detail: string;
+	/** How long TypeSafe asked to be left alone, when it said. */
+	retryAfterMs?: number;
 }>;
 
 type Deps = Readonly<{
@@ -41,6 +49,12 @@ type Deps = Readonly<{
 
 const ATTEMPTS = 3;
 const BUSY: ReadonlySet<number> = new Set([429, 529]);
+// A request that has had no answer by now is not going to get one. Without
+// this a stalled connection holds a CI job until the job itself is killed.
+export const TIMEOUT_MS = 30_000;
+// TypeSafe may ask for longer than is worth waiting in an editor or a CI job.
+const LONGEST_WAIT_MS = 30_000;
+const RETRIED: ReadonlySet<Failure['kind']> = new Set(['busy', 'server']);
 
 const FAILURES: Readonly<Record<number, Failure['kind']>> = Object.freeze({
 	401: 'key',
@@ -48,46 +62,100 @@ const FAILURES: Readonly<Record<number, Failure['kind']>> = Object.freeze({
 	422: 'rejected',
 });
 
-function toReply(body: unknown): Reply {
-	const data = body as {
-		model?: string;
-		answers?: Reply['answers'];
-		usage?: { input_tokens?: number };
-	};
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+	typeof value === 'object' && value !== null && !Array.isArray(value);
+
+// A proxy or a login page can answer 200 with something that is not a reply.
+// Reading that as "no findings" would report a clean check that never ran.
+function toReply(body: unknown): Reply | Failure {
+	if (!isRecord(body) || !isRecord(body.answers))
+		return { kind: 'garbled', detail: 'the answer was not a Jev reply' };
+	const usage = isRecord(body.usage) ? body.usage.input_tokens : undefined;
 	return {
-		model: data.model ?? '',
-		answers: data.answers ?? {},
-		inputTokens: data.usage?.input_tokens ?? 0,
+		model: typeof body.model === 'string' ? body.model : '',
+		answers: body.answers as Reply['answers'],
+		inputTokens: typeof usage === 'number' ? usage : 0,
 	};
+}
+
+function retryAfterMs(response: Response): number | undefined {
+	const seconds = Number(response.headers?.get('retry-after') ?? '');
+	return Number.isFinite(seconds) && seconds > 0
+		? Math.min(seconds * 1000, LONGEST_WAIT_MS)
+		: undefined;
+}
+
+function refusal(response: Response): Failure {
+	const detail = String(response.status);
+	const wait = retryAfterMs(response);
+	const again = wait === undefined ? {} : { retryAfterMs: wait };
+	if (BUSY.has(response.status)) return { kind: 'busy', detail, ...again };
+	if (response.status >= 500 || response.status === 408)
+		return { kind: 'server', detail, ...again };
+	// The body can echo the request. The status is enough to act on.
+	return { kind: FAILURES[response.status] ?? 'rejected', detail };
 }
 
 async function attempt(
 	deps: Deps,
 	request: ReviewRequest,
 ): Promise<Reply | Failure> {
-	const response = await deps
-		.fetch(ENDPOINT, {
+	// One signal for the request: the caller's stop, or the time running out.
+	const cut = new AbortController();
+	const stop = () => cut.abort();
+	const timer = setTimeout(stop, TIMEOUT_MS);
+	deps.signal?.addEventListener('abort', stop, { once: true });
+	if (deps.signal?.aborted) stop();
+	// The body is read inside the same limit: a reply can stall after its headers.
+	const answered = async (): Promise<Reply | Failure> => {
+		const response = await deps.fetch(ENDPOINT, {
 			method: 'POST',
 			headers: {
 				Authorization: `Bearer ${deps.key}`,
 				'Content-Type': 'application/json',
 			},
 			body: JSON.stringify(request),
-			...(deps.signal ? { signal: deps.signal } : {}),
-		})
-		.catch((error: unknown) => ({
-			kind: 'network' as const,
-			detail: error instanceof Error ? error.message : String(error),
-		}));
-	if ('kind' in response) return response;
-	if (response.ok) return toReply(await response.json());
-	if (BUSY.has(response.status))
-		return { kind: 'busy', detail: String(response.status) };
-	return {
-		kind: FAILURES[response.status] ?? 'rejected',
-		// The body can echo the request. The status is enough to act on.
-		detail: String(response.status),
+			signal: cut.signal,
+		});
+		if (!response.ok) return refusal(response);
+		const body = await response.json().catch((error: unknown) => {
+			// A body cut off by the stop or the limit is no answer, not a bad one.
+			if (cut.signal.aborted) throw error;
+			return undefined;
+		});
+		return toReply(body);
 	};
+	return answered()
+		.catch((error: unknown): Failure => {
+			const timedOut = cut.signal.aborted && !deps.signal?.aborted;
+			return {
+				kind: 'network',
+				detail: timedOut
+					? `no answer in ${TIMEOUT_MS / 1000} seconds`
+					: error instanceof Error
+						? error.message
+						: String(error),
+			};
+		})
+		.finally(() => {
+			clearTimeout(timer);
+			deps.signal?.removeEventListener('abort', stop);
+		});
+}
+
+// A wait the caller's stop ends at once, so a cancel is not held for the backoff.
+function pause(deps: Deps, ms: number): Promise<void> {
+	const { signal } = deps;
+	if (!signal) return deps.wait(ms);
+	if (signal.aborted) return Promise.resolve();
+	return new Promise((resolve) => {
+		const done = () => {
+			signal.removeEventListener('abort', done);
+			resolve();
+		};
+		signal.addEventListener('abort', done, { once: true });
+		void deps.wait(ms).then(done, done);
+	});
 }
 
 export function isFailure(result: Reply | Failure): result is Failure {
@@ -95,9 +163,9 @@ export function isFailure(result: Reply | Failure): result is Failure {
 }
 
 /**
- * Sends one review to Jev. Retries only when the service says it is busy, a
- * fixed number of times, and never on a bad key or a rejected request, which
- * no retry can fix.
+ * Sends one review to Jev. Retries only when the fault is TypeSafe's, a fixed
+ * number of times, and never on a bad key or a rejected request, which no
+ * retry can fix. It waits as long as TypeSafe asks, up to a limit.
  */
 export async function ask(
 	deps: Deps,
@@ -105,8 +173,9 @@ export async function ask(
 ): Promise<Reply | Failure> {
 	let result = await attempt(deps, request);
 	for (let tries = 1; tries < ATTEMPTS; tries += 1) {
-		if (!isFailure(result) || result.kind !== 'busy') return result;
-		await deps.wait(1000 * 2 ** tries);
+		if (!isFailure(result) || !RETRIED.has(result.kind)) return result;
+		await pause(deps, result.retryAfterMs ?? 1000 * 2 ** tries);
+		if (deps.signal?.aborted) return result;
 		result = await attempt(deps, request);
 	}
 	return result;

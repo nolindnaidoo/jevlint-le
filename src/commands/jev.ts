@@ -36,7 +36,10 @@ export const FAILURES: Readonly<Record<Failure['kind'], string>> =
 		key: 'TypeSafe rejected the API key. Set a new one with "JevLint-LE: Set TypeSafe API Key".',
 		rejected: 'TypeSafe rejected the request.',
 		busy: 'TypeSafe is busy or the rate limit was reached. Try again in a moment.',
+		server: 'TypeSafe had an error of its own. Try again in a moment.',
 		network: 'Could not reach TypeSafe.',
+		garbled:
+			'TypeSafe did not answer with a Jev reply. A proxy or a sign-in page may be in the way.',
 	});
 
 const TRUST = Object.freeze({

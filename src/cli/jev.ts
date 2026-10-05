@@ -36,7 +36,9 @@ export const FAILURES: Readonly<Record<Failure['kind'], string>> =
 		key: 'TypeSafe rejected the API key',
 		rejected: 'TypeSafe rejected the request',
 		busy: 'TypeSafe is busy or the rate limit was reached',
+		server: 'TypeSafe had an error of its own',
 		network: 'Could not reach TypeSafe',
+		garbled: 'TypeSafe did not answer with a Jev reply',
 	});
 
 /**
