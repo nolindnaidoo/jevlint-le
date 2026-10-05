@@ -31,14 +31,14 @@ const version = cli(['--version']);
 assert.strictEqual(version.out.trim(), require(join(root, 'package.json')).version);
 
 // The samples hold planted mistakes, the same ones the editor tests expect.
-const python = cli(['triage.py']);
+const python = cli(['--format', 'compact', 'triage.py']);
 assert.strictEqual(python.status, 1, python.err);
 assert.deepStrictEqual(codes(python.out), [
 	'JEV004', 'JEV008', 'JEV000', 'JEV009', 'JEV006', 'JEV005', 'JEV001',
 ]);
 
 for (const name of ['triage.rs', 'triage.go']) {
-	const typed = cli([name]);
+	const typed = cli(['--format', 'compact', name]);
 	assert.strictEqual(typed.status, 1, typed.err);
 	assert.deepStrictEqual(codes(typed.out), [
 		'JEV001', 'JEV004', 'JEV008', 'JEV000', 'JEV006', 'JEV009',
@@ -57,7 +57,7 @@ assert.ok(paths.includes('triage.jev.json') && paths.includes('triage.py'));
 assert.ok(!paths.some((path) => path.includes('node_modules')), 'read node_modules');
 
 const piped = cli(
-	['--stdin-filename', 'q.json'],
+	['--format', 'compact', '--stdin-filename', 'q.json'],
 	'{ "model": "jev-latest", "questions": { "a": { "type": "noul", "instructions": "Is it late?" } } }',
 );
 assert.deepStrictEqual(codes(piped.out), ['JEV001']);

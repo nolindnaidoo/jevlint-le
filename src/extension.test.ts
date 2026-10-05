@@ -717,6 +717,7 @@ describe('check with Jev', () => {
 			err: () => {},
 			version: '0',
 			env: { TYPESAFE_API_KEY: 'k' },
+			terminal: false,
 			fetch: fromCli as never,
 			wait: async () => {},
 			stopSignal: () => new AbortController().signal,
@@ -1344,6 +1345,7 @@ describe('a project settings file in the editor', () => {
 			err: () => {},
 			version: '0',
 			env: {},
+			terminal: false,
 			fetch: async () => {
 				throw new Error('offline');
 			},
