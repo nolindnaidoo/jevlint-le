@@ -6,11 +6,11 @@
   "additionalProperties": false,
   "properties": {
     "rules": {
-      "description": "The level of a rule, by its code. A rule not listed keeps its default.",
+      "description": "The level of a rule, by its code or its name. A rule not listed keeps its default. `warn` means `warning`.",
       "type": "object",
-      "propertyNames": { "pattern": "^JEV\\d{3}$" },
+      "propertyNames": { "pattern": "^(JEV\\d{3}|[a-z][a-z-]*)$" },
       "additionalProperties": {
-        "enum": ["off", "hint", "info", "warning", "error"]
+        "enum": ["off", "hint", "info", "warning", "error", "warn"]
       }
     },
     "fallbackOptions": {

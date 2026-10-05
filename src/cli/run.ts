@@ -110,6 +110,7 @@ type Gathered =
 export function gatherPaths(
 	paths: ReadonlyArray<string>,
 	files: Files,
+	allowNone = false,
 ): Gathered {
 	const found = findFiles(paths, files);
 	if (!found.ok) return found.error;
@@ -126,7 +127,7 @@ export function gatherPaths(
 		}
 	}
 	// A run that read nothing has checked nothing, and must not pass.
-	if (!found.paths.length && !unread.length)
+	if (!found.paths.length && !unread.length && !allowNone)
 		return 'No files to lint in the given paths.';
 	if (!sources.length && unread.length)
 		return `No files could be read. Not readable: ${unread.join(', ')}.`;
@@ -139,12 +140,20 @@ export function gatherPaths(
 async function gather(options: CliOptions, io: Io): Promise<Gathered> {
 	const name = options.stdinFilename;
 	if (name === undefined)
-		return gatherPaths(options.paths.length ? options.paths : ['.'], io.files);
+		return gatherPaths(
+			options.paths.length ? options.paths : ['.'],
+			io.files,
+			options.allowNoFiles,
+		);
 	if (options.paths.length)
 		return '--stdin-filename cannot be combined with paths.';
 	if (!syntaxForPath(name)) return `Not a file type jevlint-le reads: ${name}`;
+	const text = await io.stdin();
+	// The limit a file is held to, so piped text cannot be the way around it.
+	if (Buffer.byteLength(text, 'utf8') > MAX_FILE_SIZE_BYTES)
+		return `Standard input is over the size limit of ${MAX_FILE_SIZE_BYTES} bytes.`;
 	return {
-		sources: [{ path: name, text: await io.stdin() }],
+		sources: [{ path: name, text }],
 		left: { skipped: [], unread: [] },
 	};
 }

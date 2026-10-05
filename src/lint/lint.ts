@@ -244,6 +244,7 @@ export function lintText(
 	const all = check(extraction, { text, fallback, fallbackName, syntaxAt });
 
 	const isSuppressed = suppressor(text);
+	const seen = new Set<string>();
 	const findings = all
 		.filter(
 			(finding) =>
@@ -258,16 +259,12 @@ export function lintText(
 		.filter((finding): finding is ReportedFinding => finding !== undefined)
 		.sort((a, b) => a.span.start - b.span.start)
 		// A literal used by two questions is one mistake, not two.
-		.filter(
-			(finding, i, sorted) =>
-				!sorted
-					.slice(0, i)
-					.some(
-						(earlier) =>
-							earlier.code === finding.code &&
-							earlier.span.start === finding.span.start,
-					),
-		);
+		.filter((finding) => {
+			const key = `${finding.code}:${finding.span.start}`;
+			if (seen.has(key)) return false;
+			seen.add(key);
+			return true;
+		});
 
 	return Object.freeze({
 		findings,
