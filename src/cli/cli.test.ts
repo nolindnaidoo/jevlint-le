@@ -37,6 +37,8 @@ function disk(tree: Record<string, string>): Files {
 }
 
 type World = Readonly<{
+	/** Changes the fake disk, to make part of it fail. */
+	files?: (disk: Files) => Files;
 	env?: Record<string, string>;
 	fetch?: Fetch;
 	signal?: AbortSignal;
@@ -56,7 +58,7 @@ async function cli(
 	const out: string[] = [];
 	const err: string[] = [];
 	const io: Io = {
-		files: disk(tree),
+		files: (world.files ?? ((files) => files))(disk(tree)),
 		stdin: async () => stdin,
 		lines: async function* () {
 			yield* stdin.split('\n');
@@ -332,6 +334,82 @@ describe('the project settings file', () => {
 	});
 });
 
+describe('a disk that fails', () => {
+	const denied = (path: string) => () => {
+		throw new Error(`EACCES: permission denied, '${path}'`);
+	};
+	const tree = { 'src/q.json': CLEAN, 'locked/q.json': BAD };
+
+	it('lints the rest when a folder cannot be listed, and names the folder', async () => {
+		const result = await cli(['.'], tree, '', {
+			files: (files) => ({
+				...files,
+				list: (path) => (path === 'locked' ? denied(path)() : files.list(path)),
+			}),
+		});
+		expect(result.status).toBe(EXIT.passed);
+		expect(result.out).toContain('in 1 question across 1 file.');
+		expect(result.out).toContain('1 path could not be read: locked.');
+	});
+
+	it('lints the rest when a file cannot be read, and names the file', async () => {
+		const result = await cli(['--format', 'json', '.'], tree, '', {
+			files: (files) => ({
+				...files,
+				read: (path) =>
+					path === 'locked/q.json' ? denied(path)() : files.read(path),
+			}),
+		});
+		expect(result.status).toBe(EXIT.passed);
+		expect(JSON.parse(result.out).totals.unread).toEqual(['locked/q.json']);
+	});
+
+	it('does not pass a run in which nothing could be read', async () => {
+		const result = await cli(['.'], tree, '', {
+			files: (files) => ({ ...files, read: (path) => denied(path)() }),
+		});
+		expect(result.status).toBe(EXIT.unusable);
+		expect(result.err).toContain('No files could be read.');
+	});
+
+	it('does not follow a linked folder, which can lead back to its parent', async () => {
+		const listed: string[] = [];
+		const result = await cli(
+			['.'],
+			{ 'src/q.json': CLEAN, 'up/q.json': BAD },
+			'',
+			{
+				files: (files) => ({
+					...files,
+					stat: (path) => {
+						const entry = files.stat(path);
+						return entry && path === 'up' ? { ...entry, link: true } : entry;
+					},
+					list: (path) => {
+						listed.push(path);
+						return files.list(path);
+					},
+				}),
+			},
+		);
+		expect(listed).not.toContain('up');
+		expect(result.status).toBe(EXIT.passed);
+	});
+
+	it('still reads a linked folder that is named outright', async () => {
+		const result = await cli(['up'], { 'up/q.json': BAD }, '', {
+			files: (files) => ({
+				...files,
+				stat: (path) => {
+					const entry = files.stat(path);
+					return entry && path === 'up' ? { ...entry, link: true } : entry;
+				},
+			}),
+		});
+		expect(result.status).toBe(EXIT.failed);
+	});
+});
+
 describe('formats', () => {
 	const tree = { 'src/a.json': BAD };
 
@@ -488,6 +566,55 @@ describe('the MCP server', () => {
 		expect(reply.result.content[0].text).toContain(reason);
 	});
 
+	it('answers JSON that is not a request, and goes on serving', async () => {
+		const result = await cli(
+			['--mcp'],
+			{},
+			[
+				'null',
+				'[]',
+				'7',
+				JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'ping' }),
+			].join('\n'),
+		);
+		const replies = result.out
+			.trim()
+			.split('\n')
+			.map((line) => JSON.parse(line));
+		expect(replies.map((reply) => reply.error?.code)).toEqual([
+			-32600,
+			-32600,
+			-32600,
+			undefined,
+		]);
+		expect(replies[3]).toEqual({ jsonrpc: '2.0', id: 1, result: {} });
+		expect(result.status).toBe(EXIT.passed);
+	});
+
+	it('fails the call when a tool throws, and goes on serving', async () => {
+		const input = [
+			call(1, 'lint_paths', { paths: ['gone'] }),
+			{ jsonrpc: '2.0', id: 2, method: 'ping' },
+		]
+			.map((message) => JSON.stringify(message))
+			.join('\n');
+		const result = await cli(['--mcp'], {}, input, {
+			files: (files) => ({
+				...files,
+				stat: () => {
+					throw new Error('EIO: the disk went away');
+				},
+			}),
+		});
+		const [failed, pinged] = result.out
+			.trim()
+			.split('\n')
+			.map((line) => JSON.parse(line));
+		expect(failed.result.isError).toBe(true);
+		expect(failed.result.content[0].text).toContain('the disk went away');
+		expect(pinged.result).toEqual({});
+	});
+
 	it('answers bad JSON and an unknown method with protocol errors', async () => {
 		const result = await cli(
 			['--mcp'],
@@ -552,6 +679,7 @@ describe('checking with Jev', () => {
 			'questions',
 			'unreadable',
 			'skipped',
+			'unread',
 			'counts',
 		]);
 	});

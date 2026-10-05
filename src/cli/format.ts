@@ -17,6 +17,8 @@ export type Totals = Readonly<{
 	unreadable: number;
 	/** Files left unread for being over the size limit. */
 	skipped: ReadonlyArray<string>;
+	/** Folders and files that could not be read at all. */
+	unread: ReadonlyArray<string>;
 	counts: Readonly<Record<Severity, number>>;
 	/** Present only when the run was asked to check with Jev. */
 	jev?: JevTotals;
@@ -95,6 +97,10 @@ export function summarize(totals: Totals): string {
 	if (totals.skipped.length)
 		parts.push(
 			`${plural(totals.skipped.length, 'file')} over the size limit not read: ${totals.skipped.join(', ')}.`,
+		);
+	if (totals.unread.length)
+		parts.push(
+			`${plural(totals.unread.length, 'path')} could not be read: ${totals.unread.join(', ')}.`,
 		);
 	if (totals.jev) parts.push(...describeJev(totals.jev));
 	return parts.join(' ');

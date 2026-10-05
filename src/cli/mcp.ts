@@ -6,6 +6,7 @@ import {
 	createOptions,
 	gatherPaths,
 	type Io,
+	type Left,
 	lintSources,
 	type Source,
 	total,
@@ -22,6 +23,7 @@ const ERRORS = Object.freeze({
 	parse: -32700,
 	request: -32600,
 	method: -32601,
+	internal: -32603,
 });
 const DEFAULT_NAME = 'request.jev.json';
 
@@ -45,24 +47,24 @@ const fail = (text: string): Outcome => ({ text, failed: true });
 
 function report(
 	sources: ReadonlyArray<Source>,
-	skipped: ReadonlyArray<string>,
+	left: Left,
 	input: Json,
 	io: Io,
 ): Outcome {
 	const rules = readRules(input.rules);
 	if (typeof rules === 'string') return fail(rules);
 	// The project's own settings file applies here as it does on the command line.
-	const reports = lintSources(
+	const linted = lintSources(
 		sources,
 		createOptions(io.files, { rules }),
 		false,
 	);
-	if (typeof reports === 'string') return fail(reports);
-	const text = JSON.stringify(
-		toReport(reports, total(reports, skipped)),
-		null,
-		2,
-	);
+	if (typeof linted === 'string') return fail(linted);
+	const totals = total(linted.reports, {
+		skipped: left.skipped,
+		unread: [...left.unread, ...linted.failed],
+	});
+	const text = JSON.stringify(toReport(linted.reports, totals), null, 2);
 	return { text, failed: false };
 }
 
@@ -72,7 +74,12 @@ function lintText(input: Json, io: Io): Outcome {
 	if (typeof filename !== 'string') return fail("'filename' must be a string.");
 	if (!syntaxForPath(filename))
 		return fail(`Not a file type jevlint-le reads: ${filename}`);
-	return report([{ path: filename, text }], [], input, io);
+	return report(
+		[{ path: filename, text }],
+		{ skipped: [], unread: [] },
+		input,
+		io,
+	);
 }
 
 function lintPaths(input: Json, io: Io): Outcome {
@@ -84,7 +91,7 @@ function lintPaths(input: Json, io: Io): Outcome {
 	if (!listed) return fail("'paths' must be a list of at least one path.");
 	const gathered = gatherPaths(paths as string[], io.files);
 	if (typeof gathered === 'string') return fail(gathered);
-	return report(gathered.sources, gathered.skipped, input, io);
+	return report(gathered.sources, gathered.left, input, io);
 }
 
 function listRules(): Outcome {
@@ -153,11 +160,24 @@ function initialize(params: Json, version: string): Json {
 	};
 }
 
+const reason = (error: unknown): string =>
+	error instanceof Error ? error.message : String(error);
+
+// A tool that throws, on a folder it may not list or a file that vanished, is
+// a failed call. Left uncaught it ends the server, and the agent loses every tool.
+function attempt(call: () => Outcome): Outcome {
+	try {
+		return call();
+	} catch (error) {
+		return fail(reason(error));
+	}
+}
+
 function callTool(params: Json, io: Io): Json {
 	const tool = TOOLS.find((candidate) => candidate.name === params.name);
 	const input = (params.arguments ?? {}) as Json;
 	const outcome = tool
-		? tool.call(input, io)
+		? attempt(() => tool.call(input, io))
 		: fail(`Unknown tool: ${String(params.name)}`);
 	return {
 		content: [{ type: 'text', text: outcome.text }],
@@ -184,21 +204,29 @@ const error = (id: unknown, code: number, message: string) =>
 
 /** The reply to one line from the client, or undefined when the line needs none. */
 export function answer(line: string, io: Io): string | undefined {
-	let message: Json;
+	let parsed: unknown;
 	try {
-		message = JSON.parse(line);
+		parsed = JSON.parse(line);
 	} catch {
 		return error(null, ERRORS.parse, 'Invalid JSON');
 	}
-	const { id, method, params } = message;
+	// Valid JSON that is not an object, such as `null` or a list, is not a request.
+	if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed))
+		return error(null, ERRORS.request, 'Not a request');
+	const { id, method, params } = parsed as Json;
 	if (typeof method !== 'string')
 		return error(id ?? null, ERRORS.request, 'Not a request');
 	// A message with no id is a notification, which is never answered.
 	if (id === undefined) return undefined;
 	const handler = METHODS[method];
 	if (!handler) return error(id, ERRORS.method, `Unknown method: ${method}`);
-	const result = handler((params ?? {}) as Json, io);
-	return JSON.stringify({ jsonrpc: '2.0', id, result });
+	const asked =
+		typeof params === 'object' && params !== null ? (params as Json) : {};
+	try {
+		return JSON.stringify({ jsonrpc: '2.0', id, result: handler(asked, io) });
+	} catch (thrown) {
+		return error(id, ERRORS.internal, reason(thrown));
+	}
 }
 
 /** Answers MCP requests, one JSON message per line, until the input closes. */
