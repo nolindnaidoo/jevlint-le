@@ -12,8 +12,46 @@
   for the whole run, and a run that needs more exits 2.
 - A rejected key, a failed request or a stopped run exits 2 and says how many
   requests were answered of how many were planned.
-- JSON output gains `totals.jev` when `--jev` or `--jev-plan` is given. It is
-  unchanged otherwise.
+- JSON output gains `totals.jev` when `--jev` or `--jev-plan` is given.
+
+Fixed, from a review of how the tool fails:
+
+- **A reply from TypeSafe that was not a Jev reply crashed the run.** A proxy
+  or sign-in page answering 200 threw out of the client. The command line
+  lost its report, and the editor's command failed after the requests were
+  paid for. It is now reported as its own failure.
+- **A server error was blamed on the request and never retried.** A 5xx or a
+  408 now retries like a busy service, and is reported as TypeSafe's fault.
+  `Retry-After` is honoured, up to 30 seconds.
+- **A request with no answer waited forever**, which held a CI job until the
+  job was killed. It is given up on after 30 seconds.
+- **Cancelling during the wait before a retry** took up to four seconds to be
+  noticed. It is now immediate.
+- **The MCP server ended on one bad input.** A line holding `null`, or a tool
+  that threw on a folder it could not list, took the server down and the
+  agent lost its tools. Both are now answered as failures.
+- **One unreadable folder ended a command line run**, and so did a linked
+  folder that led back to its parent. Unreadable folders and files are now
+  named in the summary and the rest is linted. Linked folders are not
+  followed. A run in which nothing could be read still exits 2. JSON output
+  gains `totals.unread`.
+- **Jev's findings could be shown on text they were not about.** An edit
+  during a check cleared the old findings, then the check wrote its own back
+  with positions from the text it had read. An edit or a close now stops the
+  check and drops its findings, with a message. A second check of a file is
+  refused while one is running.
+- **A second Lint Workspace wiped the first one's findings.** It is refused
+  while one is going. The run now shows progress and can be stopped.
+- **A reader that failed in the editor left stale findings on screen** with no
+  message. The findings are cleared and the status bar says why. On the
+  command line the file is named and the other files are still linted.
+- **A settings file that vanished between being found and being read** threw.
+  It is reported like any other that cannot be used.
+- **The size limit was counted in characters in the editor and bytes on the
+  command line**, so a file of mostly non-ASCII text could be linted in one
+  and skipped in the other. Both count bytes.
+- **Piping a large report into a command that closes early**, such as `head`,
+  crashed with a stack trace and status 1.
 
 ## 0.1.0 — 2026-10-04
 

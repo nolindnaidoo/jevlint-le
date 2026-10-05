@@ -148,7 +148,7 @@ What to know before you run it:
 - **It is disabled in an untrusted workspace.** Run **Workspaces: Manage
   Workspace Trust** and trust the folder to turn it on.
 - **Findings disappear when you edit the file**, because they were about the
-  old text.
+  old text. Editing or closing the file during a check stops the check.
 - **Each finding shows the probability Jev gave it.** Treat it as an argument
   with a number attached, not a verdict.
 
@@ -212,7 +212,8 @@ read. Errors always fail a run. Warnings fail it only past `--max-warnings`.
 | `--mcp` | Run as an MCP server |
 
 The summary line always says how many questions could not be read in full
-and names any file skipped for its size. It does not run the checks that ask
+and names any file skipped for its size and any folder or file it could not
+read. It does not follow linked folders. It does not run the checks that ask
 Jev, and it never uses the network, unless you pass `--jev`.
 
 ### Checking with Jev
