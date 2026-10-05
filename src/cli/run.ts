@@ -87,8 +87,15 @@ export function createOptions(files: Files, overrides: Overrides) {
 }
 
 export type Source = Readonly<{ path: string; text: string }>;
+/** What a run did not read, and so cannot speak for. */
+export type Left = Readonly<{
+	/** Files over the size limit. */
+	skipped: ReadonlyArray<string>;
+	/** Folders and files that could not be read or linted. */
+	unread: ReadonlyArray<string>;
+}>;
 type Gathered =
-	| Readonly<{ sources: ReadonlyArray<Source>; skipped: ReadonlyArray<string> }>
+	| Readonly<{ sources: ReadonlyArray<Source>; left: Left }>
 	| string;
 
 /** The files under the given paths, read, with any too large to read named. */
@@ -98,15 +105,26 @@ export function gatherPaths(
 ): Gathered {
 	const found = findFiles(paths, files);
 	if (!found.ok) return found.error;
-	// A run that read nothing has checked nothing, and must not pass.
-	if (!found.paths.length) return 'No files to lint in the given paths.';
 	const small = (path: string) =>
 		(files.stat(path)?.size ?? 0) <= MAX_FILE_SIZE_BYTES;
+	const unread = [...found.unread];
+	const sources: Source[] = [];
+	for (const path of found.paths.filter(small)) {
+		// A file that vanished or may not be read is named and the run goes on.
+		try {
+			sources.push({ path, text: files.read(path) });
+		} catch {
+			unread.push(path);
+		}
+	}
+	// A run that read nothing has checked nothing, and must not pass.
+	if (!found.paths.length && !unread.length)
+		return 'No files to lint in the given paths.';
+	if (!sources.length && unread.length)
+		return `No files could be read. Not readable: ${unread.join(', ')}.`;
 	return {
-		sources: found.paths
-			.filter(small)
-			.map((path) => ({ path, text: files.read(path) })),
-		skipped: found.paths.filter((path) => !small(path)),
+		sources,
+		left: { skipped: found.paths.filter((path) => !small(path)), unread },
 	};
 }
 
@@ -117,7 +135,10 @@ async function gather(options: CliOptions, io: Io): Promise<Gathered> {
 	if (options.paths.length)
 		return '--stdin-filename cannot be combined with paths.';
 	if (!syntaxForPath(name)) return `Not a file type jevlint-le reads: ${name}`;
-	return { sources: [{ path: name, text: await io.stdin() }], skipped: [] };
+	return {
+		sources: [{ path: name, text: await io.stdin() }],
+		left: { skipped: [], unread: [] },
+	};
 }
 
 export function lintSource(
@@ -136,25 +157,34 @@ export function lintSource(
 	};
 }
 
+export type Linted = Readonly<{
+	reports: ReadonlyArray<FileReport>;
+	/** Files the linter itself failed on. Named, never passed over. */
+	failed: ReadonlyArray<string>;
+}>;
+
 /** Lints each source under the settings that apply to it, or says which settings file could not be used. */
 export function lintSources(
 	sources: ReadonlyArray<Source>,
 	optionsFor: (file: string) => LintOptions | string,
 	quiet: boolean,
-): ReadonlyArray<FileReport> | string {
+): Linted | string {
 	const reports: FileReport[] = [];
+	const failed: string[] = [];
 	for (const source of sources) {
 		const options = optionsFor(source.path);
 		if (typeof options === 'string') return options;
-		reports.push(lintSource(source, options, quiet));
+		// A file the reader cannot get through must not take the other files' findings with it.
+		try {
+			reports.push(lintSource(source, options, quiet));
+		} catch {
+			failed.push(source.path);
+		}
 	}
-	return reports;
+	return { reports, failed };
 }
 
-export function total(
-	reports: ReadonlyArray<FileReport>,
-	skipped: ReadonlyArray<string>,
-): Totals {
+export function total(reports: ReadonlyArray<FileReport>, left: Left): Totals {
 	const counts: Record<Severity, number> = {
 		error: 0,
 		warning: 0,
@@ -169,7 +199,8 @@ export function total(
 		files: reports.length,
 		questions: sum((report) => report.questionCount),
 		unreadable: sum((report) => report.unreadableCount),
-		skipped,
+		skipped: left.skipped,
+		unread: left.unread,
 		counts,
 	};
 }
@@ -211,10 +242,14 @@ export async function run(
 	const optionsFor = createOptions(io.files, options);
 	const linted = lintSources(gathered.sources, optionsFor, options.quiet);
 	if (typeof linted === 'string') return unusable(linted);
+	const { reports } = linted;
+	const left: Left = {
+		skipped: gathered.left.skipped,
+		unread: [...gathered.left.unread, ...linted.failed],
+	};
 	if (options.jev || options.jevPlan)
-		return runWithJev(options, io, linted, gathered.skipped, optionsFor);
-	const reports = linted;
-	const totals = total(reports, gathered.skipped);
+		return runWithJev(options, io, reports, left, optionsFor);
+	const totals = total(reports, left);
 	io.out(format(options.format, reports, totals));
 	return fails(totals, options.maxWarnings) ? EXIT.failed : EXIT.passed;
 }
@@ -262,7 +297,7 @@ async function runWithJev(
 	options: CliOptions,
 	io: Io,
 	linted: ReadonlyArray<FileReport>,
-	skipped: ReadonlyArray<string>,
+	left: Left,
 	optionsFor: (file: string) => LintOptions | string,
 ): Promise<number> {
 	const say = (message: string) => io.err(`jevlint-le: ${message}\n`);
@@ -272,7 +307,7 @@ async function runWithJev(
 		return EXIT.unusable;
 	}
 	if (options.jevPlan) {
-		const totals = { ...total(linted, skipped), jev: plan.totals };
+		const totals = { ...total(linted, left), jev: plan.totals };
 		io.out(format(options.format, linted, totals));
 		return fails(totals, options.maxWarnings) ? EXIT.failed : EXIT.passed;
 	}
@@ -287,7 +322,7 @@ async function runWithJev(
 		},
 		options.quiet,
 	);
-	const totals = { ...total(ran.reports, skipped), jev: ran.totals };
+	const totals = { ...total(ran.reports, left), jev: ran.totals };
 	io.out(format(options.format, ran.reports, totals));
 	const failure =
 		ran.failure && `${FAILURES[ran.failure.kind]} (${ran.failure.detail})`;
