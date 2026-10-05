@@ -1,0 +1,45 @@
+# Lints the Jev questions in a repository and annotates the pull request.
+#
+#   - uses: nolindnaidoo/jevlint-le@v0.3.0
+#     with:
+#       paths: src
+#
+# The runner needs Node 20 or newer, which GitHub's hosted runners have.
+name: JevLint-LE
+description: Lint the questions written for TypeSafe's Jev model. No API key and no network calls.
+author: Nolin Naidoo
+branding:
+  icon: check-circle
+  color: purple
+inputs:
+  paths:
+    description: Files and folders to lint, separated by spaces.
+    required: false
+    default: .
+  version:
+    description: The jevlint-le version to run. Defaults to the one this action was released with.
+    required: false
+    default: 0.3.0
+  format:
+    description: How findings are printed. github annotates the pull request. sarif is for code scanning.
+    required: false
+    default: github
+  args:
+    description: Any other options, as you would type them. Never --jev, which this action does not pass a key to.
+    required: false
+    default: ''
+runs:
+  using: composite
+  steps:
+    - name: Lint Jev questions
+      shell: bash
+      # Inputs reach the shell as environment variables, never spliced into
+      # the script, so a value cannot be read as a command.
+      env:
+        JEVLINT_VERSION: ${{ inputs.version }}
+        JEVLINT_FORMAT: ${{ inputs.format }}
+        JEVLINT_ARGS: ${{ inputs.args }}
+        JEVLINT_PATHS: ${{ inputs.paths }}
+      run: |
+        # shellcheck disable=SC2086 # paths and args are lists, split on purpose
+        npx --yes "jevlint-le@${JEVLINT_VERSION}" --format "${JEVLINT_FORMAT}" ${JEVLINT_ARGS} ${JEVLINT_PATHS}

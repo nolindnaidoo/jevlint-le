@@ -66,7 +66,7 @@ jev/
 cli/
   args.ts                the flag table: one entry parses a flag and prints its help
   files.ts               paths -> the files to lint
-  format.ts              stylish, compact, JSON and GitHub annotation output
+  format.ts              stylish, compact, JSON, GitHub annotation, SARIF and JUnit output
   run.ts                 run(argv, io) -> exit status. Everything but the process
   jev.ts                 --jev: the plan across files under one call limit, and the run
   mcp.ts                 the MCP server: three tools over the same linting
@@ -134,7 +134,14 @@ family's files, copied unchanged from `regex-le`.
   other caller.
 - **`stylish` is for people and the other formats are for programs.** Only
   `stylish` is coloured or may change shape between releases. `compact`,
-  `json` and `github` are read by editors and CI.
+  `json`, `github`, `sarif` and `junit` are read by editors and CI.
+- **In JUnit only an error is a failed case.** A warning that failed there
+  would turn a CI report red on a run that exited 0.
+- **`action.yml` and `.pre-commit-hooks.yaml` pin the version they ship
+  with,** and `cli.test.ts` holds both to `package.json`. Neither can work
+  for a version until that version is on npm, so they are only meaningful at
+  a release tag. The action passes its inputs as environment variables and
+  never splices one into its script.
 - **`exclude` is decided in one place,** `isExcluded` in
   `config/projectConfig.ts`, for the command line, the MCP server and the
   editor. Text handed over directly, on standard input or to `lint_text`, is

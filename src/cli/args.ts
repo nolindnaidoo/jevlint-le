@@ -3,7 +3,13 @@ import { ENV_KEY } from '../jev/client';
 import { DEFAULT_MAX_CALLS, DEFAULT_MODEL } from '../jev/review';
 import type { LintOptions } from '../types';
 
-export type Format = 'stylish' | 'compact' | 'json' | 'github';
+export type Format =
+	| 'stylish'
+	| 'compact'
+	| 'json'
+	| 'github'
+	| 'sarif'
+	| 'junit';
 
 export type CliOptions = Readonly<{
 	paths: ReadonlyArray<string>;
@@ -51,15 +57,22 @@ type Flag = Readonly<{
 	apply: (options: CliOptions, value: string) => Applied;
 }>;
 
-const FORMATS: ReadonlyArray<string> = ['stylish', 'compact', 'json', 'github'];
+const FORMATS: ReadonlyArray<string> = [
+	'stylish',
+	'compact',
+	'json',
+	'github',
+	'sarif',
+	'junit',
+];
 
 // The help is printed from this table, so a flag cannot exist without its line.
 const FLAGS: ReadonlyArray<Flag> = Object.freeze([
 	{
 		name: '--format',
 		short: '-f',
-		value: 'stylish|compact|json|github',
-		help: 'How findings are printed. stylish groups them by file, compact is one per line as path:line:column, github writes workflow annotations.',
+		value: 'stylish|compact|json|github|sarif|junit',
+		help: 'How findings are printed. stylish groups them by file, compact is one per line as path:line:column, github writes workflow annotations, sarif is for code scanning, junit for test reporters.',
 		apply: (options, value) =>
 			FORMATS.includes(value)
 				? { ...options, format: value as Format }

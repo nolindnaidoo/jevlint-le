@@ -1,0 +1,16 @@
+# For https://pre-commit.com. In a project's .pre-commit-config.yaml:
+#
+#   - repo: https://github.com/nolindnaidoo/jevlint-le
+#     rev: v0.3.0
+#     hooks:
+#       - id: jevlint-le
+#
+# It runs the published command line through npx, so Node 20 or newer has to
+# be on the machine. The version is pinned to the release this file belongs
+# to, and a test holds the two together.
+- id: jevlint-le
+  name: JevLint-LE
+  description: Lint the questions written for TypeSafe's Jev model. No API key and no network calls.
+  entry: npx --yes jevlint-le@0.3.0 --no-error-on-unmatched-pattern
+  language: system
+  files: \.(json|jsonc|js|jsx|mjs|cjs|ts|tsx|mts|cts|py|rs|go)$

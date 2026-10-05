@@ -17,6 +17,12 @@
   a large project used to leave every file it read held in the editor's
   memory. A file you have open is still linted as it is in the editor,
   unsaved edits included.
+- **`--format sarif`** for GitHub code scanning and security dashboards, and
+  **`--format junit`** for test reporters. In JUnit only an error is a failed
+  case, since only an error fails a run.
+- **A GitHub Action**, `nolindnaidoo/jevlint-le`, that annotates a pull
+  request, and **a pre-commit hook**. Both run the published command line at
+  the version they were released with.
 - The npm package can be required as a library: `lint`, `fix`, `rules`,
   `syntaxes` and an `api` number. This is what the editor loads.
 - Check with Jev and the probe always run the extension's own code. They

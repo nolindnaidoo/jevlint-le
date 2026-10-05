@@ -49,6 +49,19 @@ export type Io = Readonly<{
 
 export const EXIT = Object.freeze({ passed: 0, failed: 1, unusable: 2 });
 
+function render(
+	options: CliOptions,
+	io: Io,
+	reports: ReadonlyArray<FileReport>,
+	totals: Totals,
+): string {
+	return format(options.format, reports, totals, {
+		color: colored(options, io),
+		columns: io.columns,
+		version: io.version,
+	});
+}
+
 // A flag wins. Otherwise colour is for a terminal, unless NO_COLOR asks for none.
 function colored(options: CliOptions, io: Io): boolean {
 	if (options.color !== undefined) return options.color;
@@ -386,9 +399,7 @@ export async function run(
 	if (options.jev || options.jevPlan)
 		return runWithJev(options, io, reports, left, optionsFor, fixed);
 	const totals = { ...total(reports, left), ...fixed };
-	io.out(
-		format(options.format, reports, totals, colored(options, io), io.columns),
-	);
+	io.out(render(options, io, reports, totals));
 	return fails(totals, options.maxWarnings) ? EXIT.failed : EXIT.passed;
 }
 
@@ -456,9 +467,7 @@ async function runWithJev(
 	}
 	if (options.jevPlan) {
 		const totals = { ...total(linted, left), ...fixed, jev: plan.totals };
-		io.out(
-			format(options.format, linted, totals, colored(options, io), io.columns),
-		);
+		io.out(render(options, io, linted, totals));
 		return fails(totals, options.maxWarnings) ? EXIT.failed : EXIT.passed;
 	}
 	if (plan.totals.planned) say(sending(plan.totals));
@@ -473,15 +482,7 @@ async function runWithJev(
 		options.quiet,
 	);
 	const totals = { ...total(ran.reports, left), ...fixed, jev: ran.totals };
-	io.out(
-		format(
-			options.format,
-			ran.reports,
-			totals,
-			colored(options, io),
-			io.columns,
-		),
-	);
+	io.out(render(options, io, ran.reports, totals));
 	const failure =
 		ran.failure && `${FAILURES[ran.failure.kind]} (${ran.failure.detail})`;
 	const short = shortfall(ran.totals, failure, ran.stopped);
