@@ -72,9 +72,12 @@ extension reads the same file, so the editor and CI agree.
 ```json
 {
   "rules": { "JEV004": "error", "JEV112": "off" },
-  "ignore": ["JEV004:department"]
+  "ignore": ["JEV004:department"],
+  "exclude": ["fixtures", "**/*.generated.ts"]
 }
 ```
+
+`exclude` lists files and folders not to lint, relative to the settings file.
 
 The nearest one to each file is used, looking no higher than the directory
 the command is run in.

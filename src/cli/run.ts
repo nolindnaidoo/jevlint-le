@@ -1,4 +1,9 @@
-import { createConfigLoader, parseConfig } from '../config/projectConfig';
+import {
+	createConfigLoader,
+	folderOf,
+	isExcluded,
+	parseConfig,
+} from '../config/projectConfig';
 import { ENV_KEY, type Fetch } from '../jev/client';
 import { fixText } from '../lint/fixAll';
 import {
@@ -68,10 +73,35 @@ export type Overrides = Readonly<{
  * settings file could not be used.
  */
 export function createOptions(files: Files, overrides: Overrides) {
+	return createSettings(files, overrides).optionsFor;
+}
+
+export type Settings = Readonly<{
+	optionsFor: (file: string) => LintOptions | string;
+	/** True when the settings file that governs a file leaves it out. */
+	excludes: (file: string) => boolean;
+}>;
+
+export function createSettings(files: Files, overrides: Overrides): Settings {
 	const loader = createConfigLoader({
 		isFile: (path) => files.stat(path)?.kind === 'file',
 		read: files.read,
 	});
+	// A named settings file stands in for one at the top of the run.
+	const excludes = (file: string): boolean => {
+		if (overrides.config !== undefined) {
+			const options = named(overrides.config);
+			return (
+				typeof options !== 'string' && isExcluded(options.exclude, '.', file)
+			);
+		}
+		const found = loader.for(file);
+		return (
+			found !== undefined &&
+			typeof found.options !== 'string' &&
+			isExcluded(found.options.exclude, folderOf(found.path), file)
+		);
+	};
 	const withFlags = (options: LintOptions): LintOptions => ({
 		...options,
 		// A flag is the more specific instruction, so it wins over the file.
@@ -85,7 +115,7 @@ export function createOptions(files: Files, overrides: Overrides) {
 			? `${path}: ${options}`
 			: withFlags(options);
 	};
-	return (file: string): LintOptions | string => {
+	const optionsFor = (file: string): LintOptions | string => {
 		if (overrides.config !== undefined) return named(overrides.config);
 		const found = loader.for(file);
 		if (!found) return withFlags(BASE);
@@ -93,6 +123,16 @@ export function createOptions(files: Files, overrides: Overrides) {
 			? `${found.path}: ${found.options}`
 			: withFlags(found.options);
 	};
+	return { optionsFor, excludes };
+}
+
+/** The sources a settings file does not leave out, and how many it does. */
+export function withoutExcluded(
+	sources: ReadonlyArray<Source>,
+	settings: Settings,
+): Readonly<{ sources: ReadonlyArray<Source>; excluded: number }> {
+	const kept = sources.filter((source) => !settings.excludes(source.path));
+	return { sources: kept, excluded: sources.length - kept.length };
 }
 
 function readOrNothing(files: Files, path: string): string | undefined {
@@ -106,6 +146,8 @@ function readOrNothing(files: Files, path: string): string | undefined {
 export type Source = Readonly<{ path: string; text: string }>;
 /** What a run did not read, and so cannot speak for. */
 export type Left = Readonly<{
+	/** Files a settings file leaves out. */
+	excluded?: number;
 	/** Files over the size limit. */
 	skipped: ReadonlyArray<string>;
 	/** Folders and files that could not be read or linted. */
@@ -269,6 +311,7 @@ export function total(reports: ReadonlyArray<FileReport>, left: Left): Totals {
 		files: reports.length,
 		questions: sum((report) => report.questionCount),
 		unreadable: sum((report) => report.unreadableCount),
+		excluded: left.excluded ?? 0,
 		skipped: left.skipped,
 		unread: left.unread,
 		counts,
@@ -314,13 +357,19 @@ export async function run(
 	const gathered = await gather(options, io);
 	if (typeof gathered === 'string') return unusable(gathered);
 
-	const optionsFor = createOptions(io.files, options);
+	const settings = createSettings(io.files, options);
+	const { optionsFor } = settings;
+	// Piped text was handed over on purpose, so no settings file leaves it out.
+	const kept =
+		options.stdinFilename === undefined
+			? withoutExcluded(gathered.sources, settings)
+			: { sources: gathered.sources, excluded: 0 };
 	const mended = options.fix
-		? fixSources(gathered.sources, optionsFor, io.files)
+		? fixSources(kept.sources, optionsFor, io.files)
 		: undefined;
 	if (typeof mended === 'string') return unusable(mended);
 	const linted = lintSources(
-		mended?.sources ?? gathered.sources,
+		mended?.sources ?? kept.sources,
 		optionsFor,
 		options.quiet,
 	);
@@ -328,6 +377,7 @@ export async function run(
 	const fixed = mended ? { fixed: mended.fixed } : {};
 	const { reports } = linted;
 	const left: Left = {
+		excluded: kept.excluded,
 		skipped: gathered.left.skipped,
 		unread: [...gathered.left.unread, ...linted.failed],
 	};

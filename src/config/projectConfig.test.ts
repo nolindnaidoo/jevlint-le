@@ -4,6 +4,7 @@ import {
 	CONFIG_FILE,
 	CONFIG_KEYS,
 	createConfigLoader,
+	isExcluded,
 	LEVEL_ALIASES,
 	LEVELS,
 	parseConfig,
@@ -25,15 +26,16 @@ const disk = (tree: Record<string, string>) => {
 const OFF = '{ "rules": { "JEV004": "off" } }';
 
 describe('a project settings file', () => {
-	it('holds rules, fallback options and what to ignore', () => {
+	it('holds rules, fallback options, what to ignore and which files to leave out', () => {
 		expect(
 			parseConfig(
-				'{ "rules": { "JEV004": "error" }, "fallbackOptions": ["else"], "ignore": ["JEV112:big"] }',
+				'{ "rules": { "JEV004": "error" }, "fallbackOptions": ["else"], "ignore": ["JEV112:big"], "exclude": ["fixtures"] }',
 			),
 		).toEqual({
 			rules: { JEV004: 'error' },
 			fallbackOptions: ['else'],
 			ignore: ['JEV112:big'],
+			exclude: ['fixtures'],
 		});
 	});
 
@@ -42,6 +44,7 @@ describe('a project settings file', () => {
 		['{ "rules": { "JEV999": "off" } }', "'JEV999' is not a rule code"],
 		['{ "rules": { "JEV004": "loud" } }', "'loud' is not a level"],
 		['{ "ignore": "JEV004:team" }', "'ignore' must be a list of strings"],
+		['{ "exclude": "fixtures" }', "'exclude' must be a list of strings"],
 		['[]', 'it must hold a JSON object'],
 		['{', 'it is not valid JSON'],
 	])('is refused when it reads %s', (text, reason) => {
@@ -137,5 +140,48 @@ describe('a settings file that cannot be read', () => {
 			},
 		});
 		expect(loader.for('/work/src/q.ts')?.options).toBe('it could not be read.');
+	});
+});
+
+describe('exclude', () => {
+	it.each([
+		['fixtures', 'fixtures/a.json', true],
+		['fixtures', 'src/fixtures/deep/a.json', true],
+		['fixtures', 'src/fixtures.json', false],
+		['fixtures/', 'fixtures/a.json', true],
+		['*.generated.ts', 'src/api.generated.ts', true],
+		['*.generated.ts', 'src/api.ts', false],
+		['test/data/**', 'test/data/a/b.json', true],
+		['test/data/**', 'src/test/data/a.json', false],
+		['test/*.json', 'test/a.json', true],
+		['test/*.json', 'test/deep/a.json', false],
+		['**/snapshots/*.json', 'a/b/snapshots/x.json', true],
+		['./src/old', 'src/old/q.ts', true],
+		['a.b', 'axb', false],
+		['q?.json', 'q1.json', true],
+		['q?.json', 'q12.json', false],
+	])('%s on %s is %s', (pattern, path, excluded) => {
+		expect(isExcluded([pattern], '.', path)).toBe(excluded);
+	});
+
+	it('is relative to the folder the settings file is in', () => {
+		expect(
+			isExcluded(['fixtures'], 'packages/api', 'packages/api/fixtures/a.json'),
+		).toBe(true);
+		expect(
+			isExcluded(['/fixtures'], 'packages/api', 'packages/web/fixtures/a.json'),
+		).toBe(false);
+		expect(
+			isExcluded(
+				['fixtures'],
+				'C:\\work\\app',
+				'C:\\work\\app\\fixtures\\a.json',
+			),
+		).toBe(true);
+	});
+
+	it('leaves nothing out when there are no patterns', () => {
+		expect(isExcluded(undefined, '.', 'a.json')).toBe(false);
+		expect(isExcluded([], '.', 'a.json')).toBe(false);
 	});
 });

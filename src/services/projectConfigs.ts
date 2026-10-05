@@ -4,12 +4,18 @@ import {
 	CONFIG_FILE,
 	type ConfigFs,
 	createConfigLoader,
+	folderOf,
+	isExcluded,
 } from '../config/projectConfig';
 import type { LintOptions } from '../types';
 
 /** The lint settings for a document, or why its settings file could not be used. */
 export type Resolved =
-	| Readonly<{ options: LintOptions }>
+	| Readonly<{
+			options: LintOptions;
+			/** True when the settings file leaves this document out. */
+			excluded?: boolean;
+	  }>
 	| Readonly<{ problem: string }>;
 
 export type ProjectConfigs = Readonly<{
@@ -52,7 +58,10 @@ export function createProjectConfigs(deps: Deps): ProjectConfigs {
 			if (!found) return { options: settings };
 			if (typeof found.options === 'string')
 				return { problem: `${basename(found.path)}: ${found.options}` };
-			return { options: found.options };
+			return {
+				options: found.options,
+				excluded: isExcluded(found.options.exclude, folderOf(found.path), file),
+			};
 		},
 		dispose: () => {
 			for (const subscription of subscriptions) subscription.dispose();

@@ -421,6 +421,60 @@ describe('the project settings file', () => {
 	});
 });
 
+describe('exclude in the settings file', () => {
+	const tree = {
+		'jevlint-le.json': '{ "exclude": ["fixtures", "*.generated.json"] }',
+		'src/q.json': CLEAN,
+		'src/api.generated.json': BAD,
+		'fixtures/bad.json': BAD,
+	};
+
+	it('leaves the files out of a search, and says how many', async () => {
+		const result = await cli(['.'], tree);
+		expect(result.status).toBe(EXIT.passed);
+		// The clean file, and the settings file itself, which is JSON too.
+		expect(result.out).toContain('in 1 question across 2 files.');
+		expect(result.out).toContain('2 files excluded by settings.');
+	});
+
+	it('leaves out a file named outright too, as a hook that passes changed files needs', async () => {
+		const result = await cli(['fixtures/bad.json', 'src/q.json'], tree);
+		expect(result.status).toBe(EXIT.passed);
+		expect(result.out).toContain('1 file excluded by settings.');
+	});
+
+	it('is not written to by --fix', async () => {
+		const files = { ...tree };
+		await cli(['--fix', '.'], files);
+		expect(files['fixtures/bad.json']).toBe(BAD);
+	});
+
+	it('does not apply to text piped in under a name', async () => {
+		const result = await cli(
+			['--stdin-filename', 'fixtures/bad.json'],
+			tree,
+			BAD,
+		);
+		expect(result.status).toBe(EXIT.failed);
+	});
+
+	it('is honoured by the MCP server for files on disk', async () => {
+		const input = JSON.stringify({
+			jsonrpc: '2.0',
+			id: 1,
+			method: 'tools/call',
+			params: { name: 'lint_paths', arguments: { paths: ['.'] } },
+		});
+		const result = await cli(['--mcp'], tree, input);
+		const report = JSON.parse(JSON.parse(result.out).result.content[0].text);
+		expect(report.files.map((file: { path: string }) => file.path)).toEqual([
+			'jevlint-le.json',
+			'src/q.json',
+		]);
+		expect(report.totals.excluded).toBe(2);
+	});
+});
+
 describe('--fix', () => {
 	const BROKEN = `{ "questions": { "late": { "type": "noul", "instructions": "Did it arrive late?", "criteria": { "yes": "After the day promised", "no": "On or before it" } }, "team": { "type": "choice", "instructions": "Which team?", "criteria": { "billing": "Charges", "technical": "Faults" } } } }`;
 
@@ -876,6 +930,7 @@ describe('checking with Jev', () => {
 			'files',
 			'questions',
 			'unreadable',
+			'excluded',
 			'skipped',
 			'unread',
 			'counts',

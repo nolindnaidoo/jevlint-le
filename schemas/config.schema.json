@@ -22,6 +22,11 @@
       "description": "Findings to leave out, each written as a rule code, a colon and a question id: JEV004:department.",
       "type": "array",
       "items": { "type": "string", "pattern": "^JEV\\d{3}:.+$" }
+    },
+    "exclude": {
+      "description": "Files and folders not to lint, as patterns relative to this file. `**` crosses folders, `*` stays inside one, and a name with no slash matches at any depth: fixtures, **/*.generated.ts, test/data/**.",
+      "type": "array",
+      "items": { "type": "string" }
     }
   }
 }

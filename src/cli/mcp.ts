@@ -3,13 +3,14 @@ import { syntaxForPath } from '../lint/lint';
 import { RULE_CODES, RULES } from '../lint/rules';
 import { toReport } from './format';
 import {
-	createOptions,
+	createSettings,
 	gatherPaths,
 	type Io,
 	type Left,
 	lintSources,
 	type Source,
 	total,
+	withoutExcluded,
 } from './run';
 
 const NAME = 'jevlint-le';
@@ -50,17 +51,20 @@ function report(
 	left: Left,
 	input: Json,
 	io: Io,
+	searched = false,
 ): Outcome {
 	const rules = readRules(input.rules);
 	if (typeof rules === 'string') return fail(rules);
 	// The project's own settings file applies here as it does on the command line.
-	const linted = lintSources(
-		sources,
-		createOptions(io.files, { rules }),
-		false,
-	);
+	const settings = createSettings(io.files, { rules });
+	// Text passed in was handed over on purpose. Only files found on disk can be left out.
+	const kept = searched
+		? withoutExcluded(sources, settings)
+		: { sources, excluded: 0 };
+	const linted = lintSources(kept.sources, settings.optionsFor, false);
 	if (typeof linted === 'string') return fail(linted);
 	const totals = total(linted.reports, {
+		excluded: kept.excluded,
 		skipped: left.skipped,
 		unread: [...left.unread, ...linted.failed],
 	});
@@ -91,7 +95,7 @@ function lintPaths(input: Json, io: Io): Outcome {
 	if (!listed) return fail("'paths' must be a list of at least one path.");
 	const gathered = gatherPaths(paths as string[], io.files);
 	if (typeof gathered === 'string') return fail(gathered);
-	return report(gathered.sources, gathered.left, input, io);
+	return report(gathered.sources, gathered.left, input, io, true);
 }
 
 function listRules(): Outcome {
