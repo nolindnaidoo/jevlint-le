@@ -306,12 +306,16 @@ describe('JevLint-LE in a real editor', function () {
 			vscode.ConfigurationTarget.Global,
 		);
 		try {
-			await untilCodes(
-				sample('triage.ts'),
-				(EXPECTED['triage.ts'] ?? []).filter(
-					(code) => code !== 'JEV004' && code !== 'JEV000',
-				),
-			);
+			// With JEV004 off, the comment in the sample that silences a JEV004
+			// silences nothing, and is reported where that finding would have been.
+			await untilCodes(sample('triage.ts'), [
+				'JEV001',
+				'JEV008',
+				'JEV010',
+				'JEV009',
+				'JEV007',
+				'JEV005',
+			]);
 		} finally {
 			await settings.update(
 				'rules',
