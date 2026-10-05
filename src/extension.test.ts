@@ -389,6 +389,40 @@ describe('commands', () => {
 		expect(diagnostics('file:///good.ts')).toHaveLength(1);
 	});
 
+	it('reads workspace files from disk, and opens none of them in the editor', async () => {
+		start();
+		const good = doc(BARE_CHOICE, 'file:///good.ts');
+		const python = doc(
+			`from typesafe_sdk import Choice\nq = {"questions": {"a": Choice(instructions="Which team?", criteria={"billing": "Charges", "technical": "Faults"})}}\n`,
+			'file:///deep/triage.py',
+		);
+		for (const document of [good, python])
+			_state.documents.set(document.uri.toString(), document);
+		_state.files = [good.uri, python.uri];
+		await run(COMMANDS.lintWorkspace);
+		expect(_state.opened).toBe(0);
+		expect(diagnostics('file:///good.ts')).toHaveLength(1);
+		// Read with the reader its extension calls for, and placed on its own line.
+		const [found] = diagnostics('file:///deep/triage.py');
+		expect(found?.range.start.line).toBe(1);
+	});
+
+	it('lints the unsaved text of a file that is open, not what is on disk', async () => {
+		const open = doc(BARE_CHOICE, 'file:///good.ts');
+		start(open);
+		// On disk the file is clean. In the editor it has been edited.
+		_state.documents.set(
+			open.uri.toString(),
+			doc(
+				`const q = { type: 'noul', instructions: 'Is it late?' };`,
+				'file:///good.ts',
+			),
+		);
+		_state.files = [open.uri];
+		await run(COMMANDS.lintWorkspace);
+		expect(diagnostics('file:///good.ts')).toHaveLength(1);
+	});
+
 	it('refuses a second workspace run while one is going', async () => {
 		start();
 		const good = doc(BARE_CHOICE, 'file:///good.ts');
