@@ -45,6 +45,13 @@ function stopSignal(): AbortSignal {
 	return stop.signal;
 }
 
+// A reader that closes early, such as `head`, is not an error of this tool's.
+// Unheard, the pipe's error ends the process with a stack trace and status 1,
+// which a script reads as "a finding failed the run".
+process.stdout.on('error', (error: NodeJS.ErrnoException) => {
+	if (error.code !== 'EPIPE') throw error;
+});
+
 run(process.argv.slice(2), {
 	files: {
 		stat,
