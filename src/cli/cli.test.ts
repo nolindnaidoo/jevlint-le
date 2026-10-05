@@ -1,4 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { describe, expect, it, vi } from 'vitest';
+import type { Fetch } from '../jev/client';
 import { FLAG_NAMES, helpText, parseArgs } from './args';
 import type { Files } from './files';
 import { EXIT, type Io, run } from './run';
@@ -34,10 +36,22 @@ function disk(tree: Record<string, string>): Files {
 	};
 }
 
+type World = Readonly<{
+	env?: Record<string, string>;
+	fetch?: Fetch;
+	signal?: AbortSignal;
+}>;
+
+const offline = () =>
+	vi.fn(async () => {
+		throw new Error('offline');
+	}) as unknown as Fetch;
+
 async function cli(
 	args: string[],
 	tree: Record<string, string> = {},
 	stdin = '',
+	world: World = {},
 ) {
 	const out: string[] = [];
 	const err: string[] = [];
@@ -50,6 +64,10 @@ async function cli(
 		out: (text) => out.push(text),
 		err: (text) => err.push(text),
 		version: '9.9.9',
+		env: world.env ?? {},
+		fetch: world.fetch ?? offline(),
+		wait: async () => {},
+		stopSignal: () => world.signal ?? new AbortController().signal,
 	};
 	const status = await run(args, io);
 	return { status, out: out.join(''), err: err.join('') };
@@ -59,6 +77,17 @@ describe('arguments', () => {
 	it('lists every flag in the help', () => {
 		const help = helpText();
 		for (const name of FLAG_NAMES) expect(help).toContain(`  ${name}`);
+	});
+
+	// A flag added to the table and left out of a readme is one nobody finds.
+	it.each(['README.md', 'npm/README.md'])('are all listed in %s', (readme) => {
+		const text = readFileSync(readme, 'utf8');
+		const documented = FLAG_NAMES.filter(
+			(name) => name !== '--help' && name !== '--version',
+		);
+		expect(documented.filter((name) => !text.includes(`| \`${name}`))).toEqual(
+			[],
+		);
 	});
 
 	it('takes a value after the flag or after an equals sign', () => {
@@ -471,5 +500,347 @@ describe('the MCP server', () => {
 			.map((line) => JSON.parse(line));
 		expect(parse.error.code).toBe(-32700);
 		expect(method).toMatchObject({ id: 3, error: { code: -32601 } });
+	});
+});
+
+describe('checking with Jev', () => {
+	const VAGUE = `const r = { questions: { big: { type: 'noul', instructions: 'Is the order large?' } } };`;
+	const HEAVY = `const r = { questions: { heavy: { type: 'noul', instructions: 'Is the parcel heavy?' } } };`;
+	const RUNTIME = `const r = { questions: { a: { type: 'noul', instructions: build() } } };`;
+	const STATED = `{ "state": { "note": "Wheel wobbles." }, "model": "jev-1.13.0", "questions": { "a": { "type": "noul", "instructions": "One?" }, "b": { "type": "noul", "instructions": "Two?" } } }`;
+	const KEY = { TYPESAFE_API_KEY: 'apikey_secret_value' };
+
+	const jevSays = (
+		answers: Record<string, { noul: number }> = {},
+		status = 200,
+	) =>
+		vi.fn(async () => ({
+			ok: status === 200,
+			status,
+			json: async () => ({
+				model: 'jev-1.13.0',
+				answers,
+				usage: { input_tokens: 310 },
+			}),
+			text: async () => '',
+		}));
+	type Sent = ReturnType<typeof jevSays>;
+	const world = (fetch: Sent, env: Record<string, string> = KEY) => ({
+		env,
+		fetch: fetch as unknown as Fetch,
+	});
+	const calls = (fetch: Sent) =>
+		fetch.mock.calls.map((call) => {
+			const [, init] = call as unknown as [
+				string,
+				{ body: string; headers: Record<string, string> },
+			];
+			return { body: JSON.parse(init.body), headers: init.headers };
+		});
+
+	it('never uses the network or the key unless --jev is given', async () => {
+		const fetch = jevSays();
+		const result = await cli(['q.ts'], { 'q.ts': VAGUE }, '', world(fetch));
+		expect(fetch).not.toHaveBeenCalled();
+		expect(result.status).toBe(EXIT.passed);
+	});
+
+	it('prints the same report as before when --jev is not given', async () => {
+		const result = await cli(['--format', 'json', 'q.ts'], { 'q.ts': VAGUE });
+		expect(Object.keys(JSON.parse(result.out).totals)).toEqual([
+			'files',
+			'questions',
+			'unreadable',
+			'skipped',
+			'counts',
+		]);
+	});
+
+	it('says what it would send under --jev-plan, with no key and nothing sent', async () => {
+		const fetch = jevSays();
+		const result = await cli(
+			['--jev-plan', '--format', 'json', '.'],
+			{ 'a.ts': VAGUE, 'b.ts': RUNTIME },
+			'',
+			world(fetch, {}),
+		);
+		expect(fetch).not.toHaveBeenCalled();
+		expect(result.status).toBe(EXIT.passed);
+		expect(JSON.parse(result.out).totals.jev).toMatchObject({
+			sent: false,
+			planned: 1,
+			answered: 0,
+			runtime: 1,
+			overLimit: 0,
+			model: 'jev-1.13.0',
+			state: false,
+		});
+		const text = await cli(['--jev-plan', '.'], { 'a.ts': VAGUE });
+		expect(text.out).toMatch(
+			/--jev would send 1 request to jev-1\.13\.0, about \d+ input tokens\./,
+		);
+	});
+
+	it('refuses --jev with no key, before sending anything', async () => {
+		const fetch = jevSays();
+		const result = await cli(
+			['--jev', 'q.ts'],
+			{ 'q.ts': VAGUE },
+			'',
+			world(fetch, { TYPESAFE_API_KEY: '  ' }),
+		);
+		expect(result.status).toBe(EXIT.unusable);
+		expect(fetch).not.toHaveBeenCalled();
+		expect(result.err).toContain('--jev needs an API key in TYPESAFE_API_KEY');
+		expect(result.out).toBe('');
+	});
+
+	it('reports what Jev flags, in its place, and says what was sent', async () => {
+		const fetch = jevSays({ JEV301: { noul: 0.02 }, JEV302: { noul: 0.91 } });
+		const result = await cli(
+			['--jev', 'q.ts'],
+			{ 'q.ts': VAGUE },
+			'',
+			world(fetch),
+		);
+		expect(fetch).toHaveBeenCalledTimes(1);
+		expect(result.status).toBe(EXIT.passed);
+		expect(result.out).toContain(
+			`q.ts:1:${VAGUE.indexOf('big') + 1}  info  JEV302  `,
+		);
+		expect(result.out).toContain('(Jev put this at 0.91.)');
+		expect(result.out).toContain(
+			'Jev answered 1 of 1 request on jev-1.13.0, 310 input tokens.',
+		);
+		expect(result.err).toMatch(
+			/^jevlint-le: Sending 1 request to TypeSafe on jev-1\.13\.0, about \d+ input tokens\. State is not sent\.\n$/,
+		);
+	});
+
+	it('sends the key as a header and prints it nowhere', async () => {
+		const fetch = jevSays({ JEV302: { noul: 0.91 } });
+		const text = await cli(
+			['--jev', 'q.ts'],
+			{ 'q.ts': VAGUE },
+			'',
+			world(fetch),
+		);
+		const json = await cli(
+			['--jev', '--format', 'json', 'q.ts'],
+			{ 'q.ts': VAGUE },
+			'',
+			world(jevSays({}, 401)),
+		);
+		expect(calls(fetch)[0]?.headers.Authorization).toBe(
+			'Bearer apikey_secret_value',
+		);
+		for (const printed of [text.out, text.err, json.out, json.err])
+			expect(printed).not.toContain('apikey_secret_value');
+	});
+
+	it('sends exactly the requests the plan counted', async () => {
+		const tree = { 'a.ts': VAGUE, 'b.ts': HEAVY, 'c.json': STATED };
+		const plan = await cli(['--jev-plan', '--format', 'json', '.'], tree);
+		const fetch = jevSays();
+		await cli(['--jev', '.'], tree, '', world(fetch));
+		expect(fetch).toHaveBeenCalledTimes(
+			JSON.parse(plan.out).totals.jev.planned,
+		);
+	});
+
+	it('never sends a question with a part built at runtime, and counts it', async () => {
+		const fetch = jevSays();
+		const result = await cli(
+			['--jev', 'q.ts'],
+			{ 'q.ts': RUNTIME },
+			'',
+			world(fetch),
+		);
+		expect(fetch).not.toHaveBeenCalled();
+		expect(result.out).toContain('Not sent: 1 question built at runtime.');
+		expect(result.err).toBe('');
+	});
+
+	it('sends state only with --jev-send-state', async () => {
+		const without = jevSays();
+		await cli(['--jev', 'r.json'], { 'r.json': STATED }, '', world(without));
+		expect(JSON.stringify(calls(without))).not.toContain('Wheel wobbles.');
+
+		const sent = jevSays();
+		const result = await cli(
+			['--jev', '--jev-send-state', 'r.json'],
+			{ 'r.json': STATED },
+			'',
+			world(sent),
+		);
+		expect(JSON.stringify(calls(sent))).toContain('Wheel wobbles.');
+		expect(result.err).toContain('State is sent.');
+	});
+
+	it('holds the limit across files, and fails the run that passed it', async () => {
+		const fetch = jevSays();
+		const result = await cli(
+			['--jev', '--jev-max-calls', '1', '.'],
+			{ 'a.ts': VAGUE, 'b.ts': HEAVY },
+			'',
+			world(fetch),
+		);
+		expect(fetch).toHaveBeenCalledTimes(1);
+		expect(result.status).toBe(EXIT.unusable);
+		expect(result.err).toContain(
+			'1 request over the --jev-max-calls limit not sent.',
+		);
+		expect(result.out).toContain('Jev answered 1 of 1 request');
+	});
+
+	it.each([
+		[401, 'TypeSafe rejected the API key (401)'],
+		[422, 'TypeSafe rejected the request (422)'],
+		[429, 'TypeSafe is busy or the rate limit was reached (429)'],
+	])('fails the run on a %i, and says how far it got', async (status, said) => {
+		const result = await cli(
+			['--jev', '.'],
+			{ 'a.ts': VAGUE, 'b.ts': HEAVY },
+			'',
+			world(jevSays({}, status)),
+		);
+		expect(result.status).toBe(EXIT.unusable);
+		expect(result.err).toContain(`${said}. Jev answered 0 of 2 requests.`);
+		// What linting found is still printed.
+		expect(result.out).toContain('Jev answered 0 of 2 requests');
+	});
+
+	it('stops sending after a failure', async () => {
+		const fetch = jevSays({}, 401);
+		await cli(
+			['--jev', '.'],
+			{ 'a.ts': VAGUE, 'b.ts': HEAVY },
+			'',
+			world(fetch),
+		);
+		expect(fetch).toHaveBeenCalledTimes(1);
+	});
+
+	it('says it could not reach TypeSafe when the network fails', async () => {
+		const result = await cli(['--jev', 'q.ts'], { 'q.ts': VAGUE }, '', {
+			env: KEY,
+		});
+		expect(result.status).toBe(EXIT.unusable);
+		expect(result.err).toContain('Could not reach TypeSafe (offline).');
+	});
+
+	it('does not call a stopped run finished, or a network failure', async () => {
+		const stop = new AbortController();
+		const fetch = vi.fn(async () => {
+			stop.abort();
+			return {
+				ok: true,
+				status: 200,
+				json: async () => ({
+					model: 'jev-1.13.0',
+					answers: {},
+					usage: { input_tokens: 310 },
+				}),
+				text: async () => '',
+			};
+		});
+		const result = await cli(
+			['--jev', '.'],
+			{ 'a.ts': VAGUE, 'b.ts': HEAVY },
+			'',
+			{ env: KEY, fetch: fetch as unknown as Fetch, signal: stop.signal },
+		);
+		expect(fetch).toHaveBeenCalledTimes(1);
+		expect(result.status).toBe(EXIT.unusable);
+		expect(result.err).toContain('Stopped. Jev answered 1 of 2 requests.');
+		expect(result.err).not.toContain('Could not reach');
+	});
+
+	it('cannot be switched on from a settings file', async () => {
+		const fetch = jevSays();
+		const result = await cli(
+			['q.ts'],
+			{ 'q.ts': VAGUE, 'jevlint-le.json': '{ "jev": true }' },
+			'',
+			world(fetch),
+		);
+		expect(result.status).toBe(EXIT.unusable);
+		expect(fetch).not.toHaveBeenCalled();
+	});
+
+	it('takes rule levels: off is not asked, error fails the run', async () => {
+		const off = jevSays();
+		await cli(
+			['--jev', '--rule', 'JEV302=off', 'q.ts'],
+			{ 'q.ts': VAGUE },
+			'',
+			world(off),
+		);
+		expect(Object.keys(calls(off)[0]?.body.questions)).not.toContain('JEV302');
+
+		const raised = await cli(
+			['--jev', '--rule', 'JEV302=error', 'q.ts'],
+			{ 'q.ts': VAGUE },
+			'',
+			world(jevSays({ JEV302: { noul: 0.91 } })),
+		);
+		expect(raised.status).toBe(EXIT.failed);
+	});
+
+	it('asks the model it is given', async () => {
+		const fetch = jevSays();
+		await cli(
+			['--jev', '--jev-model', 'jev-1.14.0', 'q.ts'],
+			{ 'q.ts': VAGUE },
+			'',
+			world(fetch),
+		);
+		expect(calls(fetch)[0]?.body.model).toBe('jev-1.14.0');
+	});
+
+	it('checks text from standard input', async () => {
+		const fetch = jevSays({ JEV302: { noul: 0.91 } });
+		const result = await cli(
+			['--jev', '--stdin-filename', 'q.ts'],
+			{},
+			VAGUE,
+			world(fetch),
+		);
+		expect(result.out).toContain('JEV302');
+	});
+
+	it('hides Jev findings under --quiet unless one is an error', async () => {
+		const answers = { JEV302: { noul: 0.91 } };
+		const quiet = await cli(
+			['--jev', '--quiet', 'q.ts'],
+			{ 'q.ts': VAGUE },
+			'',
+			world(jevSays(answers)),
+		);
+		expect(quiet.out).not.toContain('JEV302');
+		const raised = await cli(
+			['--jev', '--quiet', '--rule', 'JEV302=error', 'q.ts'],
+			{ 'q.ts': VAGUE },
+			'',
+			world(jevSays(answers)),
+		);
+		expect(raised.out).toContain('JEV302');
+	});
+
+	it.each([
+		[['--jev-model', 'jev-1.14.0', 'q.ts'], '--jev-model needs --jev'],
+		[['--jev-max-calls', '3', 'q.ts'], '--jev-max-calls needs --jev'],
+		[['--jev-send-state', 'q.ts'], '--jev-send-state needs --jev'],
+		[['--jev', '--mcp'], '--jev cannot be combined with --mcp'],
+		[
+			['--jev', '--jev-max-calls', '0', 'q.ts'],
+			'not a whole number above zero',
+		],
+	])('refuses %j', async (args, said) => {
+		const fetch = jevSays();
+		const result = await cli(args, { 'q.ts': VAGUE }, '', world(fetch));
+		expect(result.status).toBe(EXIT.unusable);
+		expect(result.err).toContain(said);
+		expect(fetch).not.toHaveBeenCalled();
 	});
 });

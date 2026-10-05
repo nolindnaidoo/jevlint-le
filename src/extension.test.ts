@@ -635,6 +635,35 @@ describe('check with Jev', () => {
 		expect(bodies(fetch)[0].state.other_questions).toEqual(['b']);
 	});
 
+	it('sends the same requests as the command line does for the same file', async () => {
+		const fromEditor = jevSays({});
+		vi.stubGlobal('fetch', fromEditor);
+		start(doc(TWO, 'file:///a.json', 'json'));
+		_state.secrets.set('jevlint-le.typesafeApiKey', 'k');
+		await run(JEV_COMMANDS.checkWithJev);
+
+		const fromCli = jevSays({});
+		await runCli(['--jev', 'a.json'], {
+			files: {
+				stat: (path) =>
+					path === 'a.json' ? { kind: 'file', size: 1 } : undefined,
+				list: () => [],
+				read: () => TWO,
+			},
+			stdin: async () => '',
+			lines: async function* () {},
+			out: () => {},
+			err: () => {},
+			version: '0',
+			env: { TYPESAFE_API_KEY: 'k' },
+			fetch: fromCli as never,
+			wait: async () => {},
+			stopSignal: () => new AbortController().signal,
+		});
+		expect(bodies(fromEditor).length).toBeGreaterThan(1);
+		expect(bodies(fromCli)).toEqual(bodies(fromEditor));
+	});
+
 	it('sends the state, and checks it, once the user switches that on', async () => {
 		const fetch = jevSays({ JEV312: { noul: 0.99 } });
 		vi.stubGlobal('fetch', fetch);
@@ -1177,6 +1206,12 @@ describe('a project settings file in the editor', () => {
 			out: (text) => out.push(text),
 			err: () => {},
 			version: '0',
+			env: {},
+			fetch: async () => {
+				throw new Error('offline');
+			},
+			wait: async () => {},
+			stopSignal: () => new AbortController().signal,
 		});
 		const levels: Record<string, number> = {
 			error: 0,

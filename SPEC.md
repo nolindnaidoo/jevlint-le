@@ -636,8 +636,8 @@ It is one npm package, `jevlint-le`, assembled in
 `npm/`, that is both the command line and the MCP server. `src/cli/` wraps
 `lintText` in a process: it finds
 files, lints each with the reader its extension calls for, prints, and sets
-an exit status. It imports nothing from the editor and never uses the
-network, so the Jev-backed checks and the probe are not in it.
+an exit status. It imports nothing from the editor. It uses the network only
+under `--jev`. The probe is not in it.
 
 | | Behaviour |
 |---|---|
@@ -657,6 +657,30 @@ summary line always carries the count of questions not read in full.
 The help is printed from the table the parser reads, so a flag cannot exist
 without its line. `scripts/e2e-cli.js` runs the built bundle as a real
 process on `samples/`.
+
+### Check with Jev from the command line
+
+Built for 0.2.0. `--jev` runs the Jev-backed checks after linting, through
+`jev/review.ts`, the same code the editor's command runs. The two send
+identical requests for identical text, and a test compares them.
+
+| | Behaviour |
+|---|---|
+| Key | `TYPESAFE_API_KEY` in the environment, and nowhere else. `--jev` without it exits 2 before a file is read |
+| Consent | The flag. No setting in `jevlint-le.json` turns it on, which stands in for workspace trust |
+| Plan | `--jev-plan` prints what would be sent and sends nothing. Under `--jev` the same count goes to standard error before the first request |
+| Limit | `--jev-max-calls`, default 25, for the whole run and not per file as in the editor. A run that needed more exits 2 |
+| State | Sent only with `--jev-send-state` |
+| Model | `--jev-model`, default the pinned calibration model |
+| Failure | A rejected key, a rejected request, a busy service after the retries, a network failure or an interrupt stops the sending. What was found is printed, the reason and the count answered of the count planned go to standard error, and the exit is 2 |
+| Output | Jev findings join each file's findings. `totals.jev` is present only when asked for |
+
+Not built: the model and state settings in `jevlint-le.json`, so a team's
+editors and its CI can still ask different models. A price in the plan line,
+because a stale one in a CI log reads as a quote. The probe.
+
+Not verified: a real request from the built bundle to TypeSafe. Every test
+stubs `fetch`.
 
 ### MCP server
 

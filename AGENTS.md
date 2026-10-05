@@ -58,6 +58,8 @@ lint/
 jev/
   literal.ts             a question as plain data, or nothing if any part is runtime
   reviews.ts             the checks Jev makes: what is asked, the cutoff, the message
+  review.ts              what a check of one text would send, and the sending of it.
+                         The editor and the command line both run this
   client.ts              one request to the API, with a bounded retry
   probe.ts               the layout variants of one question, and the report
 cli/
@@ -65,10 +67,11 @@ cli/
   files.ts               paths -> the files to lint
   format.ts              text, JSON and GitHub annotation output
   run.ts                 run(argv, io) -> exit status. Everything but the process
+  jev.ts                 --jev: the plan across files under one call limit, and the run
   mcp.ts                 the MCP server: three tools over the same linting
   main.ts                the process: real filesystem, streams and exit code
 services/linter.ts       diagnostics collection, per-document results, debounce
-services/reviewer.ts     runs the Jev checks over a document, into its own collection
+services/reviewer.ts     shows what jev/review.ts finds in a document, in its own collection
 services/mcpProvider.ts  offers the bundled MCP server to agents in the editor
 ui/                      diagnostics mapping, status bar, quick-fix provider
 ui/notifier.ts           every notification, gated by `notificationsLevel`
@@ -83,7 +86,7 @@ types.ts                 types only
 ```
 
 `extraction/`, `lint/`, `jev/` and `cli/` never import `vscode`. `lintText` is
-the seam the command line calls and an MCP server will.
+the seam the command line and the MCP server call.
 
 ## Code style
 
@@ -264,10 +267,24 @@ family's files, copied unchanged from `regex-le`.
   Only the Python reader does this.
 - **Text in backticks or double quotes is not the question's wording.**
   `prose()` removes it before any wording rule reads.
-- **Only `commands/jev.ts`, `commands/probe.ts` and `services/reviewer.ts` may
-  reach the network.**
-  `lintText` and everything under it stay offline, and `extension.test.ts`
-  fails if linting calls `fetch`.
+- **Only four callers may reach the network:** `commands/jev.ts`,
+  `commands/probe.ts` and `services/reviewer.ts` in the editor, and
+  `cli/jev.ts` under `--jev`. `lintText` and everything under it stay
+  offline. `extension.test.ts` fails if linting calls `fetch`, and
+  `cli.test.ts` fails if a run without `--jev` does.
+- **The editor and the command line send the same requests for the same
+  text.** Both call `jev/review.ts`, and `extension.test.ts` compares the
+  request bodies. A check added to one is added to both by construction.
+- **Only a flag turns `--jev` on.** Never a key in `jevlint-le.json`, or a
+  cloned repository could spend the key of whoever lints it. This is the
+  command line's workspace trust.
+- **The command line's key is `TYPESAFE_API_KEY` and nothing else.** No flag
+  takes it, so it cannot reach shell history or a CI log.
+- **The call limit on the command line is for the run, not the file.** Each
+  file is planned with what the files before it left. A run that needed more
+  exits 2, as does one that failed or was stopped.
+- **The MCP server never calls Jev.** Its tool descriptions say it sends
+  nothing. `--jev` with `--mcp` is refused.
 - **The API key lives in secret storage, the environment, or the user's own
   settings, and never in a workspace's.** The `jev.apiKey` setting has
   application scope and `ignoreSync`, and a test fails if either is removed,
@@ -287,6 +304,8 @@ family's files, copied unchanged from `regex-le`.
   when any part is built at runtime, and the run counts what it held back.
 - **No test calls TypeSafe.** `fetch` is stubbed. The scripts under `scripts/`
   that do call it are run by hand, and each has a `--dry-run` and a call limit.
+- **The pinned model and the call limit are defined once,** in
+  `jev/review.ts`. The editor's defaults and the command line's read them.
 - **A Jev check's cutoff is read from `fixtures/validation/calibration.json`,**
   never guessed. `reviews.test.ts` fails if a cutoff would flag a good corpus
   question. Rerun `scripts/calibrate-reviews.ts` when the model changes.

@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
+import type { Fetch } from '../jev/client';
 import type { Entry } from './files';
 import { EXIT, run } from './run';
 
@@ -26,6 +27,14 @@ function version(): string {
 	return String(JSON.parse(readFileSync(path, 'utf8')).version);
 }
 
+// Listening for the interrupt is what stops it ending the process, so it is
+// listened for only once requests are being sent. A second one ends it.
+function stopSignal(): AbortSignal {
+	const stop = new AbortController();
+	process.once('SIGINT', () => stop.abort());
+	return stop.signal;
+}
+
 run(process.argv.slice(2), {
 	files: {
 		stat,
@@ -37,6 +46,10 @@ run(process.argv.slice(2), {
 	out: (text) => process.stdout.write(text),
 	err: (text) => process.stderr.write(text),
 	version: version(),
+	env: process.env,
+	fetch: ((url, init) => fetch(url, init)) as Fetch,
+	wait: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+	stopSignal,
 })
 	.then((status) => {
 		process.exitCode = status;

@@ -1,6 +1,8 @@
 import type { ReviewRequest } from './reviews';
 
 export const ENDPOINT = 'https://api.typesafe.ai/v1/systemone';
+/** Where the editor and the command line both look for a key in the environment. */
+export const ENV_KEY = 'TYPESAFE_API_KEY';
 
 type Response = Readonly<{
 	ok: boolean;

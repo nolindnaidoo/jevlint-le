@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.2.0 — unreleased
+
+- `--jev` on the command line runs the checks that ask Jev itself, `JEV301`
+  to `JEV312`, the same ones the editor's **Check with Jev** command runs. It
+  sends the same requests the editor sends for the same file.
+- The key is read from `TYPESAFE_API_KEY`. Nothing in a settings file can
+  turn `--jev` on.
+- `--jev-plan` says what would be sent and sends nothing.
+- `--jev-model`, `--jev-max-calls` and `--jev-send-state`. The call limit is
+  for the whole run, and a run that needs more exits 2.
+- A rejected key, a failed request or a stopped run exits 2 and says how many
+  requests were answered of how many were planned.
+- JSON output gains `totals.jev` when `--jev` or `--jev-plan` is given. It is
+  unchanged otherwise.
+
 ## 0.1.0 — 2026-10-04
 
 First release.

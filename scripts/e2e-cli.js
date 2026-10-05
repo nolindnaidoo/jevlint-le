@@ -12,11 +12,15 @@ const { join } = require('node:path');
 const root = join(__dirname, '..');
 const bin = join(root, 'npm', 'cli.js');
 
+// The key is taken out of the environment, so no run here can reach TypeSafe.
+const { TYPESAFE_API_KEY: _key, ...env } = process.env;
+
 function cli(args, input) {
 	const result = spawnSync(process.execPath, [bin, ...args], {
 		cwd: join(root, 'samples'),
 		input,
 		encoding: 'utf8',
+		env,
 	});
 	return { status: result.status, out: result.stdout, err: result.stderr };
 }
@@ -63,6 +67,19 @@ const wrong = cli(['--fromat', 'json']);
 assert.strictEqual(wrong.status, 2);
 assert.match(wrong.err, /Unknown option '--fromat'/);
 assert.strictEqual(wrong.out, '');
+
+// The Jev checks, as far as they go with nothing sent: the plan, and the refusal without a key.
+const plan = cli(['--jev-plan', '--format', 'json', 'clean.ts']);
+assert.strictEqual(plan.status, 0, plan.err);
+const planned = JSON.parse(plan.out).totals.jev;
+assert.strictEqual(planned.sent, false);
+assert.ok(planned.planned > 0, 'planned no requests for a file with questions');
+assert.strictEqual(planned.answered, 0);
+
+const keyless = cli(['--jev', 'clean.ts']);
+assert.strictEqual(keyless.status, 2);
+assert.match(keyless.err, /--jev needs an API key in TYPESAFE_API_KEY/);
+assert.strictEqual(keyless.out, '');
 
 // The MCP server, spoken to over standard input the way an agent's client does.
 const requests = [
