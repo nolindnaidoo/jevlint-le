@@ -47,6 +47,8 @@ export function readRules(value: unknown): LintOptions['rules'] | string {
 	return rules as LintOptions['rules'];
 }
 
+const UNREADABLE = 'it could not be read.';
+
 const isStrings = (value: unknown): value is string[] =>
 	Array.isArray(value) && value.every((item) => typeof item === 'string');
 
@@ -54,7 +56,8 @@ const isStrings = (value: unknown): value is string[] =>
  * The settings in a config file, checked strictly. A misspelt key that was
  * quietly ignored would leave a rule on that the author believes is off.
  */
-export function parseConfig(text: string): LintOptions | string {
+export function parseConfig(text: string | undefined): LintOptions | string {
+	if (text === undefined) return UNREADABLE;
 	let data: unknown;
 	try {
 		data = JSON.parse(text);
@@ -119,13 +122,23 @@ function beside(dir: string): string {
 		: `${dir}${separator}${CONFIG_FILE}`;
 }
 
+// A settings file can vanish or lose its permissions between being found and
+// being read. That is a file that cannot be used, said the way a bad one is.
+function readOr(fs: ConfigFs, path: string): string | undefined {
+	try {
+		return fs.read(path);
+	} catch {
+		return undefined;
+	}
+}
+
 export function createConfigLoader(fs: ConfigFs): ConfigLoader {
 	const parsed = new Map<string, ProjectConfig>();
 
 	const load = (path: string): ProjectConfig => {
 		const known = parsed.get(path);
 		if (known) return known;
-		const config = { path, options: parseConfig(fs.read(path)) };
+		const config = { path, options: parseConfig(readOr(fs, path)) };
 		parsed.set(path, config);
 		return config;
 	};

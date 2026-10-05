@@ -299,7 +299,7 @@ export const window = {
 		task: (progress: unknown, token: unknown) => unknown,
 	) =>
 		task(
-			{},
+			{ report: () => {} },
 			{
 				onCancellationRequested: (listener: () => void) => {
 					_state.cancel = listener;

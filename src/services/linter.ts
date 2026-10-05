@@ -8,8 +8,8 @@ import type { Resolved } from './projectConfigs';
 export type Outcome =
 	| Readonly<{ kind: 'linted'; result: LintResult }>
 	| Readonly<{ kind: 'skipped'; reason: 'language' | 'size' }>
-	/** The settings file that governs this document could not be used. */
-	| Readonly<{ kind: 'skipped'; reason: 'config'; detail: string }>;
+	/** The settings file that governs this document could not be used, or the reader failed on the file. */
+	| Readonly<{ kind: 'skipped'; reason: 'config' | 'error'; detail: string }>;
 
 type LintRequest = Readonly<{
 	/**
@@ -78,7 +78,8 @@ export function createLinter(deps: Deps): Linter {
 			return { kind: 'skipped', reason: 'language' };
 		const config = deps.getConfiguration();
 		const text = document.getText();
-		if (text.length > config.maxFileSizeBytes) {
+		// Bytes, as the command line counts them, so the two skip the same files.
+		if (Buffer.byteLength(text, 'utf8') > config.maxFileSizeBytes) {
 			// Stale diagnostics on a file that is no longer being read would be a claim nobody checked.
 			clear(document);
 			deps.onResult(document);
@@ -94,11 +95,18 @@ export function createLinter(deps: Deps): Linter {
 			return { kind: 'skipped', reason: 'config', detail: resolved.problem };
 		}
 		problems.delete(document.uri.toString());
-		const result = lintText(
-			text,
-			resolved.options,
-			syntaxFor(document.languageId),
-		);
+		let result: LintResult;
+		try {
+			result = lintText(text, resolved.options, syntaxFor(document.languageId));
+		} catch (error) {
+			// This runs in a timer or an event, where a throw is lost and the old
+			// findings would stay on screen as if the file had been read.
+			const detail = `This file could not be linted: ${error instanceof Error ? error.message : String(error)}`;
+			clear(document);
+			problems.set(document.uri.toString(), detail);
+			deps.onResult(document);
+			return { kind: 'skipped', reason: 'error', detail };
+		}
 		results.set(document.uri.toString(), result);
 		collection.set(
 			document.uri,

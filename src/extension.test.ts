@@ -351,6 +351,44 @@ describe('commands', () => {
 		expect(diagnostics('file:///good.ts')).toHaveLength(1);
 	});
 
+	it('refuses a second workspace run while one is going', async () => {
+		start();
+		const good = doc(BARE_CHOICE, 'file:///good.ts');
+		_state.documents.set(good.uri.toString(), good);
+		_state.files = [good.uri];
+		const first = run(COMMANDS.lintWorkspace);
+		await run(COMMANDS.lintWorkspace);
+		expect(_state.messages).toEqual([
+			'JevLint-LE: A workspace run is already going.',
+		]);
+		await first;
+		// The first run's findings were not wiped by the second.
+		expect(diagnostics('file:///good.ts')).toHaveLength(1);
+		await run(COMMANDS.lintWorkspace);
+		expect(_state.messages.at(-1)).not.toContain('already going');
+	});
+
+	it('says how far a workspace run got when it is stopped', async () => {
+		start();
+		const good = doc(BARE_CHOICE, 'file:///good.ts');
+		const other = doc(BARE_CHOICE, 'file:///other.ts');
+		_state.documents.set(good.uri.toString(), good);
+		_state.documents.set(other.uri.toString(), other);
+		_state.files = [
+			{
+				// The user presses cancel while the first file is being opened.
+				toString: () => {
+					_state.cancel?.();
+					return 'file:///good.ts';
+				},
+			},
+			other.uri,
+		];
+		await run(COMMANDS.lintWorkspace);
+		expect(_state.messages.at(-1)).toContain('Stopped after 1 of 2 files.');
+		expect(diagnostics('file:///other.ts')).toEqual([]);
+	});
+
 	it('keeps workspace findings when the editor closes a file it only read', async () => {
 		start();
 		const good = doc(BARE_CHOICE, 'file:///good.ts');

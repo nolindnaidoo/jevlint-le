@@ -372,6 +372,23 @@ describe('a disk that fails', () => {
 		expect(result.err).toContain('No files could be read.');
 	});
 
+	it('refuses a settings file it cannot read, and names it', async () => {
+		const result = await cli(
+			['--config', 'team.json', 'src/q.json'],
+			{ ...tree, 'team.json': '{}' },
+			'',
+			{
+				files: (files) => ({
+					...files,
+					read: (path) =>
+						path === 'team.json' ? denied(path)() : files.read(path),
+				}),
+			},
+		);
+		expect(result.status).toBe(EXIT.unusable);
+		expect(result.err).toContain('team.json: it could not be read.');
+	});
+
 	it('does not follow a linked folder, which can lead back to its parent', async () => {
 		const listed: string[] = [];
 		const result = await cli(
