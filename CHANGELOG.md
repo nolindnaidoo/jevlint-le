@@ -13,7 +13,6 @@
 - A rejected key, a failed request or a stopped run exits 2 and says how many
   requests were answered of how many were planned.
 - JSON output gains `totals.jev` when `--jev` or `--jev-plan` is given.
-
 - `-h`, `-v`, `-f` and `-c` work. `-h` used to answer "No such file or
   directory: -h".
 - A rule can be named by its name as well as its code, and `warn` is taken as
@@ -21,6 +20,23 @@
 - `--no-error-on-unmatched-pattern` passes a run that finds no file to lint,
   for lint-staged and for packages with no Jev code. Without it that run
   still exits 2.
+- **`--fix`** writes the fixes that only mend what the API would refuse: a
+  renamed criteria key, a mistyped question type, criteria in the wrong
+  shape. The editor offers the same as `source.fixAll.jevlint-le`, so fix on
+  save works. Adding a fallback option and pinning a model are never written
+  unasked.
+- **The terminal output is grouped by file**, with the rule named and the
+  message on its own line, in colour when a terminal is reading. This
+  replaces the old default. The one-line `path:line:column` form is now
+  `--format compact`, and `--format text` is gone. `--color` and `--no-color`
+  override, and `NO_COLOR` is respected.
+- The summary says how many findings `--fix` would mend. JSON output gains
+  `totals.fixable`, and `totals.fixed` under `--fix`.
+- **`exclude` in `jevlint-le.json`** lists files and folders not to lint. The
+  command line, the MCP server and the editor leave out the same files. JSON
+  output gains `totals.excluded`.
+- **`JEV010 unused-disable`** reports a `jevlint-le-disable` comment that
+  silences nothing. On by default as a warning.
 
 Fixed, from a review of how the tool fails:
 

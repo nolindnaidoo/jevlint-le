@@ -53,7 +53,8 @@ around them.
   extension and that is the family's promise. The one exception is the
   **Check This File with Jev** command, which the user runs on purpose with
   their own key. See "Check with Jev".
-- No filesystem writes outside edits the user accepts through a quick fix.
+- No filesystem writes outside edits the user accepts through a quick fix,
+  fix on save, or `--fix` on the command line.
 - Refuse rather than guess. A question the reader cannot see whole is reported
   as unreadable and counted, never skipped silently.
 - Code follows the LE family standard in `AGENTS.md`.
@@ -643,7 +644,9 @@ under `--jev`. The probe is not in it.
 | | Behaviour |
 |---|---|
 | Paths | A directory is searched for the extensions in `EXTENSIONS`, skipping installed packages, build output and `.git`. No path means the current directory |
-| Formats | `text`, one finding per line as `path:line:column`. `json`, with one-based positions, the rule name and its docs link. `github`, workflow annotations |
+| Formats | `stylish`, the default, grouped by file for a person to read. `compact`, one finding per line as `path:line:column`. `json`, with one-based positions, the rule name and its docs link. `github`, workflow annotations |
+| Fixing | `--fix` writes the fixes marked safe, then reports what is left. Never with standard input or `--mcp` |
+| Files | `exclude` in `jevlint-le.json` leaves files out, relative to that file. `--no-error-on-unmatched-pattern` passes a run with nothing to lint |
 | Exit status | 0 passed. 1 an error was found, or more warnings than `--max-warnings`. 2 the run could not be done as asked |
 | Settings | The `jevlint-le.json` nearest each file. `--config` names one to use for every file instead. `--rule CODE=level`, repeatable, overrides either |
 | Standard input | `--stdin-filename` lints piped text under a file name, which picks the reader |

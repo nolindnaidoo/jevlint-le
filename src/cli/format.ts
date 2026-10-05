@@ -156,12 +156,32 @@ const SEVERITY_COLORS: Readonly<Record<Severity, number>> = Object.freeze({
 });
 const SEVERITY_WIDTH = 'warning'.length;
 
+// Narrower than this and wrapping does more harm than the terminal's own.
+const NARROWEST = 40;
+
+// Broken between words to fit the terminal. Left alone, a long message runs
+// back to the left edge and loses the indent that ties it to its finding.
+function wrap(text: string, width: number | undefined): ReadonlyArray<string> {
+	if (width === undefined || width < NARROWEST) return [text];
+	const lines: string[] = [];
+	let line = '';
+	for (const word of text.split(' ')) {
+		if (line && line.length + 1 + word.length > width) {
+			lines.push(line);
+			line = word;
+			continue;
+		}
+		line = line ? `${line} ${word}` : word;
+	}
+	return [...lines, line];
+}
+
 // Grouped by file, as ESLint's default is, with the message on its own line:
 // these messages say what to do about a finding and run long.
 function asStylish(
 	reports: ReadonlyArray<FileReport>,
 	totals: Totals,
-	paint: Paint,
+	{ paint, columns }: Look,
 ): string {
 	const byPath = new Map<string, Row[]>();
 	for (const row of rows(reports))
@@ -171,7 +191,10 @@ function asStylish(
 		const width = Math.max(...places.map((place) => place.length));
 		const lines = found.flatMap(({ finding }, i) => [
 			`  ${(places[i] ?? '').padStart(width)}  ${paint(SEVERITY_COLORS[finding.severity], finding.severity.padEnd(SEVERITY_WIDTH))}  ${paint(BOLD, finding.code)} ${paint(DIM, RULES[finding.code].name)}`,
-			`  ${' '.repeat(width)}  ${finding.message}`,
+			...wrap(
+				finding.message,
+				columns === undefined ? undefined : columns - width - 4,
+			).map((line) => `  ${' '.repeat(width)}  ${line}`),
 		]);
 		return [paint(UNDERLINE, path), ...lines, ''].join('\n');
 	});
@@ -247,10 +270,17 @@ function asGithub(reports: ReadonlyArray<FileReport>, totals: Totals): string {
 	return [...lines, summarize(totals), ''].join('\n');
 }
 
+/** How the stylish format is drawn. The other formats ignore it. */
+type Look = Readonly<{
+	paint: Paint;
+	/** The terminal's width, when one is reading. */
+	columns: number | undefined;
+}>;
+
 type Formatter = (
 	reports: ReadonlyArray<FileReport>,
 	totals: Totals,
-	paint: Paint,
+	look: Look,
 ) => string;
 
 const FORMATTERS: Readonly<Record<Format, Formatter>> = Object.freeze({
@@ -260,12 +290,16 @@ const FORMATTERS: Readonly<Record<Format, Formatter>> = Object.freeze({
 	github: asGithub,
 });
 
-/** `color` matters only to the stylish format. The others are read by programs. */
+/** `color` and `columns` matter only to the stylish format. The others are read by programs. */
 export function format(
 	kind: Format,
 	reports: ReadonlyArray<FileReport>,
 	totals: Totals,
 	color = false,
+	columns?: number,
 ): string {
-	return FORMATTERS[kind](reports, totals, color ? ANSI : PLAIN);
+	return FORMATTERS[kind](reports, totals, {
+		paint: color ? ANSI : PLAIN,
+		columns,
+	});
 }
