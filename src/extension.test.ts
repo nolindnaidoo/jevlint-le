@@ -101,6 +101,22 @@ describe('configuration', () => {
 		expect(getConfiguration().lint.rules).toEqual({ JEV004: 'off' });
 	});
 
+	// A command missing from the table is one nobody knows they can bind.
+	it('lists every command and its id in the README, for binding to keys', () => {
+		const readme = readFileSync('README.md', 'utf8');
+		const section = readme.slice(
+			readme.indexOf('## Keyboard shortcuts'),
+			readme.indexOf('## Settings'),
+		);
+		const missing = manifest.contributes.commands.filter(
+			(command: { command: string; title: string }) =>
+				!section.includes(`\`${command.command}\``) ||
+				// The title up to any note in brackets, as the palette shows it.
+				!section.includes(`| ${command.title.replace(/ \(.*\)$/, '')} |`),
+		);
+		expect(missing).toEqual([]);
+	});
+
 	it('declares every command it registers', () => {
 		start();
 		const declared = manifest.contributes.commands
