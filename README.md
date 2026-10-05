@@ -119,8 +119,8 @@ Each finding links to the TypeSafe documentation page it comes from.
 ## Check a file with Jev
 
 Rules `JEV301` to `JEV312` are not part of linting. They run only when you run
-**JevLint-LE: Check This File with Jev**, which sends each question in the
-file to Jev and asks it about problems a text pattern cannot see: options
+**JevLint-LE: Check This File with Jev**, or pass `--jev` on the command
+line. Either sends each question in the file to Jev and asks it about problems a text pattern cannot see: options
 that overlap, an option whose name contradicts its description, criteria
 about the wrong thing, a Choice that should be a Score, two questions that
 ask the same thing, a question that needs another question's answer.
@@ -204,11 +204,39 @@ read. Errors always fail a run. Warnings fail it only past `--max-warnings`.
 | `--max-warnings <n>` | Fail when more than `n` warnings are reported |
 | `--stdin-filename <path>` | Lint standard input as if it were that file |
 | `--quiet` | Print errors only |
+| `--jev` | Also ask Jev about each question. Sends them to TypeSafe |
+| `--jev-plan` | Say what `--jev` would send, and send nothing |
+| `--jev-model <id>` | The model `--jev` asks. Default `jev-1.13.0` |
+| `--jev-max-calls <n>` | The most requests `--jev` may send in the run. Default 25 |
+| `--jev-send-state` | With `--jev`, also send state written out in a file |
 | `--mcp` | Run as an MCP server |
 
 The summary line always says how many questions could not be read in full
 and names any file skipped for its size. It does not run the checks that ask
-Jev, and it never uses the network.
+Jev, and it never uses the network, unless you pass `--jev`.
+
+### Checking with Jev
+
+`--jev` runs the checks that ask Jev itself, `JEV301` to `JEV312`, after the
+linting. It is the only option that uses the network, and nothing in a
+settings file can turn it on.
+
+```bash
+npx jevlint-le --jev-plan src/                    # what it would send. No key, nothing sent
+TYPESAFE_API_KEY=... npx jevlint-le --jev src/    # send it
+```
+
+- The key is read from `TYPESAFE_API_KEY` and from nowhere else. It is never
+  printed.
+- A question with a part built at runtime is never sent. The summary counts
+  the ones held back.
+- State is not sent unless you add `--jev-send-state`.
+- `--jev-max-calls` is a limit for the whole run. A run that needs more exits
+  2, so a job cannot pass after checking part of a project.
+- A rejected key, a failed request or a run you stop also exits 2, and says
+  how many requests were answered of how many were planned.
+- These findings are warnings or less by default, so they fail a run only
+  when `--rule` raises one or `--max-warnings` is passed.
 
 ## For AI agents
 
@@ -228,8 +256,8 @@ other client, point it at the program:
 ```
 
 It offers three tools: `lint_text` for a request or source code passed as
-text, `lint_paths` for files on disk, and `list_rules`. Like the command line
-it never uses the network.
+text, `lint_paths` for files on disk, and `list_rules`. It never uses the
+network, and it does not run the checks that ask Jev.
 
 ## Probe a question
 
@@ -246,7 +274,8 @@ is too close to call.
 It needs the state written out in the file, it sends that state, and it costs
 five or six requests.
 
-Nothing else in this extension uses the network.
+Nothing else in this extension uses the network. On the command line, only
+`--jev` does.
 
 ## What it will not tell you
 

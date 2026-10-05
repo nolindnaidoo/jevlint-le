@@ -1,4 +1,6 @@
 import { LEVELS, readRule } from '../config/projectConfig';
+import { ENV_KEY } from '../jev/client';
+import { DEFAULT_MAX_CALLS, DEFAULT_MODEL } from '../jev/review';
 import type { LintOptions } from '../types';
 
 export type Format = 'text' | 'json' | 'github';
@@ -17,6 +19,14 @@ export type CliOptions = Readonly<{
 	version: boolean;
 	/** Run as an MCP server on standard input and output. */
 	mcp: boolean;
+	/** Ask Jev about the questions after linting them. The only thing that sends anything. */
+	jev: boolean;
+	/** Say what `jev` would send, and send nothing. */
+	jevPlan: boolean;
+	jevModel: string | undefined;
+	/** The most requests in the whole run. */
+	jevMaxCalls: number | undefined;
+	jevSendState: boolean;
 }>;
 
 export type Parsed =
@@ -79,8 +89,41 @@ const FLAGS: ReadonlyArray<Flag> = Object.freeze([
 	},
 	{
 		name: '--quiet',
-		help: 'Print errors only.',
+		help: 'Print errors only. Jev findings are warnings or less unless --rule raises one.',
 		apply: (options) => ({ ...options, quiet: true }),
+	},
+	{
+		name: '--jev',
+		help: `Also ask Jev about each question. Sends them to TypeSafe with the key in ${ENV_KEY}.`,
+		apply: (options) => ({ ...options, jev: true }),
+	},
+	{
+		name: '--jev-plan',
+		help: 'Say what --jev would send, and send nothing. Needs no key.',
+		apply: (options) => ({ ...options, jevPlan: true }),
+	},
+	{
+		name: '--jev-model',
+		value: 'id',
+		help: `The model --jev asks. Default ${DEFAULT_MODEL}, which the checks were measured on.`,
+		apply: (options, value) =>
+			value.trim()
+				? { ...options, jevModel: value.trim() }
+				: 'a model id is needed.',
+	},
+	{
+		name: '--jev-max-calls',
+		value: 'n',
+		help: `The most requests --jev may send in the run. Default ${DEFAULT_MAX_CALLS}. The run fails if more are needed.`,
+		apply: (options, value) =>
+			/^[1-9]\d*$/.test(value)
+				? { ...options, jevMaxCalls: Number(value) }
+				: `'${value}' is not a whole number above zero.`,
+	},
+	{
+		name: '--jev-send-state',
+		help: 'With --jev, also send state that is written out in a file.',
+		apply: (options) => ({ ...options, jevSendState: true }),
 	},
 	{
 		name: '--mcp',
@@ -112,6 +155,11 @@ const DEFAULTS: CliOptions = Object.freeze({
 	help: false,
 	version: false,
 	mcp: false,
+	jev: false,
+	jevPlan: false,
+	jevModel: undefined,
+	jevMaxCalls: undefined,
+	jevSendState: false,
 });
 
 export function helpText(): string {
@@ -123,7 +171,7 @@ export function helpText(): string {
 		'Usage: jevlint-le [options] [file or directory ...]',
 		'',
 		'Lints the questions written for the Jev model. With no path it lints the',
-		'current directory. It sends nothing over the network.',
+		'current directory. It sends nothing over the network unless --jev is given.',
 		'',
 		...FLAGS.map(
 			(flag, i) => `  ${(usage[i] ?? '').padEnd(width)}  ${flag.help}`,

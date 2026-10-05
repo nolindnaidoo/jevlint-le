@@ -18,6 +18,28 @@ export type Totals = Readonly<{
 	/** Files left unread for being over the size limit. */
 	skipped: ReadonlyArray<string>;
 	counts: Readonly<Record<Severity, number>>;
+	/** Present only when the run was asked to check with Jev. */
+	jev?: JevTotals;
+}>;
+
+/** What a check with Jev sent, or under `--jev-plan` what it would send. */
+export type JevTotals = Readonly<{
+	/** False when the run only planned. */
+	sent: boolean;
+	/** Requests within the limit. */
+	planned: number;
+	answered: number;
+	/** Questions with a part built at runtime, which Jev is never shown. */
+	runtime: number;
+	/** Requests left out for being past the limit. */
+	overLimit: number;
+	/** An estimate made before sending. */
+	estimatedInputTokens: number;
+	/** What TypeSafe counted. */
+	inputTokens: number;
+	model: string;
+	/** True when state written in a file was sent, or would be. */
+	state: boolean;
 }>;
 
 type Position = Readonly<{ line: number; column: number }>;
@@ -55,7 +77,7 @@ function rows(reports: ReadonlyArray<FileReport>): ReadonlyArray<Row> {
 	});
 }
 
-const plural = (count: number, word: string) =>
+export const plural = (count: number, word: string) =>
 	`${count} ${word}${count === 1 ? '' : 's'}`;
 
 /** One sentence that says what was read and what was not, so a short run never looks like a clean one. */
@@ -74,7 +96,31 @@ export function summarize(totals: Totals): string {
 		parts.push(
 			`${plural(totals.skipped.length, 'file')} over the size limit not read: ${totals.skipped.join(', ')}.`,
 		);
+	if (totals.jev) parts.push(...describeJev(totals.jev));
 	return parts.join(' ');
+}
+
+/** What was held back from Jev, said the same way before a run and after it. */
+export function heldBack(jev: JevTotals): string | undefined {
+	const parts = [
+		...(jev.runtime
+			? [`${plural(jev.runtime, 'question')} built at runtime`]
+			: []),
+		...(jev.overLimit
+			? [`${plural(jev.overLimit, 'request')} over the --jev-max-calls limit`]
+			: []),
+	];
+	return parts.length ? `Not sent: ${parts.join(', ')}.` : undefined;
+}
+
+function describeJev(jev: JevTotals): ReadonlyArray<string> {
+	const requests = plural(jev.planned, 'request');
+	const state = jev.state ? ' State is sent.' : '';
+	const said = jev.sent
+		? `Jev answered ${jev.answered} of ${requests} on ${jev.model}, ${jev.inputTokens} input tokens.`
+		: `--jev would send ${requests} to ${jev.model}, about ${jev.estimatedInputTokens} input tokens.${state}`;
+	const held = heldBack(jev);
+	return held ? [said, held] : [said];
 }
 
 function asText(reports: ReadonlyArray<FileReport>, totals: Totals): string {

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import type { Configuration } from '../config/config';
-import type { Failure } from '../jev/client';
+import { ENV_KEY, type Failure } from '../jev/client';
 import type { Resolved } from '../services/projectConfigs';
 import type { Reviewer, ReviewOutcome, ReviewPlan } from '../services/reviewer';
 import { blocked, caution, offer, result } from '../ui/notifier';
@@ -30,7 +30,6 @@ export const SEND = 'Send';
 /** What to do about an untrusted workspace. Saying only that it is one leaves the user stuck. */
 const HOW_TO_TRUST =
 	" To turn it on, run 'Workspaces: Manage Workspace Trust' and trust this folder.";
-const ENV_KEY = 'TYPESAFE_API_KEY';
 
 export const FAILURES: Readonly<Record<Failure['kind'], string>> =
 	Object.freeze({
