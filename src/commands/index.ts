@@ -41,11 +41,9 @@ async function lintFile(deps: Deps): Promise<void> {
 	}
 	const outcome = deps.linter.lint(document);
 	if (outcome.kind === 'skipped') {
-		const reason =
-			outcome.reason === 'config'
-				? outcome.detail
-				: SKIP_REASONS[outcome.reason];
-		blocked(reason);
+		blocked(
+			'detail' in outcome ? outcome.detail : SKIP_REASONS[outcome.reason],
+		);
 		return;
 	}
 	result(`${summarize(outcome.result)}.`);
@@ -65,6 +63,7 @@ async function lintOne(
 	}
 	if (outcome.kind === 'skipped') {
 		tally.tooLarge += outcome.reason === 'size' ? 1 : 0;
+		tally.failed += outcome.reason === 'error' ? 1 : 0;
 		return;
 	}
 	tally.files += 1;
@@ -89,7 +88,23 @@ function describe(tally: Tally): string {
 	return `${parts.join(', ')}.`;
 }
 
+// One run at a time: a second would wipe the findings the first is still adding to.
+let workspaceRun = false;
+
 async function lintWorkspace(deps: Deps): Promise<void> {
+	if (workspaceRun) {
+		blocked('A workspace run is already going.');
+		return;
+	}
+	workspaceRun = true;
+	try {
+		await lintEveryFile(deps);
+	} finally {
+		workspaceRun = false;
+	}
+}
+
+async function lintEveryFile(deps: Deps): Promise<void> {
 	const config = deps.getConfiguration();
 	const uris = await vscode.workspace.findFiles(config.include, config.exclude);
 	deps.linter.reset();
@@ -103,14 +118,36 @@ async function lintWorkspace(deps: Deps): Promise<void> {
 		misconfigured: 0,
 		problem: '',
 	};
-	for (const uri of uris) {
-		// One unopenable file, such as a binary with a .json name, must not end the
-		// run. It is counted and reported, because a silent skip reads as "clean".
-		await lintOne(deps, uri, tally).catch(() => {
-			tally.failed += 1;
-		});
-	}
+	let seen = 0;
+	await vscode.window.withProgress(
+		{
+			location: vscode.ProgressLocation.Notification,
+			title: 'JevLint-LE: linting the workspace',
+			cancellable: true,
+		},
+		async (progress, token) => {
+			let stopped = false;
+			token.onCancellationRequested(() => {
+				stopped = true;
+			});
+			for (const uri of uris) {
+				if (stopped) return;
+				// One unopenable file, such as a binary with a .json name, must not end the
+				// run. It is counted and reported, because a silent skip reads as "clean".
+				await lintOne(deps, uri, tally).catch(() => {
+					tally.failed += 1;
+				});
+				seen += 1;
+				progress.report({ message: `${seen} of ${uris.length} files` });
+			}
+		},
+	);
 	const message = describe(tally);
+	// A run the user stopped must not read as one that covered the workspace.
+	if (seen < uris.length) {
+		caution(`Stopped after ${seen} of ${uris.length} files. ${message}`);
+		return;
+	}
 	// Files were left out, which a reader of the findings needs to know.
 	if (tally.failed || tally.tooLarge || tally.misconfigured) {
 		caution(message);

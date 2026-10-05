@@ -123,3 +123,15 @@ describe('finding the file that applies', () => {
 		});
 	});
 });
+
+describe('a settings file that cannot be read', () => {
+	it('is a file that cannot be used, not a crash', () => {
+		const loader = createConfigLoader({
+			isFile: (path) => path === '/work/jevlint-le.json',
+			read: () => {
+				throw new Error('EACCES: permission denied');
+			},
+		});
+		expect(loader.for('/work/src/q.ts')?.options).toBe('it could not be read.');
+	});
+});

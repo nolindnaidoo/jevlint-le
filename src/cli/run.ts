@@ -71,7 +71,7 @@ export function createOptions(files: Files, overrides: Overrides) {
 	const named = (path: string): LintOptions | string => {
 		if (files.stat(path)?.kind !== 'file')
 			return `No such config file: ${path}`;
-		const options = parseConfig(files.read(path));
+		const options = parseConfig(readOrNothing(files, path));
 		return typeof options === 'string'
 			? `${path}: ${options}`
 			: withFlags(options);
@@ -84,6 +84,14 @@ export function createOptions(files: Files, overrides: Overrides) {
 			? `${found.path}: ${found.options}`
 			: withFlags(found.options);
 	};
+}
+
+function readOrNothing(files: Files, path: string): string | undefined {
+	try {
+		return files.read(path);
+	} catch {
+		return undefined;
+	}
 }
 
 export type Source = Readonly<{ path: string; text: string }>;
