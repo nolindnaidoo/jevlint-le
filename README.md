@@ -198,7 +198,7 @@ read. Errors always fail a run. Warnings fail it only past `--max-warnings`.
 
 | Option | What it does |
 |---|---|
-| `--format <text\|json\|github>` | How findings are printed. Also `-f` |
+| `--format <stylish\|compact\|json\|github>` | How findings are printed. `stylish` groups them by file and is the default. `compact` is one per line as `path:line:column`. Also `-f` |
 | `--rule <CODE=level>` | Set one rule to `off`, `hint`, `info`, `warning` or `error`. A rule's name works in place of its code, and `warn` means `warning` |
 | `--config <file>` | Use this settings file, and no `jevlint-le.json` found near the files. Also `-c` |
 | `--max-warnings <n>` | Fail when more than `n` warnings are reported |
@@ -210,6 +210,7 @@ read. Errors always fail a run. Warnings fail it only past `--max-warnings`.
 | `--jev-model <id>` | The model `--jev` asks. Default `jev-1.13.0` |
 | `--jev-max-calls <n>` | The most requests `--jev` may send in the run. Default 25 |
 | `--jev-send-state` | With `--jev`, also send state written out in a file |
+| `--color`, `--no-color` | Colour the default format, or do not. Without either it is coloured in a terminal, unless `NO_COLOR` is set |
 | `--no-error-on-unmatched-pattern` | Pass when the paths hold no file to lint |
 | `--mcp` | Run as an MCP server |
 

@@ -34,11 +34,19 @@ export type Io = Readonly<{
 	/** The network, used only under `--jev`. */
 	fetch: Fetch;
 	wait: (ms: number) => Promise<void>;
+	/** True when a terminal is reading standard output. */
+	terminal: boolean;
 	/** Aborts when the user stops the run. Asked for only when requests are about to be sent. */
 	stopSignal: () => AbortSignal;
 }>;
 
 export const EXIT = Object.freeze({ passed: 0, failed: 1, unusable: 2 });
+
+// A flag wins. Otherwise colour is for a terminal, unless NO_COLOR asks for none.
+function colored(options: CliOptions, io: Io): boolean {
+	if (options.color !== undefined) return options.color;
+	return io.terminal && !io.env.NO_COLOR;
+}
 
 const BASE: LintOptions = Object.freeze({
 	rules: {},
@@ -264,6 +272,11 @@ export function total(reports: ReadonlyArray<FileReport>, left: Left): Totals {
 		skipped: left.skipped,
 		unread: left.unread,
 		counts,
+		fixable: reports.reduce(
+			(all, report) =>
+				all + report.findings.filter((finding) => finding.fix?.safe).length,
+			0,
+		),
 	};
 }
 
@@ -321,7 +334,7 @@ export async function run(
 	if (options.jev || options.jevPlan)
 		return runWithJev(options, io, reports, left, optionsFor, fixed);
 	const totals = { ...total(reports, left), ...fixed };
-	io.out(format(options.format, reports, totals));
+	io.out(format(options.format, reports, totals, colored(options, io)));
 	return fails(totals, options.maxWarnings) ? EXIT.failed : EXIT.passed;
 }
 
@@ -389,7 +402,7 @@ async function runWithJev(
 	}
 	if (options.jevPlan) {
 		const totals = { ...total(linted, left), ...fixed, jev: plan.totals };
-		io.out(format(options.format, linted, totals));
+		io.out(format(options.format, linted, totals, colored(options, io)));
 		return fails(totals, options.maxWarnings) ? EXIT.failed : EXIT.passed;
 	}
 	if (plan.totals.planned) say(sending(plan.totals));
@@ -404,7 +417,7 @@ async function runWithJev(
 		options.quiet,
 	);
 	const totals = { ...total(ran.reports, left), ...fixed, jev: ran.totals };
-	io.out(format(options.format, ran.reports, totals));
+	io.out(format(options.format, ran.reports, totals, colored(options, io)));
 	const failure =
 		ran.failure && `${FAILURES[ran.failure.kind]} (${ran.failure.detail})`;
 	const short = shortfall(ran.totals, failure, ran.stopped);
