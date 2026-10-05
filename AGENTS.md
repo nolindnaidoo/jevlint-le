@@ -341,8 +341,8 @@ bun run validate -- --dry-run   # what would be sent to Jev, no key needed
 ## Not done
 
 - No Rust port of the command line, by decision. See the roadmap in SPEC.md.
-- No localization, MCP registry listing or Zed extension, by decision. See the
-  roadmap in SPEC.md.
+- No localization or MCP registry listing, by decision. See the roadmap in
+  SPEC.md.
 - Not a member of the family's fleet check. See below. The sibling repos have all of these, and SPEC.md lists them under
   Extended release 2.
 - The shell does not yet follow the family layout: no `services/serviceFactory`,
