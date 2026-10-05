@@ -253,7 +253,13 @@ family's files, copied unchanged from `regex-le`.
   `bun run validate` and again with `--set hard` and `--set encoding` when Jev releases
   another, and move the defaults with the result.
 - **A sample is spent once a rule is fixed against it.** Draw a new one for
-  the next measurement.
+  the next measurement. `fixtures/public-sample/` is spent.
+  `fixtures/public-sample-2/` is not: no rule has been changed because of it.
+- **A sample is drawn and scored by script, and labelled by hand in
+  between.** `scripts/draw-public-sample.ts` writes the question text outside
+  this repo and leaves out everything an earlier sample used. The labels are
+  committed on their own before `scripts/score-public-sample.ts` is run, so
+  the history shows they came first.
 - **Every experiment must mean what its rule means.** `validation.test.ts`
   fails if a rule does not flag an experiment's bad question or flags its
   fixed one.
