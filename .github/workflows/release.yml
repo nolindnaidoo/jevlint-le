@@ -56,6 +56,19 @@ jobs:
             exit 1
           fi
 
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # A version cannot be republished, so its changelog entry has to be
+      # finished first. "unreleased" in the heading would ship as the notes
+      # every registry shows for this version.
+      - name: Require a dated changelog entry for this version
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if ! grep -Eq "^## ${version//./\\.} — [0-9]{4}-[0-9]{2}-[0-9]{2}$" CHANGELOG.md; then
+            echo "::error::CHANGELOG.md has no heading '## $version — YYYY-MM-DD'."
+            exit 1
+          fi
+
   release:
     # The VSIX registries only. npm is a separate job because it holds
     # `id-token: write` to sign its provenance, and that permission should not
@@ -114,6 +127,14 @@ jobs:
           echo "Publishing $path"
           echo "  version:   $(node -p "require('./package.json').version")"
           echo "  publisher: $(node -p "require('./package.json').publisher")"
+
+      # The same two checks CI runs, on the file about to be published. Unit
+      # tests never load the VSIX, and CI built a different one.
+      - name: Integration tests
+        run: xvfb-run -a bun run test:integration
+
+      - name: Installed-VSIX end-to-end
+        run: xvfb-run -a bun run test:e2e-vsix
 
       # Secrets go through the environment: both tools read these names, and
       # argv is readable from the runner's process table.
