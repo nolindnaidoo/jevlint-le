@@ -52,7 +52,8 @@ lint/
   optionChecks.ts        rules over Choice options and Score levels
   wordingChecks.ts       heuristic rules over how a question is worded
   lexicon.ts             the word lists and patterns those rules match
-  fix.ts                 the JEV004 text edit
+  fix.ts                 the text edits, each marked safe or not
+  fixAll.ts              a text with every safe fix applied
   suppress.ts            comment directives
   lint.ts                lintText(text, options): the pure entry point
 jev/
@@ -65,7 +66,7 @@ jev/
 cli/
   args.ts                the flag table: one entry parses a flag and prints its help
   files.ts               paths -> the files to lint
-  format.ts              text, JSON and GitHub annotation output
+  format.ts              stylish, compact, JSON and GitHub annotation output
   run.ts                 run(argv, io) -> exit status. Everything but the process
   jev.ts                 --jev: the plan across files under one call limit, and the run
   mcp.ts                 the MCP server: three tools over the same linting
@@ -118,6 +119,24 @@ family's files, copied unchanged from `regex-le`.
   declared command must be registered. `extension.test.ts` holds both.
 - **A fix must not guess.** `fix.ts` returns no edit when anything but
   whitespace and one comma follows the last option.
+- **A fix is safe or it is not, and only safe ones are applied unasked.**
+  `Fix.safe` is true when the edit only mends what the API would refuse.
+  `--fix` and fix on save apply those and nothing else. An edit that changes
+  what a working request does, such as a new option or a pinned model, is a
+  quick fix for a person to accept. A new fix states which it is.
+- **The command line writes a file only under `--fix`.** `Files.write` has no
+  other caller.
+- **`stylish` is for people and the other formats are for programs.** Only
+  `stylish` is coloured or may change shape between releases. `compact`,
+  `json` and `github` are read by editors and CI.
+- **`exclude` is decided in one place,** `isExcluded` in
+  `config/projectConfig.ts`, for the command line, the MCP server and the
+  editor. Text handed over directly, on standard input or to `lint_text`, is
+  never excluded.
+- **A comment is unused only if nothing it could silence was reported.**
+  `JEV010` is worked out after every finding has been asked about, and never
+  for a comment that names only Jev-backed rules. It is not silenced by a
+  comment, or a bare one would hide the report of itself.
 - **Where a `jevlint-le.json` applies it replaces the editor's lint settings.**
   It is never merged with them. The point of the file is that the editor and
   the command line report the same findings, and `extension.test.ts` runs

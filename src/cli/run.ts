@@ -41,6 +41,8 @@ export type Io = Readonly<{
 	wait: (ms: number) => Promise<void>;
 	/** True when a terminal is reading standard output. */
 	terminal: boolean;
+	/** That terminal's width in characters. Undefined when there is none. */
+	columns?: number | undefined;
 	/** Aborts when the user stops the run. Asked for only when requests are about to be sent. */
 	stopSignal: () => AbortSignal;
 }>;
@@ -384,7 +386,9 @@ export async function run(
 	if (options.jev || options.jevPlan)
 		return runWithJev(options, io, reports, left, optionsFor, fixed);
 	const totals = { ...total(reports, left), ...fixed };
-	io.out(format(options.format, reports, totals, colored(options, io)));
+	io.out(
+		format(options.format, reports, totals, colored(options, io), io.columns),
+	);
 	return fails(totals, options.maxWarnings) ? EXIT.failed : EXIT.passed;
 }
 
@@ -452,7 +456,9 @@ async function runWithJev(
 	}
 	if (options.jevPlan) {
 		const totals = { ...total(linted, left), ...fixed, jev: plan.totals };
-		io.out(format(options.format, linted, totals, colored(options, io)));
+		io.out(
+			format(options.format, linted, totals, colored(options, io), io.columns),
+		);
 		return fails(totals, options.maxWarnings) ? EXIT.failed : EXIT.passed;
 	}
 	if (plan.totals.planned) say(sending(plan.totals));
@@ -467,7 +473,15 @@ async function runWithJev(
 		options.quiet,
 	);
 	const totals = { ...total(ran.reports, left), ...fixed, jev: ran.totals };
-	io.out(format(options.format, ran.reports, totals, colored(options, io)));
+	io.out(
+		format(
+			options.format,
+			ran.reports,
+			totals,
+			colored(options, io),
+			io.columns,
+		),
+	);
 	const failure =
 		ran.failure && `${FAILURES[ran.failure.kind]} (${ran.failure.detail})`;
 	const short = shortfall(ran.totals, failure, ran.stopped);
