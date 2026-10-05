@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { DEFAULT_MAX_CALLS, DEFAULT_MODEL } from '../jev/review';
 import {
 	DEFAULT_FALLBACK_OPTIONS,
 	EXTENSIONS,
@@ -37,9 +38,8 @@ export const CONFIG_DEFAULTS = Object.freeze({
 	exclude: '**/{node_modules,dist,out,build,coverage,.git}/**',
 	maxFileSizeBytes: MAX_FILE_SIZE_BYTES,
 	notificationsLevel: 'important' as NotificationsLevel,
-	// Pinned, because the cutoffs of the Jev-backed checks were set on this version.
-	'jev.model': 'jev-1.13.0',
-	'jev.maxCalls': 25,
+	'jev.model': DEFAULT_MODEL,
+	'jev.maxCalls': DEFAULT_MAX_CALLS,
 	'jev.sendState': false,
 	'jev.confirm': false,
 	'jev.apiKey': '',
