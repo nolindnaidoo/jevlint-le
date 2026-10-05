@@ -167,6 +167,7 @@ async function probeQuestion(deps: Deps): Promise<void> {
 
 const REPORT_SCHEME = 'jevlint-le-probe';
 const reports = new Map<string, string>();
+const KEPT_REPORTS = 20;
 const changed = new vscode.EventEmitter<vscode.Uri>();
 
 /**
@@ -176,7 +177,11 @@ const changed = new vscode.EventEmitter<vscode.Uri>();
  */
 async function showReport(id: string, markdown: string): Promise<boolean> {
 	const uri = vscode.Uri.parse(`${REPORT_SCHEME}:Probe of ${id}.md`);
+	// A page is read when it is opened, so only the latest few need keeping.
+	reports.delete(uri.toString());
 	reports.set(uri.toString(), markdown);
+	for (const stale of [...reports.keys()].slice(0, -KEPT_REPORTS))
+		reports.delete(stale);
 	// A second probe of the same question reuses the page, so it is told to reload.
 	changed.fire(uri);
 	const preview = vscode.commands.executeCommand('markdown.showPreview', uri);

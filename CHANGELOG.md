@@ -14,6 +14,14 @@
   requests were answered of how many were planned.
 - JSON output gains `totals.jev` when `--jev` or `--jev-plan` is given.
 
+- `-h`, `-v`, `-f` and `-c` work. `-h` used to answer "No such file or
+  directory: -h".
+- A rule can be named by its name as well as its code, and `warn` is taken as
+  `warning`, in `--rule` and in `jevlint-le.json`.
+- `--no-error-on-unmatched-pattern` passes a run that finds no file to lint,
+  for lint-staged and for packages with no Jev code. Without it that run
+  still exits 2.
+
 Fixed, from a review of how the tool fails:
 
 - **A reply from TypeSafe that was not a Jev reply crashed the run.** A proxy
@@ -50,6 +58,14 @@ Fixed, from a review of how the tool fails:
 - **The size limit was counted in characters in the editor and bytes on the
   command line**, so a file of mostly non-ASCII text could be linted in one
   and skipped in the other. Both count bytes.
+- **Standard input had no size limit**, so piped text was the way around the
+  one files are held to.
+- **What Jev said stayed on screen after a rule was switched off.** It is now
+  cleared when the settings change.
+- **A file with thousands of findings was slow**, because duplicates were
+  removed by comparing every finding with every other.
+- **The probe kept every report it had made** for the life of the window. It
+  keeps the latest 20.
 - **Piping a large report into a command that closes early**, such as `head`,
   crashed with a stack trace and status 1.
 

@@ -4,6 +4,7 @@ import {
 	CONFIG_FILE,
 	CONFIG_KEYS,
 	createConfigLoader,
+	LEVEL_ALIASES,
 	LEVELS,
 	parseConfig,
 } from './projectConfig';
@@ -52,7 +53,10 @@ describe('a project settings file', () => {
 			readFileSync('schemas/config.schema.json', 'utf8'),
 		);
 		expect(Object.keys(schema.properties)).toEqual(CONFIG_KEYS);
-		expect(schema.properties.rules.additionalProperties.enum).toEqual(LEVELS);
+		expect(schema.properties.rules.additionalProperties.enum).toEqual([
+			...LEVELS,
+			...Object.keys(LEVEL_ALIASES),
+		]);
 		const manifest = JSON.parse(readFileSync('package.json', 'utf8'));
 		const matched = manifest.contributes.jsonValidation.flatMap(
 			(entry: { fileMatch: string[] }) => entry.fileMatch,

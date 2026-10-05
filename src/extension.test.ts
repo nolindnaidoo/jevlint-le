@@ -1053,6 +1053,19 @@ describe('when the editor fails', () => {
 
 	afterEach(() => vi.unstubAllGlobals());
 
+	it('drops what Jev said when the settings it was filtered by change', async () => {
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async () => reply({ JEV302: { noul: 0.9 } })),
+		);
+		start(doc(TWO));
+		_state.secrets.set('jevlint-le.typesafeApiKey', 'k');
+		await run(JEV_COMMANDS.checkWithJev);
+		expect(diagnostics('file:///a.ts#jevlint-le-jev')).not.toEqual([]);
+		_state.listeners.config?.({ affectsConfiguration: () => true });
+		expect(diagnostics('file:///a.ts#jevlint-le-jev')).toEqual([]);
+	});
+
 	it('shows nothing from Jev about text that was edited during the run', async () => {
 		const document = doc(TWO);
 		const fetch = vi.fn(async () => {

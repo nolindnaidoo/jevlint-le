@@ -78,7 +78,8 @@ async function cli(
 describe('arguments', () => {
 	it('lists every flag in the help', () => {
 		const help = helpText();
-		for (const name of FLAG_NAMES) expect(help).toContain(`  ${name}`);
+		for (const name of FLAG_NAMES)
+			expect(help).toMatch(new RegExp(`[ ,] ${name}[ \\n<]`));
 	});
 
 	// A flag added to the table and left out of a readme is one nobody finds.
@@ -90,6 +91,30 @@ describe('arguments', () => {
 		expect(documented.filter((name) => !text.includes(`| \`${name}`))).toEqual(
 			[],
 		);
+	});
+
+	it.each([
+		[['-h'], 'Usage: jevlint-le'],
+		[['-v'], '9.9.9'],
+	])('takes %j as an option, not as a file', async (args, said) => {
+		const result = await cli(args);
+		expect(result.status).toBe(EXIT.passed);
+		expect(result.out).toContain(said);
+	});
+
+	it('takes -f and -c for --format and --config', () => {
+		const parsed = parseArgs(['-f', 'json', '-c=team.json', 'src']);
+		expect(parsed.ok && parsed.options).toMatchObject({
+			format: 'json',
+			config: 'team.json',
+			paths: ['src'],
+		});
+	});
+
+	it('refuses a dash option it does not know, where it used to look for a file', async () => {
+		const result = await cli(['-x']);
+		expect(result.status).toBe(EXIT.unusable);
+		expect(result.err).toContain("Unknown option '-x'");
 	});
 
 	it('takes a value after the flag or after an equals sign', () => {
@@ -188,6 +213,26 @@ describe('a run', () => {
 		expect(result.err).toContain(reason);
 	});
 
+	it('exits 2 when there is nothing to lint, unless told that is fine', async () => {
+		const strict = await cli(['.'], { 'notes.md': 'x' });
+		expect(strict.status).toBe(EXIT.unusable);
+		const allowed = await cli(['--no-error-on-unmatched-pattern', '.'], {
+			'notes.md': 'x',
+		});
+		expect(allowed.status).toBe(EXIT.passed);
+		expect(allowed.out).toContain('across 0 files.');
+	});
+
+	it('holds standard input to the size limit files are held to', async () => {
+		const result = await cli(
+			['--stdin-filename', 'q.json'],
+			{},
+			`${CLEAN}${' '.repeat(2_000_000)}`,
+		);
+		expect(result.status).toBe(EXIT.unusable);
+		expect(result.err).toContain('Standard input is over the size limit');
+	});
+
 	it('names a file it left unread for its size', async () => {
 		const result = await cli(['.'], {
 			'a.json': CLEAN,
@@ -218,6 +263,30 @@ describe('settings', () => {
 		);
 		expect(result.out).toContain('error  JEV004');
 		expect(result.out).not.toContain('JEV006');
+	});
+
+	it('takes a rule by its name, and warn for warning', async () => {
+		const byName = await cli(
+			['--rule', 'no-fallback-option=warn', '--format', 'json', 'q.json'],
+			{ 'q.json': BAD },
+		);
+		const levels = JSON.parse(byName.out).files[0].findings.filter(
+			(finding: { code: string }) => finding.code === 'JEV004',
+		);
+		expect(
+			levels.map((finding: { severity: string }) => finding.severity),
+		).toEqual(['warning']);
+		const inFile = await cli(['q.json'], {
+			'q.json': BAD,
+			'jevlint-le.json': '{ "rules": { "no-fallback-option": "off" } }',
+		});
+		expect(inFile.out).not.toContain('JEV004');
+		const wrong = await cli(['--rule', 'no-such-rule=off', 'q.json'], {
+			'q.json': BAD,
+		});
+		expect(wrong.err).toContain(
+			"'no-such-rule' is not a rule code or a rule name",
+		);
 	});
 
 	it('reads a config file, and lets a flag override it', async () => {

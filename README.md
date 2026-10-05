@@ -198,9 +198,9 @@ read. Errors always fail a run. Warnings fail it only past `--max-warnings`.
 
 | Option | What it does |
 |---|---|
-| `--format <text\|json\|github>` | How findings are printed |
-| `--rule <CODE=level>` | Set one rule to `off`, `hint`, `info`, `warning` or `error` |
-| `--config <file>` | Use this settings file, and no `jevlint-le.json` found near the files |
+| `--format <text\|json\|github>` | How findings are printed. Also `-f` |
+| `--rule <CODE=level>` | Set one rule to `off`, `hint`, `info`, `warning` or `error`. A rule's name works in place of its code, and `warn` means `warning` |
+| `--config <file>` | Use this settings file, and no `jevlint-le.json` found near the files. Also `-c` |
 | `--max-warnings <n>` | Fail when more than `n` warnings are reported |
 | `--stdin-filename <path>` | Lint standard input as if it were that file |
 | `--quiet` | Print errors only |
@@ -209,6 +209,7 @@ read. Errors always fail a run. Warnings fail it only past `--max-warnings`.
 | `--jev-model <id>` | The model `--jev` asks. Default `jev-1.13.0` |
 | `--jev-max-calls <n>` | The most requests `--jev` may send in the run. Default 25 |
 | `--jev-send-state` | With `--jev`, also send state written out in a file |
+| `--no-error-on-unmatched-pattern` | Pass when the paths hold no file to lint |
 | `--mcp` | Run as an MCP server |
 
 The summary line always says how many questions could not be read in full

@@ -27,6 +27,8 @@ export type CliOptions = Readonly<{
 	/** The most requests in the whole run. */
 	jevMaxCalls: number | undefined;
 	jevSendState: boolean;
+	/** A run that finds no file to lint passes, where it would exit 2. */
+	allowNoFiles: boolean;
 }>;
 
 export type Parsed =
@@ -37,6 +39,8 @@ type Applied = CliOptions | string;
 
 type Flag = Readonly<{
 	name: string;
+	/** The one-letter form, for the flags other linters have taught people to type. */
+	short?: string;
 	/** The placeholder shown in the help. A flag without one takes no value. */
 	value?: string;
 	help: string;
@@ -49,6 +53,7 @@ const FORMATS: ReadonlyArray<string> = ['text', 'json', 'github'];
 const FLAGS: ReadonlyArray<Flag> = Object.freeze([
 	{
 		name: '--format',
+		short: '-f',
 		value: 'text|json|github',
 		help: 'How findings are printed. github writes workflow annotations.',
 		apply: (options, value) =>
@@ -68,6 +73,7 @@ const FLAGS: ReadonlyArray<Flag> = Object.freeze([
 	},
 	{
 		name: '--config',
+		short: '-c',
 		value: 'file',
 		help: 'Use this settings file, and no jevlint-le.json found near the files.',
 		apply: (options, value) => ({ ...options, config: value }),
@@ -131,12 +137,19 @@ const FLAGS: ReadonlyArray<Flag> = Object.freeze([
 		apply: (options) => ({ ...options, mcp: true }),
 	},
 	{
+		name: '--no-error-on-unmatched-pattern',
+		help: 'Pass when the paths hold no file to lint. Without it that run exits 2.',
+		apply: (options) => ({ ...options, allowNoFiles: true }),
+	},
+	{
 		name: '--help',
+		short: '-h',
 		help: 'Print this and exit.',
 		apply: (options) => ({ ...options, help: true }),
 	},
 	{
 		name: '--version',
+		short: '-v',
 		help: 'Print the version and exit.',
 		apply: (options) => ({ ...options, version: true }),
 	},
@@ -160,12 +173,14 @@ const DEFAULTS: CliOptions = Object.freeze({
 	jevModel: undefined,
 	jevMaxCalls: undefined,
 	jevSendState: false,
+	allowNoFiles: false,
 });
 
 export function helpText(): string {
-	const usage = FLAGS.map((flag) =>
-		flag.value ? `${flag.name} <${flag.value}>` : flag.name,
-	);
+	const usage = FLAGS.map((flag) => {
+		const names = flag.short ? `${flag.short}, ${flag.name}` : flag.name;
+		return flag.value ? `${names} <${flag.value}>` : names;
+	});
 	const width = Math.max(...usage.map((entry) => entry.length));
 	return [
 		'Usage: jevlint-le [options] [file or directory ...]',
@@ -190,13 +205,18 @@ export function parseArgs(argv: ReadonlyArray<string>): Parsed {
 	while (i < argv.length) {
 		const arg = argv[i] as string;
 		i += 1;
-		if (!arg.startsWith('--')) {
+		// Anything that starts with a dash is an option. Read as a path, `-h`
+		// would answer "No such file".
+		if (!arg.startsWith('-') || arg === '-') {
 			options = { ...options, paths: [...options.paths, arg] };
 			continue;
 		}
-		const [name = '', inline] = arg.split(/=(.*)/s);
-		const flag = FLAGS.find((candidate) => candidate.name === name);
-		if (!flag) return { ok: false, error: `Unknown option '${name}'.` };
+		const [given = '', inline] = arg.split(/=(.*)/s);
+		const flag = FLAGS.find(
+			(candidate) => candidate.name === given || candidate.short === given,
+		);
+		if (!flag) return { ok: false, error: `Unknown option '${given}'.` };
+		const { name } = flag;
 		const takesNext = flag.value !== undefined && inline === undefined;
 		const value = takesNext ? argv[i] : inline;
 		if (takesNext) i += 1;

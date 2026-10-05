@@ -1,5 +1,5 @@
 import { DEFAULT_FALLBACK_OPTIONS } from '../lint/lint';
-import { RULE_CODES } from '../lint/rules';
+import { RULE_CODES, RULES } from '../lint/rules';
 import type { LintOptions, RuleCode, Severity } from '../types';
 
 /**
@@ -21,16 +21,26 @@ export const LEVELS: ReadonlyArray<string> = [
 	'error',
 ];
 
+/** Spellings other linters use, taken as the level they mean. */
+export const LEVEL_ALIASES: Readonly<Record<string, string>> = Object.freeze({
+	warn: 'warning',
+});
+
 type Level = Severity | 'off';
 const CODES: ReadonlySet<string> = new Set(RULE_CODES);
+const BY_NAME: ReadonlyMap<string, RuleCode> = new Map(
+	RULE_CODES.map((code) => [RULES[code].name, code]),
+);
 
-/** A `CODE=level` pair, or the reason it is not one. */
+/** A rule and a level, written as `JEV004=warning` or `missing-fallback=warn`, or the reason it is not one. */
 export function readRule(text: string): readonly [RuleCode, Level] | string {
-	const [code = '', level = ''] = text.split('=');
-	if (!CODES.has(code)) return `'${code}' is not a rule code.`;
+	const [rule = '', given = ''] = text.split('=');
+	const code = CODES.has(rule) ? (rule as RuleCode) : BY_NAME.get(rule);
+	if (!code) return `'${rule}' is not a rule code or a rule name.`;
+	const level = LEVEL_ALIASES[given] ?? given;
 	if (!LEVELS.includes(level))
-		return `'${level}' is not a level. Use one of ${LEVELS.join(', ')}.`;
-	return [code as RuleCode, level as Level];
+		return `'${given}' is not a level. Use one of ${LEVELS.join(', ')}.`;
+	return [code, level as Level];
 }
 
 /** A map of rule code to level, or the reason it is not one. */

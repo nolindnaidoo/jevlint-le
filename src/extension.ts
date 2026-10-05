@@ -30,7 +30,7 @@ export function activate(
 	const projectConfigs = createProjectConfigs({
 		fs,
 		// The settings a file is linted under have changed, so every open file is linted again.
-		onChange: () => lintOpen(),
+		onChange: () => settingsChanged(),
 	});
 	const lintOptionsFor = (document: vscode.TextDocument) =>
 		projectConfigs.for(document, getConfiguration().lint);
@@ -74,6 +74,14 @@ export function activate(
 			linter.lint(document);
 	};
 
+	// What Jev said was filtered by the old rule levels, so it goes too. A check
+	// still running is stopped: it was planned under settings that no longer hold.
+	const settingsChanged = (): void => {
+		for (const document of vscode.workspace.textDocuments)
+			reviewer.clear(document);
+		lintOpen();
+	};
+
 	const mcp = registerMcpProvider(context);
 	if (mcp) context.subscriptions.push(mcp);
 
@@ -112,7 +120,7 @@ export function activate(
 			reviewer.clear(document);
 		}),
 		vscode.workspace.onDidChangeConfiguration((event) => {
-			if (event.affectsConfiguration(SECTION)) lintOpen();
+			if (event.affectsConfiguration(SECTION)) settingsChanged();
 		}),
 		vscode.window.onDidChangeActiveTextEditor(showActive),
 	);
