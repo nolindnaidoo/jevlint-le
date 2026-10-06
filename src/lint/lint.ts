@@ -57,6 +57,12 @@ const TRIGGERS: Readonly<Record<Syntax, RegExp>> = Object.freeze({
 	rust: /noul|choice|score|jev-/i,
 	go: /noul|choice|score|jev-/i,
 });
+// A request whose only question has its type misspelt holds none of the
+// words above. It still says `questions` and `instructions`, and few other
+// files say both.
+const namesQuestions = (text: string): boolean =>
+	/\bquestions\b/.test(text) && /\binstructions\b/.test(text);
+
 // `import { choice as pick }` binds `pick`, which the reader does not follow,
 // so only helpers imported under their own names are read.
 const SDK_IMPORT =
@@ -246,7 +252,7 @@ export function lintText(
 	options: LintOptions = DEFAULT_OPTIONS,
 	syntax: Syntax = 'js',
 ): LintResult {
-	if (!TRIGGERS[syntax].test(text)) return EMPTY;
+	if (!TRIGGERS[syntax].test(text) && !namesQuestions(text)) return EMPTY;
 
 	const { extraction, embedded } = read(text, syntax);
 	// JSON inside a string is edited as JSON, whatever the file around it is.

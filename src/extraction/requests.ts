@@ -157,12 +157,66 @@ function isMapEntry(value: Node, sink: Sink): boolean {
 	return isQuestionObject(value) || isHelper(value, sink);
 }
 
+const QUESTION_KEYS: ReadonlySet<string> = new Set([
+	'type',
+	'instructions',
+	'criteria',
+]);
+
+// One slip away from a real type: a letter added, dropped or changed, or two
+// neighbours swapped. 'nuol' and 'choise' are. 'bool', 'null' and 'multiple'
+// are not, and a map of those is some other program's data.
+function oneSlipFrom(found: string, type: string): boolean {
+	const [a, b] = [found.toLowerCase(), type];
+	if (a === b || Math.abs(a.length - b.length) > 1) return false;
+	let start = 0;
+	while (start < a.length && a[start] === b[start]) start += 1;
+	let end = 0;
+	while (
+		end < Math.min(a.length, b.length) - start &&
+		a[a.length - 1 - end] === b[b.length - 1 - end]
+	)
+		end += 1;
+	const [restA, restB] = [
+		a.slice(start, a.length - end),
+		b.slice(start, b.length - end),
+	];
+	if (restA.length <= 1 && restB.length <= 1) return true;
+	return (
+		restA.length === 2 &&
+		restB.length === 2 &&
+		restA[0] === restB[1] &&
+		restA[1] === restB[0]
+	);
+}
+
+/**
+ * True for an entry that is plainly meant as a question and is broken: it has
+ * instructions, nothing but a question's own fields, and either a type one
+ * slip from a real one or no type beside criteria. A request whose only
+ * question is mistyped has no valid entry to mark its map as questions, and
+ * without this it was passed over in silence.
+ */
+function isBrokenQuestion(value: Node): boolean {
+	if (value.kind !== 'object' || value.partial) return false;
+	if (!prop(value, 'instructions')) return false;
+	if (!value.props.every((entry) => QUESTION_KEYS.has(entry.key))) return false;
+	const type = prop(value, 'type')?.value;
+	if (!type) return prop(value, 'criteria') !== undefined;
+	if (type.kind !== 'string') return false;
+	return (
+		[...TYPES].filter((real) => oneSlipFrom(type.value, real)).length === 1
+	);
+}
+
 /** True when `questions` was a question map and has been collected. */
 function collectMap(node: ObjectNode, sink: Sink): boolean {
 	const questions = prop(node, 'questions')?.value;
 	if (questions?.kind !== 'object') return false;
-	if (!questions.props.some((entry) => isMapEntry(entry.value, sink)))
-		return false;
+	const marked = questions.props.some(
+		(entry) => isMapEntry(entry.value, sink) || isBrokenQuestion(entry.value),
+	);
+	if (!marked) return false;
 	const map = sink.maps.length;
 	sink.maps.push({
 		entries: questions.props.map((entry) => ({

@@ -230,6 +230,13 @@ family's files, copied unchanged from `regex-le`.
   own words with the right label. Never copy questions from another project
   or from vendor docs into it. Before turning a rule on, run it over questions
   it was not built from and read the findings.
+- **A lone broken question is recognised by a narrow test, and only that
+  test.** A `questions` map with no valid entry is read as questions when an
+  entry has `instructions`, no field a question lacks, and a type one slip
+  from a real one or criteria with no type (`isBrokenQuestion`). `bool`,
+  `multiple` or one foreign field leaves the map alone. Run over 783 public
+  files on 2026-10-05, 354 of them unrelated code that says "questions" and
+  "instructions": it added no finding. Loosening it needs that run again.
 - **Nothing is concluded from what a lone object lacks.** A missing `criteria`
   is reported only for an entry in a `questions` map or an SDK helper call
   (`inRequest`). An object with a spread or another client's fields (`open`)
