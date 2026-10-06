@@ -780,3 +780,67 @@ describe('suppression', () => {
 		).toEqual([]);
 	});
 });
+
+describe('a request whose only question is broken', () => {
+	const lone = (question: string) =>
+		codes(`{ "questions": { "late": ${question} } }`);
+
+	it('is reported when the type is one slip from a real one', () => {
+		expect(
+			lone(`{ "type": "nuol", "instructions": "Did it arrive late?" }`),
+		).toEqual(['JEV007']);
+		expect(
+			lone(
+				`{ "type": "choise", "instructions": "Which team?", "criteria": { "a": "A", "other": "Else" } }`,
+			),
+		).toEqual(['JEV007']);
+		expect(lone(`{ "type": "scor", "instructions": "How late?" }`)).toEqual([
+			'JEV007',
+		]);
+	});
+
+	it('is reported when it has criteria and no type', () => {
+		expect(
+			lone(
+				`{ "instructions": "Did it arrive late?", "criteria": { "true": "Late", "false": "On time" } }`,
+			),
+		).toEqual(['JEV007']);
+	});
+
+	it.each([
+		[
+			'a type that is not a slip from a real one',
+			`{ "type": "multiple", "instructions": "Pick one" }`,
+		],
+		[
+			'a type from another kind of schema',
+			`{ "type": "bool", "instructions": "Tick if true" }`,
+		],
+		[
+			'a field no question has',
+			`{ "type": "nuol", "instructions": "Did it arrive late?", "points": 5 }`,
+		],
+		[
+			'instructions and nothing else',
+			`{ "instructions": "Read each line aloud" }`,
+		],
+		['no instructions', `{ "type": "nuol", "text": "Did it arrive late?" }`],
+	])(
+		"is left alone when it has %s, since it may be another program's data",
+		(_, question) => {
+			expect(lone(question)).toEqual([]);
+		},
+	);
+
+	it('is still read when no other word in the file marks it as Jev', () => {
+		const text = `{ "questions": { "late": { "type": "nuol", "instructions": "Did it arrive late?" } } }`;
+		expect(text).not.toMatch(/noul|choice|score|jev/);
+		expect(codes(text)).toEqual(['JEV007']);
+	});
+
+	it('offers the fix for the slip', () => {
+		const text = `{ "questions": { "late": { "type": "nuol", "instructions": "Did it arrive late?" } } }`;
+		const [finding] = lintText(text).findings;
+		expect(finding?.fix?.title).toBe("Change to 'noul'");
+	});
+});

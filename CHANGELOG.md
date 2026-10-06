@@ -28,6 +28,10 @@
   how to fix it and how to silence it. A finding in the editor links to its
   page, which links on to the TypeSafe page the rule comes from. JSON output
   and the MCP server's `list_rules` gain a `page` beside `docs`.
+- **A request whose only question had its type misspelt was not reported.**
+  `"type": "nuol"` was caught beside a valid question and missed on its own,
+  and a file holding only that was never read. Both are fixed, and the same
+  goes for a lone question with criteria and no type.
 - The npm package can be required as a library: `lint`, `fix`, `rules`,
   `syntaxes` and an `api` number. This is what the editor loads.
 - Check with Jev and the probe always run the extension's own code. They
