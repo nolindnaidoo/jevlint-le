@@ -320,7 +320,8 @@ function asSarif(
 							id: code,
 							name: RULES[code].name,
 							shortDescription: { text: RULES[code].name },
-							helpUri: RULES[code].docs,
+							// The rule's own page, which has an example and links on to the vendor page.
+							helpUri: pageFor(code),
 						})),
 					},
 				},

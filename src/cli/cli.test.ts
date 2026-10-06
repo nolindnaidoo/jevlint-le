@@ -716,6 +716,10 @@ describe('formats for other tools', () => {
 			['JEV006', 'error'],
 		]);
 		const [first] = run.results;
+		// Help is the rule's own page, as in the editor.
+		expect(run.tool.driver.rules[first.ruleIndex].helpUri).toMatch(
+			/\/docs\/rules\/JEV004\.md$/,
+		);
 		// The index must point at the rule it names, or a viewer shows the wrong help.
 		expect(ids[first.ruleIndex]).toBe(first.ruleId);
 		expect(first.locations[0].physicalLocation).toMatchObject({
