@@ -507,7 +507,7 @@ difference matters when the family changes one.
 | `.github/workflows/codeql.yml`, `.github/codeql-config.yml`, `.github/workflows/dependabot-auto-merge.yml`, `.gitattributes`, `.editorconfig`, `biome.json`, `tsconfig.it.json` | Copies |
 | `.github/workflows/ci.yml` | Cut down: no second extension toolchain, no generated README check, no bundle gate. Adds `test:cli` |
 | `.github/workflows/release.yml` | Changed: publishes `npm/` with the `NPM_TOKEN` secret where the family uses trusted publishing, and has no MCP registry step |
-| `.github/dependabot.yml` | Cut down: no Rust ecosystems |
+| `.github/dependabot.yml` | Cut down: no `cargo` entry |
 
 - **`letools-site`'s fleet check names this repo and does not compare it.** It
   is listed in `OUTSIDE_FLEET` in the site's `scripts/check-fleet.ts`. The
