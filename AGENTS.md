@@ -510,7 +510,7 @@ difference matters when the family changes one.
 | `.github/dependabot.yml` | Cut down: no `cargo` entry |
 
 - **`letools-site`'s fleet check names this repo and does not compare it.** It
-  is listed in `OUTSIDE_FLEET` in the site's `scripts/check-fleet.ts`. The
+  is listed in `OUTSIDE_FLEET` in `letools-site/scripts/check-fleet.ts`. The
   check holds the sixteen family repos byte-identical on files this repo
   deliberately lacks or changes. Joining it means adopting those, which was
   decided against. When a copied file changes in the family, copy it here by
