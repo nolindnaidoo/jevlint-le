@@ -465,10 +465,10 @@ run is a check on the changes against the questions that prompted them, so
 it is not blind for `JEV102`, `JEV110` and `JEV112`, and `JEV012`'s threshold
 was read off these labels.
 
-35 of the 252 questions read had a clear defect, and 33 of the 35 were two
-things no rule looked for: an option described as its own name, and
-instructions of a word or two that lean on the question id. The wording
-rules had 8 clear cases between them.
+35 of the 252 questions read had a clear defect, and 28 of the 35 had one of
+two things no rule looked for: an option described as its own name, and
+instructions of a word or two that lean on the question id. 27 had nothing
+else wrong. The wording rules had 8 clear cases between them.
 
 | | Before | After |
 |---|---|---|

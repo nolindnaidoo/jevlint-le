@@ -48,8 +48,9 @@ questions that were read, with the rules as they stood on 2026-10-08, before
 any was changed. A finding is counted wrong when it fired on a question with
 neither a clear nor a borderline label for that rule.
 
-35 of the 252 had a clear defect. 33 of those 35 were `JEV011` or `JEV012`,
-which no rule looked for. The wording rules had 8 clear cases between them.
+35 of the 252 had a clear defect, 41 defects between them. 28 of the 35 had
+one no rule looked for, `JEV011` or `JEV012`, and 27 had nothing else wrong.
+The wording rules had 8 clear cases between them.
 
 | | Default-on rules | Every wording rule |
 |---|---|---|
@@ -113,9 +114,9 @@ sample 3 showed". None was wrong and no cutoff moved.
 
 ## What to take from it
 
-- **The defects in public code are structural, not wording.** 33 of 35 are a
-  description that says nothing or instructions that say nothing. Most are
-  in test and demo code, which is also what an agent writes first.
+- **The defects in public code are structural, not wording.** 28 of the 35
+  have a description that says nothing or instructions that say nothing, and
+  27 have nothing else wrong. Most are in test and demo code.
 - **`JEV102` misses comparisons written with symbols or plain words.**
   "Is the number 2 greater than the number 1?" and "(x > 50) ... (>= 8.5)".
   The one it caught had a counting word.
