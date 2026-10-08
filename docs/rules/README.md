@@ -8,7 +8,7 @@ One page per rule: what it catches, an example the linter is run on, how to fix 
 | [JEV001](JEV001.md) | unpinned-model | warning | `jev-latest` and `jev-preview` move with each release, so answers can change with no change on your side |
 | [JEV002](JEV002.md) | choice-option-limit | error | A Choice has more than 255 options. The API rejects it |
 | [JEV003](JEV003.md) | score-level-limit | error | A Score has more than 10 levels. The API rejects it |
-| [JEV004](JEV004.md) | no-fallback-option | warning | A Choice has no `other` or `none of the above`, so an input that fits no option is forced into one. The largest cost measured anywhere |
+| [JEV004](JEV004.md) | no-fallback-option | info | A Choice has no `other` or `none of the above`, so an input that fits no option is forced into one. The largest cost measured anywhere, and the hardest to tell from text |
 | [JEV005](JEV005.md) | duplicate | error | A question id, option or level appears twice. In an object the later one silently replaces the earlier |
 | [JEV006](JEV006.md) | criteria-shape | error | A Choice needs a map of options, a Score needs an array of levels, and a Noul takes `true` and `false` |
 | [JEV007](JEV007.md) | invalid-question | error | The type is missing or unknown, or the instructions are an empty string |

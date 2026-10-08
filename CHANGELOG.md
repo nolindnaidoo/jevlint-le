@@ -21,11 +21,16 @@ samples before. The rules now follow that.
   defect in two samples and right every time it fired. It now also catches
   levels that are a bare word or two (`Shallow`, `Like new`, `Almost none`)
   and levels with a gloss after a slash (`Very casual / slang`).
-- **`JEV004 no-fallback-option` is a warning**, from info. The cost of a
-  missing fallback is the largest measured anywhere: in our run Jev answered
-  every input that fit no option wrong, and an independent audit found 95%
-  abstention with an "unknown" option against 0% accuracy without one. The
-  message names `other` and `insufficient_evidence`.
+- **`JEV004 no-fallback-option` says what a missing fallback costs**, which
+  is the largest cost measured anywhere: in our run Jev answered every input
+  that fit no option wrong, and an independent audit found 95% abstention
+  with an "unknown" option against 0% accuracy without one. It stays `info`,
+  because text cannot tell an exhaustive set of options from one that is
+  not, and it fires on most Choices in public code. More names count as a
+  fallback: `uncertain`, `unsure`, `ambiguous`, `undetermined`,
+  `insufficient_evidence`, `cannot_tell`, and "other" in five more
+  languages, and a name counts when it is a word in the option's name, so
+  `none_implied` and `other_or_unclear` count.
 - **`criteria: { "options": [...] }` is reported as the mistake it is.** The
   API accepts that as a one-option Choice that answers `options` every time
   at full confidence. `JEV006` now says so, as an error, with a fix on the

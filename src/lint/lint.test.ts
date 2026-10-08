@@ -213,18 +213,24 @@ describe('JEV004 no-fallback-option', () => {
 		expect(codes(request(bare))).toEqual(['JEV004']);
 	});
 
-	it.each(['other', 'none_of_the_above', 'Not-Stated', 'UNKNOWN'])(
-		'accepts %s as a fallback',
-		(name) => {
-			expect(
-				codes(
-					request(
-						`"q": { "type": "choice", "instructions": "Which one fits?", "criteria": { "a": null, "${name}": null } }`,
-					),
+	it.each([
+		'other',
+		'none_of_the_above',
+		'Not-Stated',
+		'UNKNOWN',
+		'none_implied',
+		'other_or_unclear',
+		'uncertain_value',
+		'その他',
+	])('accepts %s as a fallback', (name) => {
+		expect(
+			codes(
+				request(
+					`"q": { "type": "choice", "instructions": "Which one fits?", "criteria": { "a": null, "${name}": null } }`,
 				),
-			).toEqual([]);
-		},
-	);
+			),
+		).toEqual([]);
+	});
 
 	it('honours a configured fallback list', () => {
 		const text = request(
@@ -784,7 +790,7 @@ describe('suppression', () => {
 		const text = request(
 			`"team": { "type": "choice", "instructions": "Which one fits?", "criteria": { "a": null, "b": null } }`,
 		);
-		expect(lintText(text).findings[0]?.severity).toBe('warning');
+		expect(lintText(text).findings[0]?.severity).toBe('info');
 		expect(
 			lintText(text, { ...DEFAULT_OPTIONS, rules: { JEV004: 'error' } })
 				.findings[0]?.severity,

@@ -168,10 +168,10 @@ describe('a run', () => {
 		});
 		expect(result.status).toBe(EXIT.failed);
 		const lines = result.out.split('\n');
-		expect(lines[0]).toMatch(/^a\.json:2:\d+ {2}warning {2}JEV004 {2}/);
+		expect(lines[0]).toMatch(/^a\.json:2:\d+ {2}info {2}JEV004 {2}/);
 		expect(lines[1]).toMatch(/^a\.json:2:\d+ {2}error {2}JEV006 {2}/);
 		expect(result.out).toContain(
-			'2 findings (1 error, 1 warning) in 2 questions across 1 file.',
+			'2 findings (1 error, 0 warnings) in 2 questions across 1 file.',
 		);
 	});
 
@@ -636,14 +636,12 @@ describe('the default format', () => {
 		const result = await cli(['src'], tree);
 		const lines = result.out.split('\n');
 		expect(lines[0]).toBe('src/a.json');
-		expect(lines[1]).toMatch(
-			/^ +2:\d+ {2}warning {2}JEV004 no-fallback-option$/,
-		);
+		expect(lines[1]).toMatch(/^ +2:\d+ {2}info {5}JEV004 no-fallback-option$/);
 		expect(lines[2]).toMatch(/^ {2} +This Choice has no fallback option,/);
 		expect(lines[3]).toMatch(/^ +2:\d+ {2}error {4}JEV006 /);
 		// A file with nothing to say is not listed.
 		expect(result.out).not.toContain('src/ok.json');
-		expect(lines.at(-2)).toMatch(/^2 findings \(1 error, 1 warning\)/);
+		expect(lines.at(-2)).toMatch(/^2 findings \(1 error, 0 warnings\)/);
 	});
 
 	it('wraps a long message to the terminal between words, keeping its indent', async () => {
@@ -714,7 +712,7 @@ describe('formats for other tools', () => {
 				found.level,
 			]),
 		).toEqual([
-			['JEV004', 'warning'],
+			['JEV004', 'note'],
 			['JEV006', 'error'],
 		]);
 		const [first] = run.results;
@@ -747,9 +745,9 @@ describe('formats for other tools', () => {
 		expect(result.out).toContain(
 			'<testsuite name="src/a.json" tests="2" failures="1" errors="0">',
 		);
-		// The warning finding is a passing case that carries its message.
+		// The info finding is a passing case that carries its message.
 		expect(result.out).toMatch(
-			/<testcase name="JEV004 no-fallback-option \(2:\d+\)" classname="src\/a\.json"><system-out>warning: /,
+			/<testcase name="JEV004 no-fallback-option \(2:\d+\)" classname="src\/a\.json"><system-out>info: /,
 		);
 		expect(result.out).toMatch(
 			/<testcase name="JEV006 [^"]+" classname="src\/a\.json"><failure message="[^"]+" type="JEV006">src\/a\.json:2:\d+<\/failure>/,
@@ -799,12 +797,12 @@ describe('formats', () => {
 			files: 1,
 			questions: 2,
 			unreadable: 0,
-			counts: { error: 1, warning: 1 },
+			counts: { error: 1, info: 1 },
 		});
 		expect(report.files[0].findings[0]).toMatchObject({
 			code: 'JEV004',
 			rule: 'no-fallback-option',
-			severity: 'warning',
+			severity: 'info',
 			questionId: 'team',
 			line: 1,
 			column: BAD.indexOf('"team"') + 1,
@@ -820,7 +818,7 @@ describe('formats', () => {
 		});
 		const lines = result.out.split('\n');
 		expect(lines[0]).toMatch(
-			/^::warning file=src\/a%2Cb\.json,line=1,col=\d+,endLine=1,endColumn=\d+,title=JEV004 no-fallback-option::/,
+			/^::notice file=src\/a%2Cb\.json,line=1,col=\d+,endLine=1,endColumn=\d+,title=JEV004 no-fallback-option::/,
 		);
 		expect(lines[1]).toMatch(/^::error file=/);
 		expect(lines[0]).not.toMatch(/::.*\n/);

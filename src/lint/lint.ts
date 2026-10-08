@@ -25,16 +25,34 @@ import { normalizeOption } from './finding';
 import { RULES } from './rules';
 import { suppression, type UnusedDirective } from './suppress';
 
+/**
+ * An option counts as a fallback when one of these is a word in its name, so
+ * `none_implied`, `other_or_unclear` and `uncertain_value` all count. The last
+ * six are "other" in the languages public sample 3 was written in besides
+ * English.
+ */
 export const DEFAULT_FALLBACK_OPTIONS: ReadonlyArray<string> = Object.freeze([
 	'other',
 	'none',
 	'none of the above',
 	'unknown',
 	'unclear',
+	'uncertain',
+	'unsure',
+	'ambiguous',
+	'undetermined',
 	'neither',
 	'not stated',
 	'not applicable',
+	'insufficient evidence',
+	'cannot tell',
 	'n/a',
+	'その他',
+	'其他',
+	'otro',
+	'outro',
+	'autre',
+	'andere',
 ]);
 
 export const DEFAULT_OPTIONS: LintOptions = Object.freeze({

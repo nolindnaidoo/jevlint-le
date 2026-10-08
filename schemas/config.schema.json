@@ -14,7 +14,7 @@
       }
     },
     "fallbackOptions": {
-      "description": "Option names that count as a fallback for a Choice, such as other or none.",
+      "description": "Words that make a Choice option a fallback, such as other or none. An option counts when one of them is a word in its name.",
       "type": "array",
       "items": { "type": "string" }
     },

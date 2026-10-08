@@ -63,7 +63,7 @@ mistakes that can be read from the text.
 | JEV001 | unpinned-model | warning | `jev-latest` and `jev-preview` move with each release, so answers can change with no change on your side |
 | JEV002 | choice-option-limit | error | A Choice has more than 255 options. The API rejects it |
 | JEV003 | score-level-limit | error | A Score has more than 10 levels. The API rejects it |
-| JEV004 | no-fallback-option | warning | A Choice has no `other` or `none of the above`, so an input that fits no option is forced into one. The largest cost measured anywhere |
+| JEV004 | no-fallback-option | info | A Choice has no `other` or `none of the above`, so an input that fits no option is forced into one. The largest cost measured anywhere, and the hardest to tell from text |
 | JEV005 | duplicate | error | A question id, option or level appears twice. In an object the later one silently replaces the earlier |
 | JEV006 | criteria-shape | error | A Choice needs a map of options, a Score needs an array of levels, and a Noul takes `true` and `false` |
 | JEV007 | invalid-question | error | The type is missing or unknown, or the instructions are an empty string |
@@ -440,7 +440,7 @@ will not press by accident.
 | Setting | Default | Meaning |
 |---|---|---|
 | `jevlint-le.rules` | `{}` | Severity per rule: `off`, `hint`, `info`, `warning`, `error` |
-| `jevlint-le.fallbackOptions` | `other`, `none`, `none of the above`, `unknown`, `unclear`, `neither`, `not stated`, `not applicable`, `n/a` | Option names that satisfy `JEV004` |
+| `jevlint-le.fallbackOptions` | `other`, `none`, `unknown`, `unclear`, `uncertain`, `unsure`, `ambiguous`, `undetermined`, `neither`, `not stated`, `not applicable`, `insufficient evidence`, `cannot tell`, `n/a`, and "other" in five other languages | Words that make an option a fallback for `JEV004`. An option counts when one of them is a word in its name, so `none_implied` and `other_or_unclear` count |
 | `jevlint-le.ignore` | `[]` | `CODE:questionId` entries to drop |
 | `jevlint-le.include` | JSON, JS and TS files | Files the workspace command lints |
 | `jevlint-le.exclude` | `node_modules` and build output | Files the workspace command skips |

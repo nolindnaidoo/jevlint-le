@@ -108,7 +108,7 @@ what the text says. `JEV004` is the exception in spirit and is explained below.
 | JEV001 | unpinned-model | warning | `model` is the literal `jev-latest` or `jev-preview` |
 | JEV002 | choice-option-limit | error | A Choice has more than 255 options |
 | JEV003 | score-level-limit | error | A Score has more than 10 levels |
-| JEV004 | no-fallback-option | warning | A Choice has two or more options and none is named as a fallback |
+| JEV004 | no-fallback-option | info | A Choice has two or more options and none has a fallback word in its name |
 | JEV005 | duplicate | error | A question id, a Choice option or a Score level is repeated |
 | JEV006 | criteria-shape | error | In a request, a Choice has no map of options or a Score has no array of levels, or a Noul has criteria keys other than `true` and `false` |
 | JEV007 | invalid-question | error | The `type` is missing or unknown, or the instructions are an empty string |
@@ -494,7 +494,14 @@ What changed because of it, each measured on the sample afterwards:
   predicate or closes the question. It was wrong on both of its findings
   here and on 2 of 5 on sample 2, every time on an adjective sitting on a
   noun. It now fires on nothing in this sample.
-- `JEV004 no-fallback-option` is a warning. See the rules table.
+- `JEV004 no-fallback-option` stays `info`, after a look at raising it. It
+  fired on 65 of the sample's 86 Choices, 57 once more names counted as a
+  fallback, and text cannot tell an exhaustive
+  pair from one that is not. ESLint's `default-case` and Biome's
+  `useDefaultSwitchClause` are the same rule for a switch and are off in both
+  recommended sets. The message now carries the measured cost, and a fallback
+  counts under more names, so `uncertain`, `none_implied` and
+  `other_or_unclear` no longer draw it.
 - `JEV106` and `JEV109` removed, wrong on every firing across three samples.
 
 ### Not built

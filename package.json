@@ -138,18 +138,8 @@
           "items": {
             "type": "string"
           },
-          "default": [
-            "other",
-            "none",
-            "none of the above",
-            "unknown",
-            "unclear",
-            "neither",
-            "not stated",
-            "not applicable",
-            "n/a"
-          ],
-          "markdownDescription": "Choice option names that count as a fallback for `JEV004`. Matched case-insensitively, with `_` and `-` read as spaces."
+          "default": ["other", "none", "none of the above", "unknown", "unclear", "uncertain", "unsure", "ambiguous", "undetermined", "neither", "not stated", "not applicable", "insufficient evidence", "cannot tell", "n/a", "その他", "其他", "otro", "outro", "autre", "andere"],
+          "markdownDescription": "Words that make a Choice option a fallback for `JEV004`. An option counts when one of these is a word in its name, matched case-insensitively with `_` and `-` read as spaces, so `none_implied` counts under `none`."
         },
         "jevlint-le.ignore": {
           "type": "array",
