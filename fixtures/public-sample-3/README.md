@@ -103,6 +103,14 @@ Noul whose criteria are a Choice's, which `JEV006` reports instead. `JEV012`
 misses "Rate the level.", three words, and "how much?" and "how relevant",
 which open with a question word and so are left alone with "How severe?".
 
+## The checks that ask Jev
+
+`reviews.json` holds, by hash, the probability Jev returned for every
+per-question check, `JEV301` to `JEV308`, on each of the 252 questions read:
+252 calls on 2026-10-08, `jev-1.13.0`. The firings at the cutoffs then in
+force were read by hand and are summarised in SPEC.md under "What public
+sample 3 showed". None was wrong and no cutoff moved.
+
 ## What to take from it
 
 - **The defects in public code are structural, not wording.** 33 of 35 are a

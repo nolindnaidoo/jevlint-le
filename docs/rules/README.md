@@ -15,8 +15,8 @@ One page per rule: what it catches, an example the linter is run on, how to fix 
 | [JEV008](JEV008.md) | numeric-levels | warning | Score levels are bare numbers. Jev matches the state against each description and never sees its position |
 | [JEV009](JEV009.md) | too-few-options | info | A Choice with one option or a Score with one level gives every input the same answer |
 | [JEV010](JEV010.md) | unused-disable | warning | A `jevlint-le-disable` comment silences nothing, so it can only hide a finding added later |
-| [JEV011](JEV011.md) | description-repeats-name | warning | An option's description only repeats its name, or a Noul's criteria say yes and no. Jev matches the state against the description, and this one says nothing |
-| [JEV012](JEV012.md) | terse-instructions | warning | The instructions are one or two words, so the question leans on its id. Jev is sent the instructions and never the id |
+| [JEV011](JEV011.md) | description-repeats-name | info | An option's description only repeats its name, or a Noul's criteria say yes and no. Jev matches the state against the description, and this one says nothing |
+| [JEV012](JEV012.md) | terse-instructions | info | The instructions are one or two words, so the question leans on its id. Jev is sent the instructions and never the id |
 | [JEV101](JEV101.md) | double-negative | info | A question negates twice in one clause, or a negation sits directly on another |
 | [JEV102](JEV102.md) | arithmetic | warning | The question asks Jev to count or compare numbers |
 | [JEV103](JEV103.md) | date-comparison | info | The question asks Jev to order two times or measure the gap between them |

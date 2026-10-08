@@ -115,8 +115,8 @@ what the text says. `JEV004` is the exception in spirit and is explained below.
 | JEV008 | numeric-levels | warning | Every level of a Score is a bare number |
 | JEV009 | too-few-options | info | A Choice has fewer than two options, or a Score fewer than two levels |
 | JEV010 | unused-disable | warning | A `jevlint-le-disable` comment silenced no finding. Not reported for a comment that names only Jev-backed rules, which linting never runs |
-| JEV011 | description-repeats-name | warning | A Choice option's description is its name again, allowing for case, underscores and a full stop, or a Noul's `true` or `false` criterion is yes, no, true, false, y or n |
-| JEV012 | terse-instructions | warning | The instructions are one or two words of English, in a question that does not carry another dialect's fields |
+| JEV011 | description-repeats-name | info | A Choice option's description is its name again, allowing for case, underscores and a full stop, or a Noul's `true` or `false` criterion is yes, no, true, false, y or n |
+| JEV012 | terse-instructions | info | The instructions are one or two words of English, in a question that does not carry another dialect's fields |
 
 **JEV001 has no automatic fix.** Pinning needs the current version id, and the
 extension cannot fetch it. A hard-coded id would be wrong after the next
@@ -389,10 +389,10 @@ so `JEV103` is back on at `info`. Ordering two dates stays cost-free. What
 costs is arithmetic on dates.
 
 **What is and is not proven.** Measured to cost answers here: `JEV004`,
-`JEV008`, `JEV102`, `JEV112`. Measured to cost confidence: `JEV101`. On from
-measurements made by others and from the public samples: `JEV110`, `JEV011`
-and `JEV012`, under "What public sample 3 showed". Everything else on by
-default is an exact rule about what the API accepts, plus `JEV105`.
+`JEV008`, `JEV102`, `JEV110`, `JEV112`. Measured to cost confidence: `JEV101`,
+`JEV012`. Measured to cost nothing on sensible names, and kept as `info` for
+the names that say nothing: `JEV011`. Everything else on by default is an
+exact rule about what the API accepts, plus `JEV105`.
 
 `JEV111` was left out of the harder run by mistake and run on its own
 afterwards, 24 calls, with the result in `results-encoding.json`. It compared
@@ -480,14 +480,16 @@ rules had 8 clear cases between them.
 What changed because of it, each measured on the sample afterwards:
 
 - `JEV011 description-repeats-name` and `JEV012 terse-instructions`, new,
-  both exact. 8 of 10 and 20 of 23, none wrong. `JEV012` leaves a two-word
-  question that opens with how, who, what, which, where, when or why alone,
-  which is what separated "How severe?" from "how much?" in the labels.
+  both exact, both `info`. 8 of 10 and 20 of 23, none wrong. `JEV012` leaves
+  a two-word question that opens with how, who, what, which, where, when or
+  why alone, which is what separated "How severe?" from "how much?" in the
+  labels. The levels come from the run below: `JEV012` cost confidence and
+  not answers, and `JEV011` cost nothing measurable where the name itself
+  says something.
 - `JEV110 degree-levels` on, as a warning, and widened to levels that are a
   bare word or two, or carry a slash gloss. 5 of 5, none wrong, after 6 of
-  10 with none wrong on sample 2. The default rests on the vendor's page and
-  on an independent run that took Low, Medium, High from 0.69 to 0.92 by
-  describing the levels. Our own run of 12 easy cases found no cost.
+  10 with none wrong on sample 2. Proven below: Shallow, Medium, Deep placed
+  4 of 12 code reviews right against 12 of 12 for described levels.
 - `JEV102 arithmetic` reads comparisons written as symbols or as "greater
   than the number", and "40 minutes or longer". 3 of 3 after 1 of 3.
 - `JEV112 undefined-boundary` fires only where the vague word is the
@@ -503,6 +505,42 @@ What changed because of it, each measured on the sample afterwards:
   counts under more names, so `uncertain`, `none_implied` and
   `other_or_unclear` no longer draw it.
 - `JEV106` and `JEV109` removed, wrong on every firing across three samples.
+
+**Whether the new defects cost anything.** Four experiments in
+`fixtures/validation/descriptions.json`, run on 2026-10-08 against
+`jev-1.13.0`, 96 calls, results in `results-descriptions.json`. Twelve cases
+each, with the ambiguous ones the bad wording would plausibly lose.
+
+| Rule | Bad question | Sure | Fixed question | Sure | Outcome |
+|---|---|---|---|---|---|
+| JEV110 Shallow, Medium, Deep | 4 of 12 | 0.76 | 12 of 12 | 0.89 | Proven. `warning` |
+| JEV012 "Refund?" | 9 of 12 | 0.70 | 10 of 12 | 0.85 | Advisory. `info` |
+| JEV011 true: Yes, false: No | 11 of 12 | 0.83 | 11 of 12 | 0.91 | No cost found. `info` |
+| JEV011 billing: Billing | 12 of 12 | 0.98 | 12 of 12 | 1.00 | No cost found. `info` |
+
+The short scale is the largest cost measured on any wording rule in this
+project. The two `JEV011` arms found none, because "billing" and "yes"
+already say what the description would: the cost that independent runs
+report is in names that say nothing, "a": "A", which is what 10 of the 10
+public cases were and what no experiment with a sensible name can show.
+
+**The Jev-backed checks on real questions.** The same day, every question
+read from sample 3 was sent through `JEV301` to `JEV308` with the cutoffs as
+they stand: 252 calls, 171,299 input tokens, every probability saved in
+`fixtures/public-sample-3/reviews.json` by hash. The first scoring of those
+checks on questions their author did not write. Read by hand:
+
+| Check | Asked | Fired | Right |
+|---|---|---|---|
+| JEV301 counting | 252 | 3 | 3, the three questions labelled `JEV102` |
+| JEV302 undefined boundary | 132 | 6 | 6, two of them the `JEV112` borderlines |
+| JEV303 overlapping options | 78 | 13 | 13 plausible, category sets an input could fit twice |
+| JEV307 ordered options | 53 | 5 | 5, all tiers such as low, medium, high |
+| JEV304, JEV305, JEV306, JEV308 | 28 to 156 | 0 | |
+
+No cutoff moved. `JEV303` fires on one Choice in six and stays `info`, as
+the first sample already said. `JEV309` to `JEV312` are still unmeasured
+on real code.
 
 ### Not built
 
@@ -639,6 +677,10 @@ public sample. Three cutoffs were raised because of what that showed.
 
 `JEV309` to `JEV312` have not been run on real code: the sample holds single
 questions without their requests or their state.
+
+The per-question checks were run again over public sample 3 on 2026-10-08,
+252 questions, with the result under "What public sample 3 showed" in the
+wording rules section: 27 firings, read by hand, none wrong, no cutoff moved.
 
 **Whether the defects cost anything.** Four experiments in
 `fixtures/validation/overlap.json` and `criteria.json`, 80 calls:

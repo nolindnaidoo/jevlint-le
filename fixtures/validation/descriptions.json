@@ -1,0 +1,157 @@
+[
+  {
+    "rule": "JEV011",
+    "name": "options described as their own names against described options",
+    "cases": [
+      { "state": "I was charged twice for March.", "expected": "billing" },
+      { "state": "The app crashes every time I open settings.", "expected": "technical" },
+      { "state": "My invoice shows the wrong VAT number.", "expected": "billing" },
+      { "state": "Sync has been stuck at 40% since yesterday.", "expected": "technical" },
+      { "state": "Can I get a refund for the month the service was down?", "expected": "billing" },
+      { "state": "The export button does nothing in Safari.", "expected": "technical" },
+      { "state": "Why is my plan more expensive than the price on your website?", "expected": "billing" },
+      { "state": "Error 500 when I upload a file larger than 10 MB.", "expected": "technical" },
+      { "state": "Do you have any job openings?", "expected": "other" },
+      { "state": "Where is your office?", "expected": "other" },
+      { "state": "I paid but my account still says unpaid and I cannot log in.", "expected": "billing" },
+      { "state": "The password reset email never arrives.", "expected": "technical" }
+    ],
+    "bad": {
+      "questions": {
+        "q": {
+          "type": "choice",
+          "instructions": "Which team should handle this?",
+          "criteria": { "billing": "Billing", "technical": "Technical", "other": "Other" }
+        }
+      },
+      "decide": "choice_conf:q"
+    },
+    "good": {
+      "questions": {
+        "q": {
+          "type": "choice",
+          "instructions": "Which team should handle this?",
+          "criteria": {
+            "billing": "Charges, invoices, refunds, prices and payment problems, including an account marked unpaid",
+            "technical": "Faults, errors, crashes, outages and features that do not work",
+            "other": "Fits neither of the other options"
+          }
+        }
+      },
+      "decide": "choice_conf:q"
+    }
+  },
+  {
+    "rule": "JEV011",
+    "name": "Noul criteria that say yes and no against criteria that describe the cases",
+    "cases": [
+      { "state": "Your delivery was two days late and nobody told me.", "expected": true },
+      { "state": "Could you add dark mode?", "expected": false },
+      { "state": "My own VPN keeps dropping so I cannot reach your site, any tips?", "expected": false },
+      { "state": "The agent I spoke to was rude.", "expected": true },
+      { "state": "Love the new dashboard, thanks.", "expected": false },
+      { "state": "The invoice you sent has the wrong amount.", "expected": true },
+      { "state": "How do I change my password?", "expected": false },
+      { "state": "Your API returned 500s for an hour this morning.", "expected": true },
+      { "state": "My laptop is slow when I run your app alongside Chrome.", "expected": false },
+      { "state": "I asked for a callback twice and nobody called.", "expected": true },
+      { "state": "Is there a student discount?", "expected": false },
+      { "state": "The parcel arrived with the box crushed.", "expected": true }
+    ],
+    "bad": {
+      "questions": {
+        "q": {
+          "type": "noul",
+          "instructions": "Is this a complaint about our service?",
+          "criteria": { "true": "Yes", "false": "No" }
+        }
+      },
+      "decide": "noul:q"
+    },
+    "good": {
+      "questions": {
+        "q": {
+          "type": "noul",
+          "instructions": "Is this a complaint about our service?",
+          "criteria": {
+            "true": "The customer says something we provide was wrong, broken, late, damaged or rude.",
+            "false": "A question, a request for a feature, praise, or a problem with something we do not provide, such as their own network or computer."
+          }
+        }
+      },
+      "decide": "noul:q"
+    }
+  },
+  {
+    "rule": "JEV012",
+    "name": "a one-word instruction against the question written out",
+    "cases": [
+      { "state": "I want a refund for the broken kettle.", "expected": true },
+      { "state": "Thanks for the refund, it arrived today.", "expected": false },
+      { "state": "What is your refund policy if I change my mind?", "expected": false },
+      { "state": "Please send my money back, this is not what I ordered.", "expected": true },
+      { "state": "I do not want a refund, I want it replaced.", "expected": false },
+      { "state": "Can I get my money back? The event was cancelled.", "expected": true },
+      { "state": "The refund you promised last week never came through.", "expected": true },
+      { "state": "No refund needed, just wanted to say the fit is wrong.", "expected": false },
+      { "state": "Great service, no complaints.", "expected": false },
+      { "state": "Reverse the charge, I cancelled before the trial ended.", "expected": true },
+      { "state": "Is the refund taxable?", "expected": false },
+      { "state": "I would like to return it for a full refund.", "expected": true }
+    ],
+    "bad": {
+      "questions": {
+        "q": { "type": "noul", "instructions": "Refund?" }
+      },
+      "decide": "noul:q"
+    },
+    "good": {
+      "questions": {
+        "q": { "type": "noul", "instructions": "Does the customer ask for their money back?" }
+      },
+      "decide": "noul:q"
+    }
+  },
+  {
+    "rule": "JEV110",
+    "name": "a short scale of bare words against described levels",
+    "cases": [
+      { "state": "LGTM.", "expected": 0 },
+      { "state": "Looks good, maybe fix the indentation on line 12.", "expected": 0 },
+      { "state": "Approved, nice work.", "expected": 0 },
+      { "state": "Fine by me, one typo in the comment on line 9.", "expected": 0 },
+      { "state": "Line 40: use the existing helper instead of a new loop. Line 58: rename tmp.", "expected": 1 },
+      { "state": "Please add a null check before user.email on line 22 and split this function in two.", "expected": 1 },
+      { "state": "The import on line 3 is unused and the error message on line 71 should name the file.", "expected": 1 },
+      { "state": "Rename this parameter and move the constant to config; otherwise fine.", "expected": 1 },
+      { "state": "I ran this against the staging database: with an empty cart the total comes back as NaN because line 33 divides by items.length. Also, if two requests race, the second overwrites the first's discount. Needs a guard and a test for both.", "expected": 2 },
+      { "state": "Traced the retry path: on a 429 we sleep but never re-read the header, so the second attempt uses the stale token and fails again. Refresh before retrying. I added a failing test that shows it.", "expected": 2 },
+      { "state": "Checked the migration on a copy of production: the index build takes 40 minutes and locks writes, so this has to run CONCURRENTLY or in a maintenance window.", "expected": 2 },
+      { "state": "If config.region is unset this falls through to the default and silently ships to the wrong bucket. I reproduced it locally. Fail fast instead.", "expected": 2 }
+    ],
+    "bad": {
+      "questions": {
+        "q": {
+          "type": "score",
+          "instructions": "How thorough is this code review?",
+          "criteria": ["Shallow", "Medium", "Deep"]
+        }
+      },
+      "decide": "score_conf:q"
+    },
+    "good": {
+      "questions": {
+        "q": {
+          "type": "score",
+          "instructions": "How thorough is this code review?",
+          "criteria": [
+            "Says only that it looks fine, or comments on formatting or a typo",
+            "Points at specific lines and asks for changes, without checking what the code does",
+            "Traces what the change does, runs or tests it, reasons about edge cases, and says what would break"
+          ]
+        }
+      },
+      "decide": "score_conf:q"
+    }
+  }
+]

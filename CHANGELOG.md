@@ -8,19 +8,28 @@ option described as its own name or instructions of a word or two, and that
 the wording rules were right or wrong in the same places as on the two
 samples before. The rules now follow that.
 
-- **`JEV011 description-repeats-name`**, new, a warning. An option whose
-  description is its name again (`"billing": "Billing"`, `"a": "Option A"`),
-  or a Noul whose criteria say yes and no. Jev matches the state against the
-  description, and these say nothing. Independent runs took such questions
-  from 0.69 to 0.92 and from 83% to 100% by describing the cases.
-- **`JEV012 terse-instructions`**, new, a warning. Instructions of one or two
-  words (`Rate`, `Which?`, `Pick one.`) that lean on the question id, which
-  Jev never sees. A two-word question that opens with how, who, what, which,
-  where, when or why is left alone.
-- **`JEV110 degree-levels` is on**, as a warning. It was the most common real
-  defect in two samples and right every time it fired. It now also catches
-  levels that are a bare word or two (`Shallow`, `Like new`, `Almost none`)
-  and levels with a gloss after a slash (`Very casual / slang`).
+- **`JEV011 description-repeats-name`**, new, informational. An option whose
+  description is its name again (`"a": "A"`, `"billing": "Billing"`), or a
+  Noul whose criteria say yes and no. Jev matches the state against the
+  description, and these add nothing to the name. Measured: where the name
+  already says something, no cost; the cost is in names that say nothing,
+  which is what every public case was.
+- **`JEV012 terse-instructions`**, new, informational. Instructions of one or
+  two words (`Rate`, `Which?`, `Pick one.`) that lean on the question id,
+  which Jev never sees. Measured: "Refund?" was right 9 of 12 times at 0.70
+  sure, against 10 of 12 at 0.85 for the question written out. A two-word
+  question that opens with how, who, what, which, where, when or why is left
+  alone.
+- **`JEV110 degree-levels` is on**, as a warning. Measured: Shallow, Medium,
+  Deep placed 4 of 12 code reviews right, against 12 of 12 for levels that
+  describe what each looks like. It was also the most common real defect in
+  two samples and right every time it fired. It now catches levels that are
+  a bare word or two (`Shallow`, `Like new`, `Almost none`) and levels with a
+  gloss after a slash (`Very casual / slang`).
+- **The checks that ask Jev were scored on real questions for the first
+  time**: 252 public questions through `JEV301` to `JEV308`. 27 findings,
+  every one read, none wrong. No cutoff moved. The probabilities are in
+  `fixtures/public-sample-3/reviews.json`.
 - **`JEV004 no-fallback-option` says what a missing fallback costs**, which
   is the largest cost measured anywhere: in our run Jev answered every input
   that fit no option wrong, and an independent audit found 95% abstention
