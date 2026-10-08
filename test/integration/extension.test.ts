@@ -54,7 +54,14 @@ const EXPECTED: Readonly<Record<string, ReadonlyArray<string>>> = {
 	],
 	'clean.ts': [],
 	'missing-state.jev.json': [],
-	'wording.jev.json': ['JEV101', 'JEV102', 'JEV105', 'JEV103', 'JEV112'],
+	'wording.jev.json': [
+		'JEV101',
+		'JEV102',
+		'JEV105',
+		'JEV110',
+		'JEV103',
+		'JEV112',
+	],
 	'.oxlintrc.json': ['JEV001', 'JEV005', 'JEV007'],
 };
 
@@ -194,10 +201,7 @@ describe('JevLint-LE in a real editor', function () {
 			]),
 		);
 		assert.strictEqual(bySeverity.JEV000, vscode.DiagnosticSeverity.Hint);
-		assert.strictEqual(
-			bySeverity.JEV004,
-			vscode.DiagnosticSeverity.Information,
-		);
+		assert.strictEqual(bySeverity.JEV004, vscode.DiagnosticSeverity.Warning);
 		assert.strictEqual(bySeverity.JEV001, vscode.DiagnosticSeverity.Warning);
 		assert.strictEqual(bySeverity.JEV007, vscode.DiagnosticSeverity.Error);
 		for (const diagnostic of ours(sample('triage.ts'))) {
