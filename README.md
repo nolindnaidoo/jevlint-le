@@ -1,9 +1,10 @@
 # JevLint-LE
 
-Lint the questions you send to TypeSafe's Jev model. JevLint-LE reads them out of
-your JSON and your code, and reports the ones written in a way that is
-documented to produce bad answers. Linting makes no API calls and needs no key. One optional command asks Jev
-itself to check a file, using your own key.
+Lint the questions you send to TypeSafe's Jev model, and to OpenAI's Decisions
+API. JevLint-LE reads them out of your JSON and your code, and reports the ones
+written in a way that is measured to produce bad answers. Linting makes no API
+calls and needs no key. One optional command asks the model itself, Jev or
+Luna, to check a file, using your own key.
 
 Part of the LE family.
 
@@ -24,9 +25,13 @@ Part of the LE family.
   a finding you disagree with.
 - **The same rules in CI**, from a command line, and for AI agents, from an
   MCP server. One settings file covers all three.
-- **Two optional commands that use your own key**: one asks Jev whether your
-  questions have problems a text pattern cannot see, and one re-sends a
-  question with its layout changed to see whether the answer holds.
+- **Two vendors, one set of rules.** TypeSafe's `/v1/systemone` shape and
+  OpenAI's `/v1/decisions` shape, `predicate`, `choices` and `levels`, are
+  read into the same rules, and the AI SDK's `decide()` call for either.
+- **Two optional commands that use your own key**: one asks the model, Jev or
+  Luna, whether your questions have problems a text pattern cannot see, and
+  one re-sends a question with its layout changed to see whether the answer
+  holds.
 
 A request like this one looks fine and has three problems:
 
@@ -99,14 +104,15 @@ Each finding links to [its own page](https://github.com/nolindnaidoo/jevlint-le/
 
 ## Where it looks
 
-- JSON and JSONC request bodies.
+- JSON and JSONC request bodies, in TypeSafe's shape or OpenAI's.
 - Object literals in JavaScript and TypeScript, including requests passed
-  inline to `client.systemOne(...)`.
+  inline to `client.systemOne(...)` and `client.decisions.create(...)`, and
+  the Vercel AI SDK's `decide({ questions })` for either vendor.
 - `noul()`, `choice()` and `score()` calls in files that use
   `@typesafe-ai/sdk`.
 - Python: dicts, `Noul(...)`, `Choice(...)` and `Score(...)` from
   `typesafe_sdk` or a library that wraps it, and requests passed to
-  `system_one(...)`.
+  `system_one(...)` or `client.decisions.create(...)`.
 - Rust: the JSON inside `json!`, structs and enum variants named for a
   question type, and `::noul(...)` style constructors.
 - Go: maps with string keys, structs with a `Type` field, and structs named
@@ -121,23 +127,32 @@ Each finding links to [its own page](https://github.com/nolindnaidoo/jevlint-le/
 
 Rules `JEV301` to `JEV312` are not part of linting. They run only when you run
 **JevLint-LE: Check This File with Jev**, or pass `--jev` on the command
-line. Either sends each question in the file to Jev and asks it about problems a text pattern cannot see: options
-that overlap, an option whose name contradicts its description, criteria
-about the wrong thing, a Choice that should be a Score, two questions that
-ask the same thing, a question that needs another question's answer.
+line. Either sends each question in the file to a model and asks it about
+problems a text pattern cannot see: options that overlap, an option whose
+name contradicts its description, criteria about the wrong thing, a Choice
+that should be a Score, two questions that ask the same thing, a question
+that needs another question's answer.
 
 1. Give it your key, in either of two ways. Run **JevLint-LE: Set TypeSafe
    API Key** and paste it, which stores it in your operating system keychain.
    Or type it into **Settings** under `jevlint-le.jev.apiKey`, which can only
    be set in your user settings and is left out of Settings Sync.
-2. Open a file with Jev questions and run **JevLint-LE: Check This File with
+2. Open a file with questions and run **JevLint-LE: Check This File with
    Jev**.
+
+**To ask Luna instead**, set `jevlint-le.jev.model` to `gpt-6-luna` and give
+it an OpenAI key the same two ways: **JevLint-LE: Set OpenAI API Key**, or
+`jevlint-le.jev.openaiApiKey`. The same checks go to OpenAI's Decisions API
+as predicates. One thing to know: the cutoffs that decide when a check fires
+were set on `jev-1.13.0`, and every finding from Luna says so until Luna is
+measured the same way. The probe asks Jev only.
 
 What to know before you run it:
 
 - **It uses your key and your credits.** One request per question and one more
   per request body, about 800 input tokens each. At TypeSafe's published price
-  that is roughly three thousandths of a cent per question.
+  that is roughly three thousandths of a cent per question, and at OpenAI's
+  about a hundredth of a cent.
 - **Only questions are sent**: type, instructions, criteria and ids. Your
   `state` is not, unless you turn on `jevlint-le.jev.sendState`. With that on,
   a state written out in the file is sent too, and two more checks run: does
@@ -201,7 +216,7 @@ npm install --save-dev jevlint-le
 The editor then lints with that copy, not the one the extension carries, so
 what you see while typing is what `npx jevlint-le` reports in CI. The version
 changes when `package.json` does, and for everyone at once. The status bar
-shows `project 0.4.0` while a project's copy is in use.
+shows `project 0.5.0` while a project's copy is in use.
 
 With nothing installed the extension lints with its own copy, with no setup.
 
@@ -236,9 +251,9 @@ read. Errors always fail a run. Warnings fail it only past `--max-warnings`.
 | `--stdin-filename <path>` | Lint standard input as if it were that file |
 | `--fix` | Write the fixes that only mend what the API would refuse |
 | `--quiet` | Print errors only |
-| `--jev` | Also ask Jev about each question. Sends them to TypeSafe |
+| `--jev` | Also ask the model about each question. Sends them to TypeSafe with `TYPESAFE_API_KEY`, or with `--jev-model gpt-6-luna` to OpenAI with `OPENAI_API_KEY` |
 | `--jev-plan` | Say what `--jev` would send, and send nothing |
-| `--jev-model <id>` | The model `--jev` asks. Default `jev-1.13.0` |
+| `--jev-model <id>` | The model `--jev` asks: a Jev version, or `gpt-6-luna` for OpenAI's Decisions API. Default `jev-1.13.0` |
 | `--jev-max-calls <n>` | The most requests `--jev` may send in the run. Default 25 |
 | `--jev-send-state` | With `--jev`, also send state written out in a file |
 | `--color`, `--no-color` | Colour the default format, or do not. Without either it is coloured in a terminal, unless `NO_COLOR` is set |
@@ -255,7 +270,7 @@ Jev, and it never uses the network, unless you pass `--jev`.
 On GitHub, the action annotates a pull request:
 
 ```yaml
-- uses: nolindnaidoo/jevlint-le@v0.4.0
+- uses: nolindnaidoo/jevlint-le@v0.5.0
   with:
     paths: src
 ```
@@ -277,7 +292,7 @@ With [pre-commit](https://pre-commit.com):
 
 ```yaml
 - repo: https://github.com/nolindnaidoo/jevlint-le
-  rev: v0.4.0
+  rev: v0.5.0
   hooks:
     - id: jevlint-le
 ```
@@ -429,7 +444,8 @@ Or write them into `keybindings.json`. The keys here are only an example:
 | Check This File with Jev | `jevlint-le.checkWithJev` |
 | Probe the Jev Question at the Cursor | `jevlint-le.probeQuestion` |
 | Set TypeSafe API Key | `jevlint-le.setApiKey` |
-| Clear TypeSafe API Key | `jevlint-le.clearApiKey` |
+| Set OpenAI API Key | `jevlint-le.setOpenAIApiKey` |
+| Clear API Keys | `jevlint-le.clearApiKey` |
 | Open Settings | `jevlint-le.openSettings` |
 
 The two that say Jev send requests with your key, so pick keys for them you
@@ -446,11 +462,12 @@ will not press by accident.
 | `jevlint-le.exclude` | `node_modules` and build output | Files the workspace command skips |
 | `jevlint-le.maxFileSizeBytes` | `1000000` | Larger files are reported as skipped |
 | `jevlint-le.notificationsLevel` | `important` | How much is said in notifications. `all` adds a summary after each command, and `silent` shows a message only when a command could not run. Findings always show in the editor |
-| `jevlint-le.jev.model` | `jev-1.13.0` | The model **Check This File with Jev** asks. Pinned to the version its checks were calibrated on |
+| `jevlint-le.jev.model` | `jev-1.13.0` | The model **Check This File with Jev** asks: a Jev version, or `gpt-6-luna` for OpenAI's Decisions API. Pinned to the version its checks were calibrated on |
 | `jevlint-le.jev.maxCalls` | `25` | The most requests one check may send |
 | `jevlint-le.jev.sendState` | `false` | Also send a state written in the file, so Jev can check it |
 | `jevlint-le.jev.confirm` | `false` | Before a paid command sends anything, show what it will send and cost, and wait for a yes |
 | `jevlint-le.jev.apiKey` | empty | Your TypeSafe key, if you would rather type it here than use the keychain. User settings only |
+| `jevlint-le.jev.openaiApiKey` | empty | Your OpenAI key, the same way, used when the model is `gpt-6-luna` |
 
 ## Development
 

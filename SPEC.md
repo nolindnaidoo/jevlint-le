@@ -1138,6 +1138,68 @@ be every reader and rule kept in agreement twice. Nor a listing in the MCP
 registry. The npm package it would sit on is published, so it waits only on
 a go-ahead.
 
+## OpenAI's Decisions API
+
+Built for 0.5.0. OpenAI opened a Decisions API in public beta on 2026-10-06,
+`POST /v1/decisions`, one model, `gpt-6-luna`: text or images in, typed
+answers out, the same idea as System One in a different shape. Two days in,
+GitHub code search found 14,720 public files naming the endpoint, against
+17,088 for TypeSafe's. Before 0.5.0 this linter read a Decisions request as a
+foreign shape and reported it clean, which is the one outcome it refuses
+everywhere else.
+
+**The shape, and how it is read.** A question now carries a `dialect`. The
+rules do not look at it: every dialect is read into the `criteria` the rules
+already read, in `extraction/requests.ts`, and nothing below that layer
+changed.
+
+| | TypeSafe | OpenAI | Vercel AI SDK `decide()` |
+|---|---|---|---|
+| Yes/no type | `noul` | `predicate` | `boolean` |
+| Questions | a map, key is the id | a list, `name` is the id | a map |
+| Evidence | `state` | `input` | `state` |
+| Options | `criteria: { name: description }` | `choices: [{ value, description }]` | `options: { name: description }` |
+| Levels | `criteria: [description]` | `levels: [{ label, description }]` | `levels: [description]` |
+| Found in | `systemOne(...)`, `system_one(...)`, literals | `client.decisions.create(...)` in TypeScript and Python, literals | `decide({ questions })` |
+
+A shape with `choices`, `levels` or `options` in a form none of the three
+dialects writes stays `open`, as before: a client this reader does not know
+proves nothing by what it lacks.
+
+**What runs on a Luna question.** Every rule with evidence behind it:
+fallback option, description repeats name, terse instructions, degree
+levels, bare-number levels, duplicates, the wrapped list, counting, undefined
+boundary, and the rest of the wording rules. OpenAI's own guide asks for the
+same things: observable criteria, one concern per question, distinct
+choices, distinct adjacent levels, a fallback such as `other`. A message
+about a Luna question says Luna, and one about an AI SDK question says "the
+model", since the SDK routes to either vendor.
+
+**What does not.** The two API-limit rules, `JEV002` and `JEV003`: OpenAI
+publishes no limits. `JEV001`: there is no alias to pin against yet. The
+shape rule reports a Decisions mistake in OpenAI's own field names, and a
+mistyped `predicate` is caught and fixed; a shape mistake in the AI SDK's
+form cannot be told from a foreign client and is left alone.
+
+**Asking Luna.** `--jev-model gpt-6-luna`, or `jevlint-le.jev.model` in the
+editor, sends the same checks to OpenAI's Decisions API with the key in
+`OPENAI_API_KEY`, or in the keychain through **Set OpenAI API Key**, or in
+`jevlint-le.jev.openaiApiKey`. `jev/provider.ts` is the one file that knows
+the difference: the review's Nouls go as predicates with their criteria
+folded into the instructions, the state goes as JSON text in `input`, a
+check's dotted id travels as underscores, and a refusal is read as no
+answer. The cutoffs were set on `jev-1.13.0`, so every finding from Luna
+says "The cutoff was set on jev-1.13.0, not on Luna" until Luna is
+calibrated the same way, which needs an OpenAI key and a run of
+`calibrate-reviews.ts` against it. The probe asks Jev only: its variants are
+built and read in Jev's shape, and Luna's reply for a Choice or a Score is
+not read yet.
+
+**Not measured.** The wording rules' costs are measurements of `jev-1.13.0`.
+Whether Luna fails the same way is unknown, and the rule pages say "measured
+on Jev". A labelled sample of public Decisions requests and a bad-against-good
+run on Luna are the next two measurements, and both wait on a key.
+
 ## Extended release 1: request-level rules
 
 | Code | Name | Fires when | Notes |
@@ -1241,7 +1303,8 @@ Each is fixed, and each test was seen to fail before its fix.
 ## Open questions
 
 - **Q2.** Should the lint target typed-decision requests in general?
-  Cloudflare and OpenRouter reportedly accept the same request shape.
+  Answered 2026-10-08: yes. OpenAI's Decisions API is read and checked from
+  0.5.0, under "OpenAI's Decisions API" below.
 - **Q3.** What false-positive rate lets a wording rule ship on by default?
 
 ## Sources

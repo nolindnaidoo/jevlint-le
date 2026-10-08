@@ -66,7 +66,6 @@ describe("OpenAI's Decisions API shape", () => {
 			'JEV004',
 			'JEV011',
 			'JEV012',
-			'JEV110',
 			'JEV011',
 		]);
 	});

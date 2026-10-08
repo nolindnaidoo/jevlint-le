@@ -190,6 +190,10 @@ describe('what public sample 3 taught', () => {
 			score(['Not started', 'Parts fitted', 'Tested']),
 		],
 		[
+			'one degree word beside one described level',
+			score(['Low', 'The customer cannot use what they bought']),
+		],
+		[
 			'a vague word on a noun',
 			noul('Does the visitor need help with heavy luggage or small children?'),
 		],

@@ -15,9 +15,10 @@ npx jevlint-le request.jev.json     # one file
 npx jevlint-le --format github .    # annotations on a pull request
 ```
 
-It reads JSON, JavaScript, TypeScript, Python, Rust and Go. For any other
-language, have your program write the request it sends to a `.jev.json` file
-and lint that.
+It reads JSON, JavaScript, TypeScript, Python, Rust and Go, in TypeSafe's
+request shape and in OpenAI's Decisions API shape. For any other language,
+have your program write the request it sends to a `.jev.json` file and lint
+that.
 
 It exits 0 when the run passes, 1 when a finding fails it, and 2 when it
 could not do what was asked. Errors always fail a run. Warnings fail it only
@@ -32,9 +33,9 @@ past `--max-warnings`.
 | `--stdin-filename <path>` | Lint standard input as if it were that file |
 | `--fix` | Write the fixes that only mend what the API would refuse |
 | `--quiet` | Print errors only |
-| `--jev` | Also ask Jev about each question. Sends them to TypeSafe |
+| `--jev` | Also ask the model about each question. Sends them to TypeSafe with `TYPESAFE_API_KEY`, or with `--jev-model gpt-6-luna` to OpenAI with `OPENAI_API_KEY` |
 | `--jev-plan` | Say what `--jev` would send, and send nothing |
-| `--jev-model <id>` | The model `--jev` asks. Default `jev-1.13.0` |
+| `--jev-model <id>` | The model `--jev` asks: a Jev version, or `gpt-6-luna` for OpenAI's Decisions API. Default `jev-1.13.0` |
 | `--jev-max-calls <n>` | The most requests `--jev` may send in the run. Default 25 |
 | `--jev-send-state` | With `--jev`, also send state written out in a file |
 | `--color`, `--no-color` | Colour the default format, or do not. Without either it is coloured in a terminal, unless `NO_COLOR` is set |
@@ -53,7 +54,9 @@ TYPESAFE_API_KEY=... npx jevlint-le --jev src/    # send it
 ```
 
 - The key is read from `TYPESAFE_API_KEY` and from nowhere else. It is never
-  printed.
+  printed. With `--jev-model gpt-6-luna` the checks go to OpenAI's Decisions
+  API instead, with the key in `OPENAI_API_KEY`, and each finding says that
+  its cutoff was set on Jev.
 - A question with a part built at runtime is never sent. The summary counts
   the ones held back.
 - State is not sent unless you add `--jev-send-state`.

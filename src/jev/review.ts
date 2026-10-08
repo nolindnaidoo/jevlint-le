@@ -15,6 +15,12 @@ import type {
 import { ask, type Failure, type Fetch, isFailure, type Reply } from './client';
 import { type QuestionLiteral, toLiteral, toPlain } from './literal';
 import {
+	forProvider,
+	isCalibrated,
+	type Provider,
+	providerFor,
+} from './provider';
+import {
 	buildRequest,
 	buildRequestReview,
 	REQUEST_REVIEWS,
@@ -125,10 +131,19 @@ function entryOf(
 	return item && { name: `level ${index}`, span: item.span };
 }
 
-const rated = (probability: number) =>
-	`(Jev put this at ${probability.toFixed(2)}.)`;
+// The number behind a finding, and, from a model the cutoffs were not set on, that fact.
+function rated(probability: number, provider: Provider): string {
+	const number = `(${provider.model} put this at ${probability.toFixed(2)}.)`;
+	return isCalibrated(DEFAULT_MODEL) && provider.id !== 'typesafe'
+		? `${number} The cutoff was set on ${DEFAULT_MODEL}, not on ${provider.model}.`
+		: number;
+}
 
-function questionJob(question: Question, request: ReviewRequest): Job {
+function questionJob(
+	question: Question,
+	request: ReviewRequest,
+	provider: Provider,
+): Job {
 	return {
 		request,
 		read: (reply, report) => {
@@ -139,7 +154,10 @@ function questionJob(question: Question, request: ReviewRequest): Job {
 				const named = places.map((place) => `'${place.name}'`).join(' and ');
 				report(
 					found.code,
-					`${found.message}${named ? ` Jev points at ${named}.` : ''} ${rated(found.probability)}`,
+					forProvider(
+						`${found.message}${named ? ` Jev points at ${named}.` : ''} ${rated(found.probability, provider)}`,
+						provider,
+					),
 					places[0]?.span ?? question.anchor,
 					question.id,
 				);
@@ -152,6 +170,7 @@ function mapJob(
 	map: QuestionMap,
 	ids: ReadonlyArray<string>,
 	request: ReviewRequest,
+	provider: Provider,
 ): Job {
 	const spanOf = (id: string) =>
 		map.entries.find((entry) => entry.id === id)?.idSpan;
@@ -169,7 +188,10 @@ function mapJob(
 					: REQUEST_REVIEWS.JEV312.message;
 				report(
 					found.code,
-					`${message} ${rated(found.probability)}`,
+					forProvider(
+						`${message} ${rated(found.probability, provider)}`,
+						provider,
+					),
 					span,
 					pair ? found.second : undefined,
 				);
@@ -191,6 +213,7 @@ function prepare(
 	const extraction: Extraction = readQuestions(text, syntax);
 	const enabled = enabledReviews(settings.lint);
 	const { model } = settings;
+	const provider = providerFor(model);
 	const stateOf = (map: QuestionMap | undefined): unknown =>
 		settings.sendState && map?.state ? toPlain(map.state) : undefined;
 	const jobs: Job[] = [];
@@ -212,7 +235,7 @@ function prepare(
 		const request = buildRequest(literal, model, enabled, { siblings, state });
 		if (!request) continue;
 		sendsState ||= 'state' in request.state;
-		jobs.push(questionJob(question, request));
+		jobs.push(questionJob(question, request, provider));
 	}
 
 	for (const [index, map] of extraction.maps.entries()) {
@@ -224,7 +247,7 @@ function prepare(
 		const request = buildRequestReview(literals, model, enabled, stateOf(map));
 		if (!request) continue;
 		sendsState ||= 'state' in request.state;
-		jobs.push(mapJob(map, Object.keys(literals), request));
+		jobs.push(mapJob(map, Object.keys(literals), request, provider));
 	}
 
 	const limit = settings.maxCalls;

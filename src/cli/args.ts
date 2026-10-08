@@ -1,6 +1,10 @@
 import { LEVELS, readRule } from '../config/projectConfig';
 import { ENV_KEY } from '../jev/client';
+import { providerFor } from '../jev/provider';
 import { DEFAULT_MAX_CALLS, DEFAULT_MODEL } from '../jev/review';
+
+const OPENAI_ENV_KEY = providerFor('gpt-6-luna').envKey;
+
 import type { LintOptions } from '../types';
 
 export type Format =
@@ -122,7 +126,7 @@ const FLAGS: ReadonlyArray<Flag> = Object.freeze([
 	},
 	{
 		name: '--jev',
-		help: `Also ask Jev about each question. Sends them to TypeSafe with the key in ${ENV_KEY}.`,
+		help: `Also ask the model about each question. Sends them to TypeSafe with the key in ${ENV_KEY}, or with --jev-model gpt-6-luna to OpenAI with the key in ${OPENAI_ENV_KEY}.`,
 		apply: (options) => ({ ...options, jev: true }),
 	},
 	{
@@ -133,7 +137,7 @@ const FLAGS: ReadonlyArray<Flag> = Object.freeze([
 	{
 		name: '--jev-model',
 		value: 'id',
-		help: `The model --jev asks. Default ${DEFAULT_MODEL}, which the checks were measured on.`,
+		help: `The model --jev asks: a Jev version, or gpt-6-luna for OpenAI's Decisions API. Default ${DEFAULT_MODEL}, which the checks were measured on.`,
 		apply: (options, value) =>
 			value.trim()
 				? { ...options, jevModel: value.trim() }

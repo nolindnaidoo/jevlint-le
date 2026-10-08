@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.5.0 — 2026-10-08
+
+OpenAI's Decisions API, `gpt-6-luna`, is read and checked the way Jev is.
+
+- **A Decisions request is linted.** The `predicate`, `choices` and
+  `levels` shape, in a request body, in `client.decisions.create(...)` in
+  TypeScript and Python, and in the Vercel AI SDK's `decide()` for either
+  vendor. Every rule with evidence behind it fires on a Luna question as on
+  a Jev one, with Luna named in the message. Before this a Decisions request
+  was read as a foreign shape and reported clean.
+- **Held back on a Luna question**: the two TypeSafe limit rules, since
+  OpenAI publishes none, and the model-alias rule, since there is no alias.
+- **Shape mistakes in OpenAI's own words.** `choices` written as a map or as
+  bare names, a Choice with no `choices`, a Score with no `levels`, and a
+  mistyped `predicate`, which is fixed on the lightbulb. The fallback option
+  is added as a `{ value, description }` entry.
+- **Check with Luna.** `--jev-model gpt-6-luna` on the command line, or
+  `jevlint-le.jev.model` in the editor, sends the same checks to OpenAI's
+  Decisions API with the key in `OPENAI_API_KEY`, in the keychain through
+  **Set OpenAI API Key**, or in `jevlint-le.jev.openaiApiKey`. The cutoffs
+  were set on `jev-1.13.0`, and every finding from Luna says so. The probe
+  asks Jev only. **Clear API Keys** now clears both.
+- **A Score with one degree word beside one described level was flagged as
+  a ladder.** `["Low", "Nobody can log in"]` no longer is.
+- The GitHub Action and the pre-commit hook pin 0.5.0.
+
 ## 0.4.0 — 2026-10-08
 
 Fewer rules, every one measured. A third sample of public Jev questions,

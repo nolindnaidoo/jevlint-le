@@ -259,7 +259,8 @@ function isLadder(levels: ReadonlyArray<string>): boolean {
 			.join(' '),
 	);
 	const named = heads.filter(Boolean);
-	if (new Set(named).size === 1) return named.length > 0;
+	// One named level beside degree words, "Low" and "Nobody can log in", is not a ladder.
+	if (new Set(named).size === 1) return named.length >= 2;
 	return named.some(
 		(head) => named.filter((other) => other === head).length >= 3,
 	);

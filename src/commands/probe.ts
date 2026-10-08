@@ -7,10 +7,12 @@ import {
 	readProbe,
 	summarize,
 } from '../jev/probe';
+import { providerFor } from '../jev/provider';
+import { DEFAULT_MODEL } from '../jev/review';
 import { readQuestions, syntaxFor } from '../lint/lint';
 import { blocked, caution } from '../ui/notifier';
 import {
-	FAILURES,
+	failureMessage,
 	findKey,
 	type KeySource,
 	refuseUntrusted,
@@ -107,6 +109,14 @@ async function probeQuestion(deps: Deps): Promise<void> {
 		refuseUntrusted('A probe sends a question and its state to TypeSafe');
 		return;
 	}
+	// The variants are built and read in Jev's shape. Luna's reply for a Choice or a Score is not read yet.
+	const provider = providerFor(deps.getConfiguration().jev.model);
+	if (provider.id !== 'typesafe') {
+		blocked(
+			`The probe asks Jev only. Set jevlint-le.jev.model to a Jev version, such as ${DEFAULT_MODEL}, to probe this question.`,
+		);
+		return;
+	}
 	const target = targetAt(
 		editor.document,
 		editor.document.offsetAt(editor.selection.active),
@@ -115,9 +125,9 @@ async function probeQuestion(deps: Deps): Promise<void> {
 		blocked(target);
 		return;
 	}
-	const found = await findKey(deps);
+	const found = await findKey(deps, provider);
 	if ('missing' in found) {
-		reportNoKey(found.missing);
+		reportNoKey(found.missing, provider);
 		return;
 	}
 	const { key } = found;
@@ -148,7 +158,9 @@ async function probeQuestion(deps: Deps): Promise<void> {
 		},
 	);
 	if (probed.kind === 'failed') {
-		blocked(`${FAILURES[probed.failure.kind]} (${probed.failure.detail})`);
+		blocked(
+			`${failureMessage(probed.failure.kind, provider)} (${probed.failure.detail})`,
+		);
 		return;
 	}
 	if (probed.kind === 'cancelled') {

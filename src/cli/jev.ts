@@ -1,4 +1,5 @@
 import type { Failure } from '../jev/client';
+import type { Provider } from '../jev/provider';
 import {
 	DEFAULT_MAX_CALLS,
 	DEFAULT_MODEL,
@@ -31,15 +32,22 @@ export type JevRun = Readonly<{
 	stopped: boolean;
 }>;
 
-export const FAILURES: Readonly<Record<Failure['kind'], string>> =
-	Object.freeze({
-		key: 'TypeSafe rejected the API key',
-		rejected: 'TypeSafe rejected the request',
-		busy: 'TypeSafe is busy or the rate limit was reached',
-		server: 'TypeSafe had an error of its own',
-		network: 'Could not reach TypeSafe',
-		garbled: 'TypeSafe did not answer with a Jev reply',
-	});
+/** Why a run ended early, naming the vendor it was talking to. */
+export function failureMessage(
+	kind: Failure['kind'],
+	provider: Provider,
+): string {
+	const { vendor, model } = provider;
+	const messages: Readonly<Record<Failure['kind'], string>> = {
+		key: `${vendor} rejected the API key`,
+		rejected: `${vendor} rejected the request`,
+		busy: `${vendor} is busy or the rate limit was reached`,
+		server: `${vendor} had an error of its own`,
+		network: `Could not reach ${vendor}`,
+		garbled: `${vendor} did not answer with a ${model} reply`,
+	};
+	return messages[kind];
+}
 
 /**
  * What the run would send, file by file, with nothing sent. The limit is for

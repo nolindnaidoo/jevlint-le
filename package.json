@@ -4,7 +4,7 @@
   "displayName": "JevLint-LE",
   "description": "Lint the questions you send to TypeSafe's Jev model as you type, with no API key and no network calls. An optional command asks Jev itself to check a file",
   "icon": "src/assets/images/icon.png",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": true,
   "license": "MIT",
   "author": {
@@ -105,8 +105,13 @@
         "category": "JevLint-LE"
       },
       {
+        "command": "jevlint-le.setOpenAIApiKey",
+        "title": "Set OpenAI API Key",
+        "category": "JevLint-LE"
+      },
+      {
         "command": "jevlint-le.clearApiKey",
-        "title": "Clear TypeSafe API Key",
+        "title": "Clear API Keys",
         "category": "JevLint-LE"
       },
       {
@@ -168,7 +173,7 @@
         "jevlint-le.jev.model": {
           "type": "string",
           "default": "jev-1.13.0",
-          "markdownDescription": "The Jev model the **Check This File with Jev** command asks. Pinned to the version its checks were calibrated on. An alias such as `jev-latest` will move those cutoffs under you."
+          "markdownDescription": "The model the **Check This File with Jev** command asks: a Jev version, or `gpt-6-luna` for OpenAI's Decisions API, which then uses your OpenAI key. Pinned to the version its checks were calibrated on. An alias such as `jev-latest` will move those cutoffs under you, and a finding from Luna says the cutoff was set on Jev."
         },
         "jevlint-le.jev.maxCalls": {
           "type": "number",
@@ -192,6 +197,13 @@
           "scope": "application",
           "ignoreSync": true,
           "markdownDescription": "Your TypeSafe API key, for **Check This File with Jev** and the probe. It can only be set in your user settings, never in a workspace, so it cannot end up in a repository, and it is left out of Settings Sync. **Set TypeSafe API Key** in the command palette stores it in the system keychain instead, which keeps it out of a plain-text file. A key set here is used ahead of one in the keychain."
+        },
+        "jevlint-le.jev.openaiApiKey": {
+          "type": "string",
+          "default": "",
+          "scope": "application",
+          "ignoreSync": true,
+          "markdownDescription": "Your OpenAI API key, used by **Check This File with Jev** when `jevlint-le.jev.model` is `gpt-6-luna`. Held the same way as the TypeSafe key: user settings only, left out of Settings Sync, and **Set OpenAI API Key** stores it in the system keychain instead."
         },
         "jevlint-le.notificationsLevel": {
           "type": "string",

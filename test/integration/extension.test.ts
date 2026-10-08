@@ -63,6 +63,7 @@ const EXPECTED: Readonly<Record<string, ReadonlyArray<string>>> = {
 		'JEV112',
 	],
 	'.oxlintrc.json': ['JEV001', 'JEV005', 'JEV007'],
+	'decisions.json': ['JEV102', 'JEV004', 'JEV011', 'JEV012', 'JEV011'],
 };
 
 function sample(name: string): vscode.Uri {
@@ -163,7 +164,7 @@ describe('JevLint-LE in a real editor', function () {
 			(command: { command: string }) => command.command,
 		);
 		const registered = await vscode.commands.getCommands(true);
-		assert.strictEqual(declared.length, 7);
+		assert.strictEqual(declared.length, 8);
 		for (const id of declared)
 			assert.ok(registered.includes(id), `missing command: ${id}`);
 	});
