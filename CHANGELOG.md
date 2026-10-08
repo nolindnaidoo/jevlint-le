@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.4.0 — unreleased
+## 0.4.0 — 2026-10-08
 
 Fewer rules, every one measured. A third sample of public Jev questions,
 labelled before any rule ran, showed that nearly every real defect is an
