@@ -526,6 +526,11 @@ difference matters when the family changes one.
   each is chosen on purpose. The workflow refuses a version whose changelog
   heading is not `## <version> — <date>`, and runs the integration and
   installed-VSIX tests on the file it is about to publish.
+- **A changelog heading is dated in the pull request that finishes the
+  version.** Never `unreleased`. The version number is bumped and the work is
+  done in that PR, so the date goes in there too, and `main` is always ready
+  to tag. An undated heading hands the owner a second PR to write for a
+  one-line edit, which happened for 0.3.0 and must not again.
 - **Three repo secrets do the publishing:** `VSCE_PAT`, `OVSX_PAT` and
   `NPM_TOKEN`. They are kept in Doppler under `extensions` / `prd` and are the
   same ones the rest of the family uses. npm publishes by token, by the
