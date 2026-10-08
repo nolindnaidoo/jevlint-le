@@ -4,7 +4,9 @@ import {
 	isExcluded,
 	parseConfig,
 } from '../config/projectConfig';
-import { ENV_KEY, type Fetch } from '../jev/client';
+import type { Fetch } from '../jev/client';
+import { providerFor } from '../jev/provider';
+import { DEFAULT_MODEL } from '../jev/review';
 import { fixText } from '../lint/fixAll';
 import {
 	DEFAULT_FALLBACK_OPTIONS,
@@ -23,7 +25,7 @@ import {
 	plural,
 	type Totals,
 } from './format';
-import { FAILURES, planJev, runJev } from './jev';
+import { failureMessage, planJev, runJev } from './jev';
 import { serve } from './mcp';
 
 export type Io = Readonly<{
@@ -416,8 +418,9 @@ function refuseJev(options: CliOptions, io: Io): string | undefined {
 	if (!asks && stray) return `${stray[1]} needs --jev or --jev-plan.`;
 	if (asks && options.mcp)
 		return '--jev cannot be combined with --mcp. The server sends nothing.';
-	if (options.jev && !options.jevPlan && !io.env[ENV_KEY]?.trim())
-		return `--jev needs an API key in ${ENV_KEY}. Nothing was sent.`;
+	const { envKey } = providerFor(options.jevModel ?? DEFAULT_MODEL);
+	if (options.jev && !options.jevPlan && !io.env[envKey]?.trim())
+		return `--jev needs an API key in ${envKey}. Nothing was sent.`;
 	return undefined;
 }
 
@@ -432,7 +435,7 @@ function refuseFix(options: CliOptions): string | undefined {
 
 const sending = (jev: JevTotals): string =>
 	[
-		`Sending ${plural(jev.planned, 'request')} to TypeSafe on ${jev.model}, about ${jev.estimatedInputTokens} input tokens.`,
+		`Sending ${plural(jev.planned, 'request')} to ${providerFor(jev.model).vendor} on ${jev.model}, about ${jev.estimatedInputTokens} input tokens.`,
 		jev.state ? 'State is sent.' : 'State is not sent.',
 		...[heldBack(jev) ?? []].flat(),
 	].join(' ');
@@ -476,7 +479,7 @@ async function runWithJev(
 		{
 			fetch: io.fetch,
 			wait: io.wait,
-			key: (io.env[ENV_KEY] ?? '').trim(),
+			key: (io.env[providerFor(plan.totals.model).envKey] ?? '').trim(),
 			signal: io.stopSignal(),
 		},
 		options.quiet,
@@ -484,7 +487,8 @@ async function runWithJev(
 	const totals = { ...total(ran.reports, left), ...fixed, jev: ran.totals };
 	io.out(render(options, io, ran.reports, totals));
 	const failure =
-		ran.failure && `${FAILURES[ran.failure.kind]} (${ran.failure.detail})`;
+		ran.failure &&
+		`${failureMessage(ran.failure.kind, providerFor(plan.totals.model))} (${ran.failure.detail})`;
 	const short = shortfall(ran.totals, failure, ran.stopped);
 	if (short) {
 		say(short);

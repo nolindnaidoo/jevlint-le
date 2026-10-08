@@ -1,3 +1,4 @@
+import { providerFor } from '../jev/provider';
 import { pageFor, RULES } from '../lint/rules';
 import type { ReportedFinding, Severity } from '../types';
 import type { Format } from './args';
@@ -136,7 +137,7 @@ function describeJev(jev: JevTotals): ReadonlyArray<string> {
 	const requests = plural(jev.planned, 'request');
 	const state = jev.state ? ' State is sent.' : '';
 	const said = jev.sent
-		? `Jev answered ${jev.answered} of ${requests} on ${jev.model}, ${jev.inputTokens} input tokens.`
+		? `${providerFor(jev.model).model} answered ${jev.answered} of ${requests} on ${jev.model}, ${jev.inputTokens} input tokens.`
 		: `--jev would send ${requests} to ${jev.model}, about ${jev.estimatedInputTokens} input tokens.${state}`;
 	const held = heldBack(jev);
 	return held ? [said, held] : [said];

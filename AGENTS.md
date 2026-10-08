@@ -62,6 +62,8 @@ jev/
   review.ts              what a check of one text would send, and the sending of it.
                          The editor and the command line both run this
   client.ts              one request to the API, with a bounded retry
+  provider.ts            the two vendors a check can be put to: endpoint, key, the
+                         request on the wire and the reply read back
   probe.ts               the layout variants of one question, and the report
 cli/
   args.ts                the flag table: one entry parses a flag and prints its help
@@ -324,7 +326,14 @@ family's files, copied unchanged from `regex-le`.
   `commands/probe.ts` and `services/reviewer.ts` in the editor, and
   `cli/jev.ts` under `--jev`. `lintText` and everything under it stay
   offline. `extension.test.ts` fails if linting calls `fetch`, and
-  `cli.test.ts` fails if a run without `--jev` does.
+  `cli.test.ts` fails if a run without `--jev` does. Two hosts, and only two:
+  `api.typesafe.ai` for a Jev model and `api.openai.com` for `gpt-6-luna`,
+  chosen by `jev/provider.ts` from the model id, each with its own key.
+- **A question carries its dialect.** `extraction/requests.ts` reads
+  TypeSafe's, OpenAI's and the AI SDK's shapes into the same `criteria`, so a
+  rule never looks at `choices` or `options`. Only the shape rule and the
+  fixes read `criteriaRaw`. A rule about TypeSafe's API limits checks the
+  dialect first.
 - **The editor and the command line send the same requests for the same
   text.** Both call `jev/review.ts`, and `extension.test.ts` compares the
   request bodies. A check added to one is added to both by construction.

@@ -24,8 +24,10 @@ export type Configuration = Readonly<{
 		maxCalls: number;
 		sendState: boolean;
 		confirm: boolean;
-		/** The key as typed into the user's settings. Empty when it is kept elsewhere. */
+		/** The TypeSafe key as typed into the user's settings. Empty when it is kept elsewhere. */
 		apiKey: string;
+		/** The OpenAI key the same way, for `gpt-6-luna`. */
+		openaiApiKey: string;
 	}>;
 }>;
 
@@ -43,6 +45,7 @@ export const CONFIG_DEFAULTS = Object.freeze({
 	'jev.sendState': false,
 	'jev.confirm': false,
 	'jev.apiKey': '',
+	'jev.openaiApiKey': '',
 });
 
 const LEVELS: ReadonlyArray<string> = ['all', 'important', 'silent'];
@@ -131,6 +134,7 @@ export function getConfiguration(): Configuration {
 			// Off unless asked for: running the command is itself the decision to send.
 			confirm: settings.get('jev.confirm') === true,
 			apiKey: readKey(settings.get('jev.apiKey')),
+			openaiApiKey: readKey(settings.get('jev.openaiApiKey')),
 		}),
 	});
 }

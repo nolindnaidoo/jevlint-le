@@ -1,0 +1,29 @@
+{
+  "model": "gpt-6-luna",
+  "input": "My parcel came three days late and the lid is cracked.",
+  "questions": [
+    {
+      "type": "predicate",
+      "name": "late",
+      "instructions": "Did more than two parcels arrive late?"
+    },
+    {
+      "type": "choice",
+      "name": "team",
+      "instructions": "Which team should handle this?",
+      "choices": [
+        { "value": "billing", "description": "Billing" },
+        { "value": "delivery", "description": "Late or damaged parcels" }
+      ]
+    },
+    {
+      "type": "score",
+      "name": "severity",
+      "instructions": "Rate",
+      "levels": [
+        { "label": "low", "description": "Low" },
+        { "label": "high", "description": "The customer cannot use what they bought" }
+      ]
+    }
+  ]
+}

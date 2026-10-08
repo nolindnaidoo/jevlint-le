@@ -528,7 +528,7 @@ describe('check with Jev', () => {
 		start(doc(VAGUE));
 		await run(JEV_COMMANDS.checkWithJev);
 		expect(fetch).not.toHaveBeenCalled();
-		expect(_state.messages.at(-1)).toContain('No API key');
+		expect(_state.messages.at(-1)).toContain('No TypeSafe API key');
 	});
 
 	it('keeps the key in the keychain and out of settings and messages', async () => {
@@ -566,6 +566,58 @@ describe('check with Jev', () => {
 		expect(_state.messages.at(-1)).toBe(
 			'JevLint-LE: Jev answered 1 request and flagged 1, 310 input tokens on jev-1.13.0.',
 		);
+	});
+
+	it('asks OpenAI with the OpenAI key when the model is gpt-6-luna', async () => {
+		const luna = vi.fn(async () => ({
+			ok: true,
+			status: 200,
+			json: async () => ({
+				model: 'gpt-6-luna',
+				answers: [{ type: 'predicate', name: 'JEV302', probability: 0.91 }],
+				usage: { input_tokens: 200 },
+			}),
+			text: async () => '',
+		}));
+		vi.stubGlobal('fetch', luna);
+		_state.config = { 'jev.model': 'gpt-6-luna' };
+		start(doc(VAGUE));
+		// A TypeSafe key is not an OpenAI key.
+		_state.secrets.set('jevlint-le.typesafeApiKey', 'k');
+		await run(JEV_COMMANDS.checkWithJev);
+		expect(luna).not.toHaveBeenCalled();
+		expect(_state.messages.at(-1)).toContain('No OpenAI API key');
+
+		_state.input = 'sk-test';
+		await run(JEV_COMMANDS.setOpenAIApiKey);
+		expect(_state.secrets.get('jevlint-le.openaiApiKey')).toBe('sk-test');
+		await run(JEV_COMMANDS.checkWithJev);
+		expect(luna).toHaveBeenCalledTimes(1);
+		const [url, init] = luna.mock.calls[0] as unknown as [
+			string,
+			{ headers: Record<string, string> },
+		];
+		expect(url).toBe('https://api.openai.com/v1/decisions');
+		expect(init.headers.Authorization).toBe('Bearer sk-test');
+		const found = diagnostics(FROM_JEV)[0];
+		expect(found?.message).toContain(
+			'(Luna put this at 0.91.) The cutoff was set on jev-1.13.0, not on Luna.',
+		);
+		expect(_state.messages.at(-1)).toBe(
+			'JevLint-LE: Luna answered 1 request and flagged 1, 200 input tokens on gpt-6-luna.',
+		);
+		await run(JEV_COMMANDS.clearApiKey);
+		expect(_state.secrets.size).toBe(0);
+	});
+
+	it('refuses to probe on Luna, and says which setting to change', async () => {
+		const luna = vi.fn();
+		vi.stubGlobal('fetch', luna);
+		_state.config = { 'jev.model': 'gpt-6-luna' };
+		start(doc(VAGUE));
+		await run('jevlint-le.probeQuestion');
+		expect(luna).not.toHaveBeenCalled();
+		expect(_state.messages.at(-1)).toContain('The probe asks Jev only.');
 	});
 
 	it('underlines the option Jev points at and names the pair', async () => {
@@ -808,7 +860,7 @@ describe('check with Jev', () => {
 			expect(_state.executed).toContainEqual([JEV_COMMANDS.setApiKey]),
 		);
 		expect(_state.buttons).toEqual(['Set API Key']);
-		expect(_state.messages[0]).toContain('No API key');
+		expect(_state.messages[0]).toContain('No TypeSafe API key');
 	});
 
 	it('offers to open workspace trust when the workspace is untrusted', async () => {
@@ -1037,7 +1089,9 @@ describe('how much it says', () => {
 	it.each(['all', 'important', 'silent'])(
 		'at %s always says why a command could not run',
 		async (level) => {
-			expect((await check(level, false, false)).at(-1)).toContain('No API key');
+			expect((await check(level, false, false)).at(-1)).toContain(
+				'No TypeSafe API key',
+			);
 		},
 	);
 

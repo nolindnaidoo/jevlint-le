@@ -1101,6 +1101,51 @@ describe('checking with Jev', () => {
 		expect(result.out).toBe('');
 	});
 
+	it("asks OpenAI with the OpenAI key when the model is gpt-6-luna, and says the cutoff is Jev's", async () => {
+		const lunaSays = vi.fn(async () => ({
+			ok: true,
+			status: 200,
+			json: async () => ({
+				model: 'gpt-6-luna',
+				answers: [{ type: 'predicate', name: 'JEV302', probability: 0.91 }],
+				usage: { input_tokens: 200 },
+			}),
+			text: async () => '',
+		}));
+		const noKey = await cli(
+			['--jev', '--jev-model', 'gpt-6-luna', 'q.ts'],
+			{ 'q.ts': VAGUE },
+			'',
+			world(lunaSays as unknown as Sent, KEY),
+		);
+		expect(noKey.status).toBe(EXIT.unusable);
+		expect(noKey.err).toContain('--jev needs an API key in OPENAI_API_KEY');
+		expect(lunaSays).not.toHaveBeenCalled();
+
+		const result = await cli(
+			['--jev', '--jev-model', 'gpt-6-luna', '--format', 'compact', 'q.ts'],
+			{ 'q.ts': VAGUE },
+			'',
+			world(lunaSays as unknown as Sent, { OPENAI_API_KEY: 'sk-test' }),
+		);
+		expect(lunaSays).toHaveBeenCalledTimes(1);
+		const [url, init] = lunaSays.mock.calls[0] as unknown as [
+			string,
+			{ headers: Record<string, string>; body: string },
+		];
+		expect(url).toBe('https://api.openai.com/v1/decisions');
+		expect(init.headers.Authorization).toBe('Bearer sk-test');
+		expect(JSON.parse(init.body).questions[0].type).toBe('predicate');
+		expect(result.out).toContain(
+			'(Luna put this at 0.91.) The cutoff was set on jev-1.13.0, not on Luna.',
+		);
+		expect(result.out).toContain(
+			'Luna answered 1 of 1 request on gpt-6-luna, 200 input tokens.',
+		);
+		expect(result.err).toMatch(/Sending 1 request to OpenAI on gpt-6-luna/);
+		expect(result.out + result.err).not.toContain('sk-test');
+	});
+
 	it('reports what Jev flags, in its place, and says what was sent', async () => {
 		const fetch = jevSays({ JEV301: { noul: 0.02 }, JEV302: { noul: 0.91 } });
 		const result = await cli(

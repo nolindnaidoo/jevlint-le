@@ -1,7 +1,8 @@
+import { providerFor } from './provider';
 import type { ReviewRequest } from './reviews';
 
 export const ENDPOINT = 'https://api.typesafe.ai/v1/systemone';
-/** Where the editor and the command line both look for a key in the environment. */
+/** Where the editor and the command line both look for a Jev key in the environment. */
 export const ENV_KEY = 'TYPESAFE_API_KEY';
 
 type Response = Readonly<{
@@ -62,22 +63,6 @@ const FAILURES: Readonly<Record<number, Failure['kind']>> = Object.freeze({
 	422: 'rejected',
 });
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-	typeof value === 'object' && value !== null && !Array.isArray(value);
-
-// A proxy or a login page can answer 200 with something that is not a reply.
-// Reading that as "no findings" would report a clean check that never ran.
-function toReply(body: unknown): Reply | Failure {
-	if (!isRecord(body) || !isRecord(body.answers))
-		return { kind: 'garbled', detail: 'the answer was not a Jev reply' };
-	const usage = isRecord(body.usage) ? body.usage.input_tokens : undefined;
-	return {
-		model: typeof body.model === 'string' ? body.model : '',
-		answers: body.answers as Reply['answers'],
-		inputTokens: typeof usage === 'number' ? usage : 0,
-	};
-}
-
 function retryAfterMs(response: Response): number | undefined {
 	const seconds = Number(response.headers?.get('retry-after') ?? '');
 	return Number.isFinite(seconds) && seconds > 0
@@ -106,15 +91,16 @@ async function attempt(
 	const timer = setTimeout(stop, TIMEOUT_MS);
 	deps.signal?.addEventListener('abort', stop, { once: true });
 	if (deps.signal?.aborted) stop();
+	const provider = providerFor(request.model);
 	// The body is read inside the same limit: a reply can stall after its headers.
 	const answered = async (): Promise<Reply | Failure> => {
-		const response = await deps.fetch(ENDPOINT, {
+		const response = await deps.fetch(provider.endpoint, {
 			method: 'POST',
 			headers: {
 				Authorization: `Bearer ${deps.key}`,
 				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify(request),
+			body: JSON.stringify(provider.toBody(request)),
 			signal: cut.signal,
 		});
 		if (!response.ok) return refusal(response);
@@ -123,7 +109,9 @@ async function attempt(
 			if (cut.signal.aborted) throw error;
 			return undefined;
 		});
-		return toReply(body);
+		// A proxy or a login page can answer 200 with something that is not a reply.
+		// Reading that as "no findings" would report a clean check that never ran.
+		return provider.fromBody(body);
 	};
 	return answered()
 		.catch((error: unknown): Failure => {
@@ -163,9 +151,10 @@ export function isFailure(result: Reply | Failure): result is Failure {
 }
 
 /**
- * Sends one review to Jev. Retries only when the fault is TypeSafe's, a fixed
- * number of times, and never on a bad key or a rejected request, which no
- * retry can fix. It waits as long as TypeSafe asks, up to a limit.
+ * Sends one review to the model its `model` names, Jev or Luna. Retries only
+ * when the fault is the vendor's, a fixed number of times, and never on a bad
+ * key or a rejected request, which no retry can fix. It waits as long as the
+ * vendor asks, up to a limit.
  */
 export async function ask(
 	deps: Deps,
