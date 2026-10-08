@@ -32,6 +32,12 @@ const CLEAN_CHOICE = `"bench": { "type": "choice", "instructions": "Which bench?
 const CLEAN_SCORE = `"mood": { "type": "score", "instructions": "How put out?", "criteria": ["Relaxed about it", "Clearly annoyed", "Says they will go elsewhere"] }`;
 
 describe('lintText', () => {
+	it('refuses a syntax it does not have, naming the ones it does', () => {
+		expect(() => lintText('{}', DEFAULT_OPTIONS, 'json' as never)).toThrow(
+			'Unknown syntax "json". Use one of: js, python, rust, go.',
+		);
+	});
+
 	it('reports nothing on a well-formed request', () => {
 		const result = lintText(
 			request(`${CLEAN_NOUL}, ${CLEAN_CHOICE}, ${CLEAN_SCORE}`),

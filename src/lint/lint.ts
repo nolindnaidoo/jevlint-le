@@ -252,6 +252,12 @@ export function lintText(
 	options: LintOptions = DEFAULT_OPTIONS,
 	syntax: Syntax = 'js',
 ): LintResult {
+	// The library is called from untyped code, where a file extension is an easy thing to pass here.
+	if (!(syntax in TRIGGERS)) {
+		throw new Error(
+			`Unknown syntax ${JSON.stringify(syntax)}. Use one of: ${Object.keys(TRIGGERS).join(', ')}.`,
+		);
+	}
 	if (!TRIGGERS[syntax].test(text) && !namesQuestions(text)) return EMPTY;
 
 	const { extraction, embedded } = read(text, syntax);

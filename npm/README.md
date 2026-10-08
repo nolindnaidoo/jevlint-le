@@ -4,8 +4,8 @@ Lints the questions you write for TypeSafe's Jev model, before they are sent.
 Jev answers a badly written question as confidently as a good one, so the
 mistake shows up later as wrong answers. This finds it in the code.
 
-One package, two ways to run it. Neither needs an API key or uses the network,
-unless you pass `--jev` to the command line.
+One package: a command line, an MCP server and a library. None needs an API
+key or uses the network, unless you pass `--jev` to the command line.
 
 ## Command line
 
@@ -107,6 +107,24 @@ it before you see it.
 | `lint_text` | Lints a request body or source code passed as text |
 | `lint_paths` | Lints files or directories on disk |
 | `list_rules` | Lists every rule with its default level and docs link |
+
+## As a library
+
+```js
+const jevlint = require('jevlint-le');
+
+const { findings } = jevlint.lint(text, options, 'js');
+const { text: mended, fixed } = jevlint.fix(text, options, 'js');
+```
+
+`lint` and `fix` are pure: no filesystem, no network. `options` takes the
+same `rules`, `fallbackOptions` and `ignore` as `jevlint-le.json`. The third
+argument is the syntax, one of `syntaxes`: `js` for JSON, JavaScript and
+TypeScript, then `python`, `rust` and `go`. Any other value throws, naming
+those four. `rules` lists every rule
+with its name, default level and pages, and `api` is the number an editor
+checks before loading a copy. Names here are only added to. A change that
+removes or alters one raises `api`.
 
 ## What it does not do
 
