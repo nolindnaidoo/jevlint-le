@@ -1,0 +1,40 @@
+{
+  "ranOn": "2026-10-08",
+  "model": "jev-1.13.0",
+  "calls": 96,
+  "inputTokens": 31138,
+  "results": [
+    {
+      "rule": "JEV011",
+      "name": "options described as their own names against described options",
+      "bad": "12 of 12",
+      "badSureness": "0.98",
+      "good": "12 of 12",
+      "goodSureness": "1.00"
+    },
+    {
+      "rule": "JEV011",
+      "name": "Noul criteria that say yes and no against criteria that describe the cases",
+      "bad": "11 of 12",
+      "badSureness": "0.83",
+      "good": "11 of 12",
+      "goodSureness": "0.91"
+    },
+    {
+      "rule": "JEV012",
+      "name": "a one-word instruction against the question written out",
+      "bad": "9 of 12",
+      "badSureness": "0.70",
+      "good": "10 of 12",
+      "goodSureness": "0.85"
+    },
+    {
+      "rule": "JEV110",
+      "name": "a short scale of bare words against described levels",
+      "bad": "4 of 12",
+      "badSureness": "0.76",
+      "good": "12 of 12",
+      "goodSureness": "0.89"
+    }
+  ]
+}

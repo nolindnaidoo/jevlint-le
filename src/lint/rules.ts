@@ -90,21 +90,22 @@ export const RULES: Readonly<Record<RuleCode, Rule>> = Object.freeze({
 	JEV011: {
 		code: 'JEV011',
 		name: 'description-repeats-name',
-		// Measured independently: "billing": "Billing" rewritten as a description
-		// took one question from 0.69 to 0.92 (smkrv/jev-calibrate), and Yes/No
-		// criteria rewritten took another from 83% to 100% (SYED-M-HUSSAIN).
-		// 10 clear cases in public sample 3.
-		severity: 'warning',
+		// Measured 2026-10-08: "billing": "Billing" answered 12 of 12 either way,
+		// and Yes/No criteria 11 of 12 either way, 0.08 less sure. No cost found
+		// where the name itself says something. Independent runs found one
+		// (smkrv/jev-calibrate, SYED-M-HUSSAIN), and 10 clear cases in public
+		// sample 3 were names that say nothing, "a": "A". So it informs.
+		severity: 'info',
 		docs: DOCS.choice,
 	},
 	JEV012: {
 		code: 'JEV012',
 		name: 'terse-instructions',
-		// Dropping the instructions cost calibration in one independent run
-		// (ECE 0.045 to 0.068) and 32 points in another. 23 clear cases in public
-		// sample 3, the most common defect there. The vendor's page says to write
-		// the question out even when the id seems to say it.
-		severity: 'warning',
+		// Measured 2026-10-08: "Refund?" right 9 of 12 at 0.70 sure, against 10 of
+		// 12 at 0.85 for the question written out. Advisory by the rule the other
+		// wording rules are held to. 23 clear cases in public sample 3, the most
+		// common defect there.
+		severity: 'info',
 		docs: DOCS.primitives,
 	},
 	JEV101: {
@@ -159,11 +160,10 @@ export const RULES: Readonly<Record<RuleCode, Rule>> = Object.freeze({
 	JEV110: {
 		code: 'JEV110',
 		name: 'degree-levels',
-		// The most common real defect in public code: 15 clear cases across two
-		// samples, and right on every one of its 9 firings there. Our own run
-		// found no cost on 12 easy cases, but an independent one (smkrv/jev-calibrate)
-		// took Low/Medium/High from 0.69 to 0.92 accuracy by describing the
-		// levels, which is what the vendor's own page asks for.
+		// Measured 2026-10-08: Shallow, Medium, Deep placed 4 of 12 code reviews
+		// right, against 12 of 12 for described levels. The largest cost measured
+		// on any wording rule here. Also the most common real defect in public
+		// code, 15 clear cases across two samples, right on every firing.
 		severity: 'warning',
 		docs: DOCS.scoreLevels,
 	},
