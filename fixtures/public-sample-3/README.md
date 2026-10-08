@@ -43,4 +43,55 @@ scoring, so the order can be checked in the history.
 
 ## What it showed
 
-Not yet scored.
+`scripts/score-public-sample.ts` ran every wording rule over the 252
+questions that were read, with the rules as they stood on 2026-10-08, before
+any was changed. A finding is counted wrong when it fired on a question with
+neither a clear nor a borderline label for that rule.
+
+35 of the 252 had a clear defect. 33 of those 35 were `JEV011` or `JEV012`,
+which no rule looked for. The wording rules had 8 clear cases between them.
+
+| | Default-on rules | Every wording rule |
+|---|---|---|
+| Clear defects under those rules | 3 | 8 |
+| Caught | 1 | 4 |
+| Findings | 4 | 19 |
+| Findings that were wrong | 2 | 14 |
+
+Rule by rule, leaving out the six that had no clear case and no finding:
+
+| Rule | Default | Clear defects | Caught | Fired | Wrong |
+|---|---|---|---|---|---|
+| JEV102 arithmetic | on | 3 | 1 | 2 | 0 |
+| JEV104 compound | off | 0 | 0 | 1 | 1 |
+| JEV106 multi-hop | off | 0 | 0 | 1 | 1 |
+| JEV109 multi-dimension-level | off | 0 | 0 | 10 | 10 |
+| JEV110 degree-levels | off | 5 | 3 | 3 | 0 |
+| JEV112 undefined-boundary | on | 0 | 0 | 2 | 2 |
+
+Not measured by a rule, because none existed:
+
+| Label | Clear | Borderline |
+|---|---|---|
+| JEV011 description repeats its name | 10 | 2 |
+| JEV012 instructions do not say what is asked | 23 | 7 |
+
+## What to take from it
+
+- **The defects in public code are structural, not wording.** 33 of 35 are a
+  description that says nothing or instructions that say nothing. Most are
+  in test and demo code, which is also what an agent writes first.
+- **`JEV102` misses comparisons written with symbols or plain words.**
+  "Is the number 2 greater than the number 1?" and "(x > 50) ... (>= 8.5)".
+  The one it caught had a counting word.
+- **`JEV112` was wrong both times it fired**, on "heavy luggage" and
+  "evidence sufficient to evaluate", where the degree word sits on a noun or
+  is bounded by the clause after it. The same cause as its wrong findings on
+  sample 2.
+- **`JEV110` is right every time it fires, again**, and misses levels that
+  carry an intensifier or a gloss: "Very casual / slang", "Slightly
+  complex", "Moderate". 0 wrong in 9 firings across two samples.
+- **`JEV109` and `JEV106` are wrong every time**, on this sample as on the
+  last two.
+- **The labels are one reader's.** The counts are small, so read them as
+  "nearly all" and "every time", not as rates.
