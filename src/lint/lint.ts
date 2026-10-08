@@ -70,10 +70,11 @@ const EMPTY: LintResult = Object.freeze({
 // A file with none of these words cannot hold a question, and most files a
 // user opens hold none. This keeps the cost of the common case at one scan.
 const TRIGGERS: Readonly<Record<Syntax, RegExp>> = Object.freeze({
-	js: /\b(?:noul|choice|score)\b|jev-|jev\/ask/,
-	python: /\b(?:noul|choice|score)\b|jev-|typesafe_/i,
-	rust: /noul|choice|score|jev-/i,
-	go: /noul|choice|score|jev-/i,
+	js: /\b(?:noul|choice|score|predicate)\b|jev-|jev\/ask|gpt-6-luna|\/v1\/decisions/,
+	python:
+		/\b(?:noul|choice|score|predicate)\b|jev-|typesafe_|gpt-6-luna|decisions\.create/i,
+	rust: /noul|choice|score|predicate|jev-|gpt-6-luna/i,
+	go: /noul|choice|score|predicate|jev-|gpt-6-luna/i,
 });
 // A request whose only question has its type misspelt holds none of the
 // words above. It still says `questions` and `instructions`, and few other

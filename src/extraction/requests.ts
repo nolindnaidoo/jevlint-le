@@ -1,6 +1,7 @@
 import type {
 	ArrayNode,
 	CallNode,
+	Dialect,
 	Extraction,
 	Malformed,
 	ModelRef,
@@ -11,6 +12,7 @@ import type {
 	QuestionMap,
 	QuestionType,
 	Span,
+	StringNode,
 } from '../types';
 
 type Sink = {
@@ -25,22 +27,27 @@ type Sink = {
 type Named = Readonly<{ id: string; span: Span }> | undefined;
 
 const TYPES: ReadonlySet<string> = new Set(['noul', 'choice', 'score']);
-// The Vercel AI SDK's evaluate API names the yes/no type `boolean`.
+// The Vercel AI SDK names the yes/no type `boolean`, OpenAI's Decisions API `predicate`.
 const TYPE_ALIASES: Readonly<Record<string, QuestionType>> = Object.freeze({
 	boolean: 'noul',
+	predicate: 'noul',
 });
-// Field names other clients and older payloads use for the same things.
+// Field names older payloads and clients this reader does not know use for the same things.
 const FOREIGN_FIELDS: ReadonlySet<string> = new Set([
 	'prompt',
-	'options',
 	'legend',
 	'rubric',
-	'levels',
-	'choices',
 	'labels',
 	'descriptions',
 	'answer',
 	'probabilities',
+]);
+// The fields each dialect keeps its options or levels in.
+const CRITERIA_FIELDS: ReadonlySet<string> = new Set([
+	'criteria',
+	'choices',
+	'levels',
+	'options',
 ]);
 const OXLINT_RULE = 'jev/ask';
 
@@ -49,15 +56,64 @@ function prop(node: ObjectNode, key: string): Prop | undefined {
 }
 
 function hasBody(node: ObjectNode): boolean {
-	return Boolean(prop(node, 'instructions') ?? prop(node, 'criteria'));
+	return node.props.some(
+		(entry) => entry.key === 'instructions' || CRITERIA_FIELDS.has(entry.key),
+	);
+}
+
+function typeName(node: ObjectNode): string | undefined {
+	const type = prop(node, 'type')?.value;
+	return type?.kind === 'string' ? type.value : undefined;
 }
 
 function typeOf(node: ObjectNode): QuestionType | undefined {
-	const type = prop(node, 'type')?.value;
-	if (type?.kind !== 'string') return undefined;
-	const alias = TYPE_ALIASES[type.value];
+	const type = typeName(node);
+	if (type === undefined) return undefined;
+	const alias = TYPE_ALIASES[type];
 	if (alias) return alias;
-	return TYPES.has(type.value) ? (type.value as QuestionType) : undefined;
+	return TYPES.has(type) ? (type as QuestionType) : undefined;
+}
+
+const isObjectItem = (item: Node): boolean =>
+	item.kind === 'object' || item.kind === 'unreadable';
+const isTextItem = (item: Node): boolean =>
+	item.kind === 'string' || item.kind === 'unreadable';
+
+/**
+ * Whose shape a question is written in, or undefined for a shape this reader
+ * does not know, whose fields then prove nothing. OpenAI's carries `name`,
+ * `predicate`, or lists of `{ value, description }` and `{ label,
+ * description }`. Vercel's AI SDK carries `boolean`, an `options` map, or
+ * `levels` as plain strings.
+ */
+function dialectOf(node: ObjectNode): Dialect | undefined {
+	const type = typeName(node);
+	const choices = prop(node, 'choices')?.value;
+	const levels = prop(node, 'levels')?.value;
+	const options = prop(node, 'options')?.value;
+	if (type === 'predicate' || prop(node, 'name')) return 'openai';
+	if (
+		choices?.kind === 'array' &&
+		choices.items.length &&
+		choices.items.every(isObjectItem)
+	)
+		return 'openai';
+	if (
+		levels?.kind === 'array' &&
+		levels.items.length &&
+		levels.items.every(isObjectItem)
+	)
+		return 'openai';
+	if (type === 'boolean') return 'vercel';
+	if (options?.kind === 'object') return 'vercel';
+	if (
+		levels?.kind === 'array' &&
+		levels.items.length &&
+		levels.items.every(isTextItem)
+	)
+		return 'vercel';
+	if (choices || levels || options) return undefined;
+	return 'typesafe';
 }
 
 function isQuestionObject(node: Node): boolean {
@@ -68,6 +124,89 @@ function isHelper(node: Node, sink: Sink): node is CallNode {
 	return node.kind === 'call' && sink.trusted.has(node.callee);
 }
 
+/** OpenAI's `choices: [{ value, description }]` as the map the rules read. */
+function mapOfChoices(list: ArrayNode): ObjectNode {
+	let partial = list.partial;
+	const props: Prop[] = [];
+	for (const item of list.items) {
+		const value =
+			item.kind === 'object' ? prop(item, 'value')?.value : undefined;
+		if (item.kind !== 'object' || item.partial || value?.kind !== 'string') {
+			partial = true;
+			continue;
+		}
+		props.push({
+			key: value.value,
+			keySpan: value.span,
+			quote: '"',
+			value: prop(item, 'description')?.value ?? {
+				kind: 'null',
+				span: value.span,
+			},
+		});
+	}
+	return { kind: 'object', props, partial, span: list.span };
+}
+
+/** OpenAI's `levels: [{ label, description }]` as the array of descriptions the rules read, with the labels beside it. */
+function arrayOfLevels(
+	list: ArrayNode,
+): Readonly<{ criteria: ArrayNode; labels: ReadonlyArray<StringNode> }> {
+	let partial = list.partial;
+	const items: Node[] = [];
+	const labels: StringNode[] = [];
+	for (const item of list.items) {
+		if (item.kind !== 'object' || item.partial) {
+			partial = true;
+			continue;
+		}
+		const label = prop(item, 'label')?.value;
+		if (label?.kind === 'string') labels.push(label);
+		items.push(
+			prop(item, 'description')?.value ?? { kind: 'null', span: item.span },
+		);
+	}
+	return {
+		criteria: { kind: 'array', items, partial, span: list.span },
+		labels,
+	};
+}
+
+type Criteria = Readonly<{
+	node: Node | undefined;
+	key: Span | undefined;
+	raw?: Node;
+	labels?: ReadonlyArray<StringNode>;
+}>;
+
+function criteriaOf(
+	node: ObjectNode,
+	dialect: Dialect,
+	type: QuestionType,
+): Criteria {
+	if (dialect === 'typesafe') {
+		const field = prop(node, 'criteria');
+		return { node: field?.value, key: field?.keySpan };
+	}
+	if (type === 'noul') return { node: undefined, key: undefined };
+	if (dialect === 'vercel') {
+		const field = prop(node, type === 'choice' ? 'options' : 'levels');
+		return { node: field?.value, key: field?.keySpan };
+	}
+	const field = prop(node, type === 'choice' ? 'choices' : 'levels');
+	const value = field?.value;
+	if (!field || value?.kind !== 'array')
+		return {
+			node: value,
+			key: field?.keySpan,
+			...(value ? { raw: value } : {}),
+		};
+	if (type === 'choice')
+		return { node: mapOfChoices(value), key: field.keySpan, raw: value };
+	const { criteria, labels } = arrayOfLevels(value);
+	return { node: criteria, key: field.keySpan, raw: value, labels };
+}
+
 function fromObject(
 	node: ObjectNode,
 	named: Named,
@@ -75,16 +214,25 @@ function fromObject(
 	map?: number,
 ): Question {
 	const typeProp = prop(node, 'type') as Prop;
+	const type = typeOf(node) as QuestionType;
+	const known = dialectOf(node);
+	const dialect = known ?? 'typesafe';
+	const criteria = criteriaOf(node, dialect, type);
 	return {
 		id: named?.id,
+		dialect,
+		...(criteria.labels ? { levelLabels: criteria.labels } : {}),
+		...(criteria.raw ? { criteriaRaw: criteria.raw } : {}),
 		anchor: named?.span ?? typeProp.value.span,
 		span: node.span,
-		type: typeOf(node) as QuestionType,
+		type,
 		instructions: prop(node, 'instructions')?.value,
-		criteria: prop(node, 'criteria')?.value,
-		criteriaKey: prop(node, 'criteria')?.keySpan,
+		criteria: criteria.node,
+		criteriaKey: criteria.key,
 		open:
-			node.partial || node.props.some((entry) => FOREIGN_FIELDS.has(entry.key)),
+			node.partial ||
+			known === undefined ||
+			node.props.some((entry) => FOREIGN_FIELDS.has(entry.key)),
 		inRequest,
 		map,
 	};
@@ -97,6 +245,7 @@ function fromCall(node: CallNode, named: Named, map?: number): Question {
 	};
 	return {
 		id: named?.id,
+		dialect: 'typesafe',
 		anchor: named?.span ?? calleeSpan,
 		span: node.span,
 		type: node.callee as QuestionType,
@@ -146,6 +295,7 @@ function collectEntry(entry: Prop, sink: Sink, map: number): void {
 	if (malformed) {
 		sink.malformed.push({
 			id: entry.key,
+			dialect: dialectOfEntry(entry.value),
 			anchor: unknownType(entry.value) ?? entry.keySpan,
 			...malformed,
 		});
@@ -159,8 +309,9 @@ function isMapEntry(value: Node, sink: Sink): boolean {
 
 const QUESTION_KEYS: ReadonlySet<string> = new Set([
 	'type',
+	'name',
 	'instructions',
-	'criteria',
+	...CRITERIA_FIELDS,
 ]);
 
 // One slip away from a real type: a letter added, dropped or changed, or two
@@ -202,11 +353,17 @@ function isBrokenQuestion(value: Node): boolean {
 	if (!prop(value, 'instructions')) return false;
 	if (!value.props.every((entry) => QUESTION_KEYS.has(entry.key))) return false;
 	const type = prop(value, 'type')?.value;
-	if (!type) return prop(value, 'criteria') !== undefined;
+	if (!type) return value.props.some((entry) => CRITERIA_FIELDS.has(entry.key));
 	if (type.kind !== 'string') return false;
-	return (
-		[...TYPES].filter((real) => oneSlipFrom(type.value, real)).length === 1
-	);
+	const real = [...TYPES, ...Object.keys(TYPE_ALIASES)];
+	return real.filter((name) => oneSlipFrom(type.value, name)).length === 1;
+}
+
+/** The dialect a broken entry was written in, read from the fields it does have. */
+function dialectOfEntry(value: Node): Dialect {
+	return value.kind === 'object'
+		? (dialectOf(value) ?? 'typesafe')
+		: 'typesafe';
 }
 
 /** True when `questions` was a question map and has been collected. */
@@ -228,6 +385,56 @@ function collectMap(node: ObjectNode, sink: Sink): boolean {
 	});
 	for (const entry of questions.props) collectEntry(entry, sink, map);
 	for (const value of questions.loose ?? []) visit(value, undefined, sink);
+	return true;
+}
+
+/** The `name` of a question in a list, which is its id. */
+function nameOf(value: Node): Named {
+	const name = value.kind === 'object' ? prop(value, 'name')?.value : undefined;
+	return name?.kind === 'string'
+		? { id: name.value, span: name.span }
+		: undefined;
+}
+
+/**
+ * True when `questions` was a list of named questions, OpenAI's shape, and
+ * has been collected. The evidence beside it is `input` there, not `state`.
+ */
+function collectList(node: ObjectNode, sink: Sink): boolean {
+	const questions = prop(node, 'questions')?.value;
+	if (questions?.kind !== 'array') return false;
+	const marked = questions.items.some(
+		(item) => isMapEntry(item, sink) || isBrokenQuestion(item),
+	);
+	if (!marked) return false;
+	const map = sink.maps.length;
+	const evidence = prop(node, 'input') ?? prop(node, 'state');
+	sink.maps.push({
+		entries: questions.items.flatMap((item) => {
+			const named = nameOf(item);
+			return named ? [{ id: named.id, idSpan: named.span }] : [];
+		}),
+		state: evidence?.value,
+		stateKey: evidence?.keySpan,
+	});
+	for (const item of questions.items) {
+		const named = nameOf(item);
+		if (item.kind === 'object' && typeOf(item)) {
+			sink.questions.push(fromObject(item, named, true, map));
+			continue;
+		}
+		const malformed = describeMalformed(item);
+		if (malformed) {
+			sink.malformed.push({
+				id: named?.id,
+				// An entry in OpenAI's list is in OpenAI's shape, whatever fields it lost.
+				dialect: 'openai',
+				anchor: unknownType(item) ?? named?.span ?? item.span,
+				...malformed,
+			});
+		}
+		visit(item, undefined, sink);
+	}
 	return true;
 }
 
@@ -255,6 +462,7 @@ function collectOxlint(node: ObjectNode, sink: Sink): void {
 		if (named) entries.push({ id: named.id, idSpan: named.span });
 		sink.questions.push({
 			id: named?.id,
+			dialect: 'typesafe',
 			anchor: named?.span ?? question.keySpan,
 			span: rule.span,
 			type: 'noul',
@@ -282,7 +490,7 @@ function visitObject(node: ObjectNode, named: Named, sink: Sink): void {
 	}
 	collectModel(node, sink);
 	collectOxlint(node, sink);
-	const mapped = collectMap(node, sink);
+	const mapped = collectMap(node, sink) || collectList(node, sink);
 	for (const child of node.props) {
 		if (mapped && child.key === 'questions') continue;
 		// A struct can hold its question under a field named for the type. That is not an id.
