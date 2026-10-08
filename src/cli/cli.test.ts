@@ -889,6 +889,32 @@ describe('the MCP server', () => {
 		expect(body(python).totals.unreadable).toBe(1);
 	});
 
+	it('lints an OpenAI Decisions request, and tells an agent it reads both vendors', async () => {
+		const LUNA = `{ "model": "gpt-6-luna", "input": "hi", "questions": [ { "type": "predicate", "name": "refund", "instructions": "Refund?" }, { "type": "choice", "name": "team", "instructions": "Which team takes it?", "choices": [ { "value": "billing", "description": "Billing" }, { "value": "tech", "description": "Faults" } ] } ] }`;
+		const [started, listed, linted] = await talk([
+			{
+				jsonrpc: '2.0',
+				id: 1,
+				method: 'initialize',
+				params: { protocolVersion: '2024-11-05' },
+			},
+			{ jsonrpc: '2.0', id: 2, method: 'tools/list', params: {} },
+			call(3, 'lint_text', { text: LUNA }),
+		]);
+		expect(started.result.instructions).toContain("OpenAI's Decisions API");
+		const descriptions = listed.result.tools
+			.map((t: { description: string }) => t.description)
+			.join(' ');
+		expect(descriptions).toContain('/v1/decisions');
+		expect(descriptions).toContain('decide()');
+		const findings = body(linted).files[0].findings as {
+			code: string;
+			message: string;
+		}[];
+		expect(findings.map((f) => f.code)).toEqual(['JEV012', 'JEV004', 'JEV011']);
+		expect(findings.every((f) => !/\bJev\b/.test(f.message))).toBe(true);
+	});
+
 	it('lints paths on disk and takes rule levels', async () => {
 		const [reply] = await talk(
 			[call(1, 'lint_paths', { paths: ['src'], rules: { JEV006: 'off' } })],
