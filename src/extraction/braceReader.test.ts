@@ -33,7 +33,7 @@ describe('Rust', () => {
     "state": state,
     "questions": {
         "late": { "type": "noul", "instructions": "Is it late?" },
-        "team": { "type": "choice", "instructions": "Which team?", "criteria": { "a": null, "b": null } },
+        "team": { "type": "choice", "instructions": "Which team takes it?", "criteria": { "a": null, "b": null } },
     }
 });`;
 		expect(rust(text)).toEqual(['late noul request', 'team choice request']);
@@ -44,22 +44,22 @@ describe('Rust', () => {
 		const text = `// { "type": "noul", "instructions": "no" }
 fn pick<'a>(x: &'a str, c: char) -> &'a str { if c == '{' { x } else { "}" } }
 let s = r##"a "# b"##;
-let q = json!({ "questions": { "a": { "type": "noul", "instructions": "Is it?" } } });`;
+let q = json!({ "questions": { "a": { "type": "noul", "instructions": "Is it so?" } } });`;
 		expect(rust(text)).toEqual(['a noul request']);
 	});
 
 	it('reads a struct or variant named for a question type', () => {
 		const text = `let q = Question::Choice {
-    instructions: "Which team?".to_string(),
+    instructions: "Which team takes it?".to_string(),
     criteria: BTreeMap::from([("billing".to_owned(), Some("Charges".to_owned())), ("other".to_owned(), None)]),
 };
-let s = Score { instructions: String::from("How bad?"), criteria: vec!["Mild".into(), "Severe".into()] };`;
+let s = Score { instructions: String::from("How bad is it?"), criteria: vec!["A typo".into(), "Nobody can log in".into()] };`;
 		expect(rust(text)).toEqual(['- choice', '- score']);
 		expect(codes(text, 'rust')).toEqual([]);
 	});
 
 	it('reads a list of pairs as the map it becomes', () => {
-		const text = `let q = Question::Choice { instructions: "Which?".into(), criteria: vec![("a".to_string(), "A".to_string()), ("b".to_string(), "B".to_string())] };`;
+		const text = `let q = Question::Choice { instructions: "Which one fits?".into(), criteria: vec![("a".to_string(), "A".to_string()), ("b".to_string(), "B".to_string())] };`;
 		expect(readQuestions(text, 'rust').questions[0]?.criteria).toMatchObject({
 			kind: 'object',
 			props: [{ key: 'a' }, { key: 'b' }],
@@ -100,7 +100,7 @@ let s = Score { instructions: String::from("How bad?"), criteria: vec!["Mild".in
 	});
 
 	it('reads a type given as a constant and a field called kind', () => {
-		const text = `let q = Question { kind: QType::Score, instructions: json!("Rate it"), criteria: Some(json!(["1", "2"])) };`;
+		const text = `let q = Question { kind: QType::Score, instructions: json!("Rate the damage"), criteria: Some(json!(["1", "2"])) };`;
 		expect(rust(text)).toEqual(['- score']);
 		expect(codes(text, 'rust')).toEqual(['JEV008']);
 	});
@@ -115,7 +115,7 @@ describe('Go', () => {
 	"state": state,
 	"questions": map[string]any{
 		"late": map[string]any{"type": "noul", "instructions": "Is it late?"},
-		"mood": map[string]interface{}{"type": "score", "instructions": "How upset?", "criteria": []string{"1", "2", "3"}},
+		"mood": map[string]interface{}{"type": "score", "instructions": "How upset are they?", "criteria": []string{"1", "2", "3"}},
 	},
 }`;
 		expect(go(text)).toEqual(['late noul request', 'mood score request']);
@@ -124,8 +124,8 @@ describe('Go', () => {
 
 	it('reads structs, with or without the type written out', () => {
 		const text = `questions := map[string]Question{
-	"team": {Type: "choice", Instructions: "Which team?", Criteria: map[string]string{"billing": "Charges", "other": "Anything else"}},
-	"sev":  {Type: KindScore, Instructions: "How bad?", Criteria: []string{"Mild", "Severe"}},
+	"team": {Type: "choice", Instructions: "Which team takes it?", Criteria: map[string]string{"billing": "Charges", "other": "Anything else"}},
+	"sev":  {Type: KindScore, Instructions: "How bad is it?", Criteria: []string{"A typo", "Nobody can log in"}},
 	"late": typesafe.Noul{Instructions: "Is it late?"},
 }`;
 		expect(go(text)).toEqual([
@@ -139,7 +139,7 @@ describe('Go', () => {
 	it('is not fooled by raw strings, runes, comments or blocks', () => {
 		const text = `// {"type": "noul", "instructions": "no"}
 func f(c rune) string { if c == '{' { return "}" }; for _, choice := range choices { use(choice) }; return \`{\` }
-var q = map[string]any{"questions": map[string]any{"a": map[string]any{"type": "noul", "instructions": "Is it?"}}}`;
+var q = map[string]any{"questions": map[string]any{"a": map[string]any{"type": "noul", "instructions": "Is it so?"}}}`;
 		expect(go(text)).toEqual(['a noul request']);
 	});
 
@@ -166,27 +166,27 @@ var q = map[string]any{"questions": map[string]any{"a": map[string]any{"type": "
 	});
 
 	it("does not judge criteria held in the project's own type", () => {
-		const text = `q := Score{Instructions: "Risk?", Criteria: ScoreCriteria{levels}}`;
+		const text = `q := Score{Instructions: "Is it a risk?", Criteria: ScoreCriteria{levels}}`;
 		expect(codes(text, 'go')).toEqual(['JEV000']);
 	});
 
 	it('marks a struct with fields of its own as open', () => {
-		const text = `q := typesafe.Choice{Instructions: "Which?", Criteria: map[string]string{"a": "A", "other": "Else"}, Threshold: 0.6}`;
+		const text = `q := typesafe.Choice{Instructions: "Which one fits?", Criteria: map[string]string{"a": "A", "other": "Else"}, Threshold: 0.6}`;
 		expect(go(text)).toEqual(['- choice open']);
 	});
 
 	it('offers no reshape fix, and still adds a fallback option', () => {
-		const list = `q := map[string]any{"questions": map[string]any{"t": map[string]any{"type": "choice", "instructions": "Which?", "criteria": []string{"a", "b"}}}}`;
+		const list = `q := map[string]any{"questions": map[string]any{"t": map[string]any{"type": "choice", "instructions": "Which one fits?", "criteria": []string{"a", "b"}}}}`;
 		const shaped = lintText(list, DEFAULT_OPTIONS, 'go').findings[0];
 		expect(shaped?.code).toBe('JEV006');
 		expect(shaped?.fix).toBeUndefined();
-		const map = `q := map[string]any{"questions": map[string]any{"t": map[string]any{"type": "choice", "instructions": "Which?", "criteria": map[string]string{"a": "A", "b": "B"}}}}`;
+		const map = `q := map[string]any{"questions": map[string]any{"t": map[string]any{"type": "choice", "instructions": "Which one fits?", "criteria": map[string]string{"a": "Apples", "b": "Bread"}}}}`;
 		const out = apply(
 			map,
 			lintText(map, DEFAULT_OPTIONS, 'go').findings[0]?.fix,
 		);
 		expect(out).toContain(
-			`"b": "B", "other": "Fits none of the other options"}`,
+			`"b": "Bread", "other": "Fits none of the other options"}`,
 		);
 		expect(codes(out, 'go')).toEqual([]);
 	});
@@ -215,7 +215,7 @@ describe('string escapes', () => {
 
 describe('JSON inside a string', () => {
 	it('is read in every language, at its place in the file', () => {
-		const json = `{"model":"jev-latest","questions":{"q":{"type":"score","instructions":"Rate","criteria":["1","2"]}}}`;
+		const json = `{"model":"jev-latest","questions":{"q":{"type":"score","instructions":"Rate the damage","criteria":["1","2"]}}}`;
 		const sources: [Syntax, string][] = [
 			['rust', `let body = r#"${json}"#;`],
 			['go', `body := \`${json}\``],
@@ -252,7 +252,7 @@ describe('JSON inside a string', () => {
 	});
 
 	it('writes a fix as JSON even in a Python file', () => {
-		const text = `body = '{"questions":{"t":{"type":"choice","instructions":"Which?","criteria":["a","b"]}}}'`;
+		const text = `body = '{"questions":{"t":{"type":"choice","instructions":"Which one fits?","criteria":["a","b"]}}}'`;
 		const out = apply(
 			text,
 			lintText(text, DEFAULT_OPTIONS, 'python').findings[0]?.fix,

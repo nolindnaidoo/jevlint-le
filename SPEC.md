@@ -108,13 +108,15 @@ what the text says. `JEV004` is the exception in spirit and is explained below.
 | JEV001 | unpinned-model | warning | `model` is the literal `jev-latest` or `jev-preview` |
 | JEV002 | choice-option-limit | error | A Choice has more than 255 options |
 | JEV003 | score-level-limit | error | A Score has more than 10 levels |
-| JEV004 | no-fallback-option | info | A Choice has two or more options and none is named as a fallback |
+| JEV004 | no-fallback-option | warning | A Choice has two or more options and none is named as a fallback |
 | JEV005 | duplicate | error | A question id, a Choice option or a Score level is repeated |
 | JEV006 | criteria-shape | error | In a request, a Choice has no map of options or a Score has no array of levels, or a Noul has criteria keys other than `true` and `false` |
 | JEV007 | invalid-question | error | The `type` is missing or unknown, or the instructions are an empty string |
 | JEV008 | numeric-levels | warning | Every level of a Score is a bare number |
 | JEV009 | too-few-options | info | A Choice has fewer than two options, or a Score fewer than two levels |
 | JEV010 | unused-disable | warning | A `jevlint-le-disable` comment silenced no finding. Not reported for a comment that names only Jev-backed rules, which linting never runs |
+| JEV011 | description-repeats-name | warning | A Choice option's description is its name again, allowing for case, underscores and a full stop, or a Noul's `true` or `false` criterion is yes, no, true, false, y or n |
+| JEV012 | terse-instructions | warning | The instructions are one or two words of English, in a question that does not carry another dialect's fields |
 
 **JEV001 has no automatic fix.** Pinning needs the current version id, and the
 extension cannot fetch it. A hard-coded id would be wrong after the next
@@ -247,11 +249,9 @@ or its primitives guide.
 | JEV103 | date-comparison | info | The question asks Jev to order two times or measure the gap between them |
 | JEV104 | compound | off | A Noul joins two judgments with 'and' |
 | JEV105 | generation | warning | The question asks for a value or for text to be written |
-| JEV106 | multi-hop | off | One sentence chains three or more relationships |
 | JEV107 | negated-noul | off | A Noul with no criteria is phrased so that yes means something is absent |
 | JEV108 | inverted-criteria | off | A Noul's 'true' criterion describes the negative case |
-| JEV109 | multi-dimension-level | off | A Score level lists three or more qualities |
-| JEV110 | degree-levels | off | Score levels are degree words, or one word turned up and down |
+| JEV110 | degree-levels | warning | Score levels are degree words, bare labels, or one word turned up and down. Nothing for Jev to match the state against |
 | JEV111 | numeric-encoding | off | The question refers to a value by hex or RGB encoding |
 | JEV112 | undefined-boundary | info | A Noul with no criteria turns on a word such as large, often or enough |
 
@@ -269,26 +269,32 @@ and fires on no good one. Misses are recorded and do not block.
 `src/lint/corpus.test.ts` enforces this and holds every number to
 `fixtures/corpus/scores.json`.
 
-The corpus is `fixtures/corpus/questions.json`: 107 bad questions, each
-labeled with the rule that should fire, and 103 good ones. It was written for
-this repo in two batches. The second batch was written before the rules were
+Since 0.4.0 there is a second gate, for every rule that is on by default and
+not exact: on a public sample labelled before the rule was run, it must be
+right on at least 9 of 10 of its firings, counting a firing on a borderline
+label as right. A rule that fails goes off. One that fails twice is removed.
+The measurement is written into the sample's README with the labels it was
+made against, so it can be checked.
+
+The corpus is `fixtures/corpus/questions.json`: 157 bad questions, each
+labeled with the rule that should fire, and 119 good ones. It was written for
+this repo in two batches, plus the questions the public samples taught, put
+in the repo's own words. The second batch was written before the rules were
 last changed and scored blind first: the rules then caught 25 of its 47 bad
 questions. After the changes they catch 41.
 
 | Rule | Caught | Fired on good |
 |---|---|---|
-| JEV101 double-negative | 10 of 10 | 0 of 103 |
-| JEV102 arithmetic | 10 of 10 | 0 of 103 |
-| JEV103 date-comparison | 10 of 10 | 0 of 103 |
-| JEV104 compound | 6 of 10 | 0 of 103 |
-| JEV105 generation | 11 of 11 | 0 of 103 |
-| JEV106 multi-hop | 7 of 9 | 0 of 103 |
-| JEV107 negated-noul | 9 of 9 | 0 of 103 |
-| JEV108 inverted-criteria | 6 of 9 | 0 of 103 |
-| JEV109 multi-dimension-level | 5 of 7 | 1 of 103 |
-| JEV110 degree-levels | 9 of 10 | 0 of 103 |
-| JEV111 numeric-encoding | 6 of 7 | 0 of 103 |
-| JEV112 undefined-boundary | 5 of 5 | 0 of 103 |
+| JEV101 double-negative | 10 of 10 | 0 of 119 |
+| JEV102 arithmetic | 14 of 14 | 0 of 119 |
+| JEV103 date-comparison | 10 of 10 | 0 of 119 |
+| JEV104 compound | 6 of 10 | 0 of 119 |
+| JEV105 generation | 11 of 11 | 0 of 119 |
+| JEV107 negated-noul | 9 of 9 | 0 of 119 |
+| JEV108 inverted-criteria | 6 of 9 | 0 of 119 |
+| JEV110 degree-levels | 16 of 16 | 0 of 119 |
+| JEV111 numeric-encoding | 6 of 7 | 0 of 119 |
+| JEV112 undefined-boundary | 5 of 5 | 0 of 119 |
 
 ### What the labels are worth
 
@@ -382,9 +388,11 @@ quarter of the certainty that code has, which by the rule above is advisory,
 so `JEV103` is back on at `info`. Ordering two dates stays cost-free. What
 costs is arithmetic on dates.
 
-**What is and is not proven.** Measured to cost answers: `JEV004`, `JEV008`,
-`JEV102`, `JEV112`. Measured to cost confidence: `JEV101`. Everything else on
-by default is an exact rule about what the API accepts, plus `JEV105`.
+**What is and is not proven.** Measured to cost answers here: `JEV004`,
+`JEV008`, `JEV102`, `JEV112`. Measured to cost confidence: `JEV101`. On from
+measurements made by others and from the public samples: `JEV110`, `JEV011`
+and `JEV012`, under "What public sample 3 showed". Everything else on by
+default is an exact rule about what the API accepts, plus `JEV105`.
 
 `JEV111` was left out of the harder run by mistake and run on its own
 afterwards, 24 calls, with the result in `results-encoding.json`. It compared
@@ -430,9 +438,14 @@ weakest is `JEV112`, where three of 17 turn on a word used as a plain
 adjective ("an expensive model"), which is why it is `info`.
 
 **Rules that are off for being wrong on public code.** `JEV104` compound was
-wrong on two of three firings in the third set. `JEV106` multi-hop fired six
-times across the sets and was never right. `JEV109` multi-dimension-level
-fired 166 times, nearly all on levels that list examples.
+wrong on two of three firings in the third set.
+
+**Rules removed for being wrong on public code.** `JEV106` multi-hop fired
+six times across the sets and was never right, then once more on sample 3,
+wrong again. `JEV109` multi-dimension-level fired 166 times across the sets,
+nearly all on levels that list examples, then 10 of 11 wrong on sample 2 and
+10 of 10 on sample 3. Both were removed in 0.4.0. A settings file that names
+either is now refused as naming a rule that does not exist.
 
 **What the first two sets changed.** The double-negative rule fired on 18
 questions in the second set and was wrong on almost all of them: instructions
@@ -442,6 +455,47 @@ question clause by clause, trusts only a negation sitting directly on another
 outside a question, and matches negative words from a list. Wording rules also
 skip text that is not English, read only the asking sentence where there is
 one, and ignore template slots such as `$question`.
+
+### What public sample 3 showed
+
+`fixtures/public-sample-3/` is 276 questions drawn on 2026-10-08, labelled
+before any rule ran, and scored twice: with the rules as they were, and
+after the changes 0.4.0 made. The before run is the measurement. The after
+run is a check on the changes against the questions that prompted them, so
+it is not blind for `JEV102`, `JEV110` and `JEV112`, and `JEV012`'s threshold
+was read off these labels.
+
+35 of the 252 questions read had a clear defect, and 33 of the 35 were two
+things no rule looked for: an option described as its own name, and
+instructions of a word or two that lean on the question id. The wording
+rules had 8 clear cases between them.
+
+| | Before | After |
+|---|---|---|
+| Clear defects under the default-on rules | 3 | 41 |
+| Caught | 1 | 36 |
+| Findings | 4 | 40 |
+| Findings that were wrong | 2 | 0 |
+
+What changed because of it, each measured on the sample afterwards:
+
+- `JEV011 description-repeats-name` and `JEV012 terse-instructions`, new,
+  both exact. 8 of 10 and 20 of 23, none wrong. `JEV012` leaves a two-word
+  question that opens with how, who, what, which, where, when or why alone,
+  which is what separated "How severe?" from "how much?" in the labels.
+- `JEV110 degree-levels` on, as a warning, and widened to levels that are a
+  bare word or two, or carry a slash gloss. 5 of 5, none wrong, after 6 of
+  10 with none wrong on sample 2. The default rests on the vendor's page and
+  on an independent run that took Low, Medium, High from 0.69 to 0.92 by
+  describing the levels. Our own run of 12 easy cases found no cost.
+- `JEV102 arithmetic` reads comparisons written as symbols or as "greater
+  than the number", and "40 minutes or longer". 3 of 3 after 1 of 3.
+- `JEV112 undefined-boundary` fires only where the vague word is the
+  predicate or closes the question. It was wrong on both of its findings
+  here and on 2 of 5 on sample 2, every time on an adjective sitting on a
+  noun. It now fires on nothing in this sample.
+- `JEV004 no-fallback-option` is a warning. See the rules table.
+- `JEV106` and `JEV109` removed, wrong on every firing across three samples.
 
 ### Not built
 

@@ -177,11 +177,14 @@ export function scoreArrayFix(
 /**
  * A Choice written as an array of names, turned into the map the API wants,
  * each option with no description yet. Offered only for an array of strings.
+ * `at` is what the map replaces: the array itself, or the one-option map the
+ * array was wrapped in, which the API accepts and so is never safe to mend.
  */
 export function choiceMapFix(
 	text: string,
 	criteria: ArrayNode,
 	syntax: Syntax = 'js',
+	at: Span = criteria.span,
 ): Fix | undefined {
 	if (criteria.partial || !criteria.items.length) return undefined;
 	if (!criteria.items.every((item) => item.kind === 'string')) return undefined;
@@ -191,7 +194,8 @@ export function choiceMapFix(
 	);
 	return replace(
 		'Turn the options into a map',
-		criteria.span,
+		at,
 		relist(text, criteria, criteria.items[0]?.span, options, ['{', '}']),
+		at === criteria.span,
 	);
 }

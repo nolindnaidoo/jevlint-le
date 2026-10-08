@@ -26,7 +26,7 @@ describe('Python dicts', () => {
     "model": "jev-1.13.0",
     "questions": {
         "is_urgent": {"type": "noul", "instructions": "Is it urgent?"},
-        "team": {"type": "choice", "instructions": "Which team?", "criteria": {"billing": None, "other": None}},
+        "team": {"type": "choice", "instructions": "Which team takes it?", "criteria": {"billing": None, "other": None}},
     },
 }`);
 		expect(found.questions.map((q) => [q.id, q.type, q.inRequest])).toEqual([
@@ -116,11 +116,11 @@ log = f"{ {'type': 'noul', 'instructions': name} }"`);
 
 	it('marks a dict with a spread or a name for a key as partial', () => {
 		const spread = read(
-			`q = {"questions": {"a": {"type": "choice", "instructions": "Which?", **extra}}}`,
+			`q = {"questions": {"a": {"type": "choice", "instructions": "Which one fits?", **extra}}}`,
 		);
 		expect(spread.questions[0]?.open).toBe(true);
 		const keyed = read(
-			`q = {"questions": {"a": {"type": "choice", "instructions": "Which?", "criteria": {LATE: "Arrived late", "other": None}}}}`,
+			`q = {"questions": {"a": {"type": "choice", "instructions": "Which one fits?", "criteria": {LATE: "Arrived late", "other": None}}}}`,
 		);
 		expect(keyed.questions[0]?.criteria).toMatchObject({
 			kind: 'object',
@@ -137,7 +137,7 @@ log = f"{ {'type': 'noul', 'instructions': name} }"`);
 	});
 
 	it('keeps duplicate keys', () => {
-		const text = `q = {"questions": {"a": {"type": "noul", "instructions": "One?"}, "a": {"type": "noul", "instructions": "Two?"}}}`;
+		const text = `q = {"questions": {"a": {"type": "noul", "instructions": "Is there one?"}, "a": {"type": "noul", "instructions": "Are there two?"}}}`;
 		expect(codes(text)).toContain('JEV005');
 	});
 });
@@ -146,8 +146,8 @@ describe('the Python SDK', () => {
 	it('reads the question classes by keyword', () => {
 		const found = read(`${SDK}questions = {
     "is_urgent": Noul(instructions="Is it urgent?"),
-    "team": Choice(criteria={"billing": "Charges", "other": None}, instructions="Which team?"),
-    "mood": Score(instructions="How upset?", criteria=["Calm", "Annoyed", "Furious"]),
+    "team": Choice(criteria={"billing": "Charges", "other": None}, instructions="Which team takes it?"),
+    "mood": Score(instructions="How upset are they?", criteria=["Calm", "Annoyed", "Furious"]),
 }`);
 		expect(found.questions.map((q) => [q.id, q.type, q.inRequest])).toEqual([
 			['is_urgent', 'noul', true],
@@ -163,31 +163,31 @@ describe('the Python SDK', () => {
 
 	it('reads system_one by position and by keyword, with its state', () => {
 		const byPosition = read(
-			`${SDK}client.system_one({"note": "n"}, {"a": Noul(instructions="Is it?")}, model="jev-latest")`,
+			`${SDK}client.system_one({"note": "n"}, {"a": Noul(instructions="Is it so?")}, model="jev-latest")`,
 		);
 		expect(byPosition.questions[0]?.id).toBe('a');
 		expect(byPosition.maps[0]?.state?.kind).toBe('object');
 		expect(byPosition.models[0]?.value).toBe('jev-latest');
 		const byKeyword = read(
-			`${SDK}await client.system_one(state=ticket, questions={"a": Noul(instructions="Is it?")})`,
+			`${SDK}await client.system_one(state=ticket, questions={"a": Noul(instructions="Is it so?")})`,
 		);
 		expect(byKeyword.questions[0]?.id).toBe('a');
 	});
 
 	it('follows an alias and the module name, and nothing else', () => {
 		const alias = read(
-			`from typesafe_sdk import Noul as N\nq = {"a": N(instructions="Is it?")}`,
+			`from typesafe_sdk import Noul as N\nq = {"a": N(instructions="Is it so?")}`,
 		);
 		expect(alias.questions).toHaveLength(1);
 		const module = read(
-			`import typesafe_sdk as ts\nq = {"a": ts.Score(instructions="Rate", criteria=["x", "y"])}`,
+			`import typesafe_sdk as ts\nq = {"a": ts.Score(instructions="Rate the damage", criteria=["x", "y"])}`,
 		);
 		expect(module.questions[0]?.type).toBe('score');
 	});
 
 	it("reads a wrapper library's class when its arguments are the question keywords", () => {
 		const found = read(
-			`from jevper import Choice\nimport kit\nq = {"a": Choice(instructions="Which?", criteria={"a": None}), "b": kit.Noul(instructions="Is it?")}`,
+			`from jevper import Choice\nimport kit\nq = {"a": Choice(instructions="Which one fits?", criteria={"a": None}), "b": kit.Noul(instructions="Is it so?")}`,
 		);
 		expect(found.questions.map((q) => q.type)).toEqual(['choice', 'noul']);
 	});
@@ -205,13 +205,13 @@ describe('the Python SDK', () => {
 
 	it('keeps a question written under a key built at runtime', () => {
 		const loop = read(
-			`questions = {f"p{i}": {"type": "choice", "instructions": "Which?", "criteria": {"a": None, "b": None}} for i in items}`,
+			`questions = {f"p{i}": {"type": "choice", "instructions": "Which one fits?", "criteria": {"a": None, "b": None}} for i in items}`,
 		);
 		expect(loop.questions.map((q) => [q.id, q.type])).toEqual([
 			[undefined, 'choice'],
 		]);
 		const keyed = read(
-			`q = {"questions": {KEY: {"type": "noul", "instructions": "Is it?"}, "b": {"type": "noul", "instructions": "Two?"}}}`,
+			`q = {"questions": {KEY: {"type": "noul", "instructions": "Is it so?"}, "b": {"type": "noul", "instructions": "Are there two?"}}}`,
 		);
 		expect(keyed.questions.map((q) => q.id)).toEqual(['b', undefined]);
 	});
@@ -225,7 +225,7 @@ describe('the Python SDK', () => {
 
 	it('calls a question with a positional or splatted argument partial', () => {
 		const found = read(
-			`${SDK}q = {"questions": {"a": Choice(**fields), "b": Score(LEVELS, instructions="Rate")}}`,
+			`${SDK}q = {"questions": {"a": Choice(**fields), "b": Score(LEVELS, instructions="Rate the damage")}}`,
 		);
 		expect(found.questions.map((q) => q.open)).toEqual([true, true]);
 		expect(
@@ -239,10 +239,10 @@ describe('rules on Python', () => {
 		const text = `${SDK}client.system_one(
     ticket,
     {
-        "team": Choice(instructions="Which team?", criteria={"billing": "Charges", "technical": "Faults"}),
-        "mood": Score(instructions="How upset?", criteria=["1", "2", "3"]),
+        "team": Choice(instructions="Which team takes it?", criteria={"billing": "Charges", "technical": "Faults"}),
+        "mood": Score(instructions="How upset are they?", criteria=["1", "2", "3"]),
         "wear": Score(instructions="How worn is it?", criteria={"light": "One fault", "heavy": "Several faults"}),
-        "kind": Choice(instructions="Which kind?"),
+        "kind": Choice(instructions="Which kind is it?"),
     },
     model="jev-latest",
 )`;
@@ -264,7 +264,7 @@ describe('rules on Python', () => {
 	it('honours a suppression written as a Python comment', () => {
 		const text = `${SDK}q = {"questions": {
     # jevlint-le-disable-next-line JEV004
-    "team": Choice(instructions="Which team?", criteria={"billing": "Charges", "technical": "Faults"}),
+    "team": Choice(instructions="Which team takes it?", criteria={"billing": "Charges", "technical": "Faults"}),
 }}`;
 		expect(codes(text)).toEqual([]);
 	});
@@ -280,7 +280,7 @@ describe('fixes on Python', () => {
 	};
 
 	it('adds a fallback option as a quoted key, never a bare name', () => {
-		const text = `${SDK}q = {"questions": {"team": Choice(instructions="Which team?", criteria={'billing': 'Charges', 'technical': 'Faults'})}}`;
+		const text = `${SDK}q = {"questions": {"team": Choice(instructions="Which team takes it?", criteria={'billing': 'Charges', 'technical': 'Faults'})}}`;
 		const out = apply(text, finding(text, 'JEV004').fix);
 		expect(out).toContain(
 			`'technical': 'Faults', 'other': 'Fits none of the other options'}`,
@@ -289,14 +289,14 @@ describe('fixes on Python', () => {
 	});
 
 	it('turns a Choice list into a dict with None', () => {
-		const text = `${SDK}q = {"questions": {"team": Choice(instructions="Which team?", criteria=["billing", "other"])}}`;
+		const text = `${SDK}q = {"questions": {"team": Choice(instructions="Which team takes it?", criteria=["billing", "other"])}}`;
 		const out = apply(text, finding(text, 'JEV006').fix);
 		expect(out).toContain('criteria={ "billing": None, "other": None }');
 		expect(codes(out)).toEqual([]);
 	});
 
 	it('pins a model written with a prefix', () => {
-		const text = `${SDK}client.system_one(ticket, {"a": Noul(instructions="Is it?")}, model=r'jev-latest')`;
+		const text = `${SDK}client.system_one(ticket, {"a": Noul(instructions="Is it so?")}, model=r'jev-latest')`;
 		expect(apply(text, finding(text, 'JEV001').fix)).toContain(
 			'model="jev-1.13.0")',
 		);

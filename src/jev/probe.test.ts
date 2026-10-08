@@ -8,7 +8,7 @@ const names = (question: Parameters<typeof buildProbe>[1]) =>
 
 describe('the variants of a question', () => {
 	it('always starts with three identical requests', () => {
-		expect(names({ type: 'noul', instructions: 'Is it?' })).toEqual([
+		expect(names({ type: 'noul', instructions: 'Is it so?' })).toEqual([
 			'as written 1',
 			'as written 2',
 			'as written 3',
@@ -18,7 +18,7 @@ describe('the variants of a question', () => {
 	it('reverses and blanks the options of a described Choice', () => {
 		const question = {
 			type: 'choice' as const,
-			instructions: 'Which?',
+			instructions: 'Which one fits?',
 			criteria: { late: 'Arrived late', damaged: 'Arrived damaged' },
 		};
 		expect(names(question).slice(3)).toEqual([
@@ -42,7 +42,7 @@ describe('the variants of a question', () => {
 		expect(
 			names({
 				type: 'choice',
-				instructions: 'Which?',
+				instructions: 'Which one fits?',
 				criteria: { a: null, b: 'B' },
 			}).slice(3),
 		).toEqual(['options reversed']);
@@ -52,14 +52,14 @@ describe('the variants of a question', () => {
 		expect(
 			names({
 				type: 'score',
-				instructions: 'Rate',
+				instructions: 'Rate the damage',
 				criteria: ['x', 'y', 'z'],
 			}).slice(3),
 		).toEqual(['levels reversed']);
 		expect(
 			names({
 				type: 'noul',
-				instructions: 'Is it?',
+				instructions: 'Is it so?',
 				criteria: { true: 'a', false: 'b' },
 			}).slice(3),
 		).toEqual(['criteria removed']);
@@ -68,13 +68,13 @@ describe('the variants of a question', () => {
 	it('sends the state as it was given', () => {
 		const [first] = buildProbe(
 			STATE,
-			{ type: 'noul', instructions: 'Is it?' },
+			{ type: 'noul', instructions: 'Is it so?' },
 			MODEL,
 		);
 		expect(first?.request).toEqual({
 			state: STATE,
 			model: MODEL,
-			questions: { q: { type: 'noul', instructions: 'Is it?' } },
+			questions: { q: { type: 'noul', instructions: 'Is it so?' } },
 		});
 	});
 });
@@ -85,7 +85,7 @@ describe('reading a variant back', () => {
 			STATE,
 			{
 				type: 'choice',
-				instructions: 'Which?',
+				instructions: 'Which one fits?',
 				criteria: { late: 'L', damaged: 'D' },
 			},
 			MODEL,
@@ -99,7 +99,11 @@ describe('reading a variant back', () => {
 	it('flips a score read from reversed levels', () => {
 		const reversed = buildProbe(
 			STATE,
-			{ type: 'score', instructions: 'Rate', criteria: ['x', 'y', 'z'] },
+			{
+				type: 'score',
+				instructions: 'Rate the damage',
+				criteria: ['x', 'y', 'z'],
+			},
 			MODEL,
 		)[3];
 		if (!reversed) throw new Error('no variant');
@@ -115,7 +119,7 @@ describe('the report', () => {
 		STATE,
 		{
 			type: 'noul',
-			instructions: 'Is it?',
+			instructions: 'Is it so?',
 			criteria: { true: 'a', false: 'b' },
 		},
 		MODEL,

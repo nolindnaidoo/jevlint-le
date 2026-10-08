@@ -1,5 +1,50 @@
 # Changelog
 
+## 0.4.0 — unreleased
+
+Fewer rules, every one measured. A third sample of public Jev questions,
+labelled before any rule ran, showed that nearly every real defect is an
+option described as its own name or instructions of a word or two, and that
+the wording rules were right or wrong in the same places as on the two
+samples before. The rules now follow that.
+
+- **`JEV011 description-repeats-name`**, new, a warning. An option whose
+  description is its name again (`"billing": "Billing"`, `"a": "Option A"`),
+  or a Noul whose criteria say yes and no. Jev matches the state against the
+  description, and these say nothing. Independent runs took such questions
+  from 0.69 to 0.92 and from 83% to 100% by describing the cases.
+- **`JEV012 terse-instructions`**, new, a warning. Instructions of one or two
+  words (`Rate`, `Which?`, `Pick one.`) that lean on the question id, which
+  Jev never sees. A two-word question that opens with how, who, what, which,
+  where, when or why is left alone.
+- **`JEV110 degree-levels` is on**, as a warning. It was the most common real
+  defect in two samples and right every time it fired. It now also catches
+  levels that are a bare word or two (`Shallow`, `Like new`, `Almost none`)
+  and levels with a gloss after a slash (`Very casual / slang`).
+- **`JEV004 no-fallback-option` is a warning**, from info. The cost of a
+  missing fallback is the largest measured anywhere: in our run Jev answered
+  every input that fit no option wrong, and an independent audit found 95%
+  abstention with an "unknown" option against 0% accuracy without one. The
+  message names `other` and `insufficient_evidence`.
+- **`criteria: { "options": [...] }` is reported as the mistake it is.** The
+  API accepts that as a one-option Choice that answers `options` every time
+  at full confidence. `JEV006` now says so, as an error, with a fix on the
+  lightbulb that is never applied unasked, since the API does not refuse it.
+- **`JEV102 arithmetic` reads comparisons with no counting word**: `x > 50`,
+  "greater than the number", "40 minutes or longer", "under five seconds".
+  It caught 1 of 3 on the sample before and 3 of 3 after.
+- **`JEV112 undefined-boundary` fires only where the vague word decides the
+  answer**: after a form of "be", or closing the question. Every wrong
+  finding it had on public code was an adjective on a noun, "heavy luggage"
+  or "an expensive model". It now has none.
+- **`JEV106 multi-hop` and `JEV109 multi-dimension-level` are removed.**
+  Wrong on every firing across three samples. A settings file or `--rule`
+  that names either is refused, as for any rule that does not exist.
+- **A second gate on defaults.** A wording rule stays on only while it is
+  right on at least 9 of 10 of its findings on a public sample it was not
+  tuned against. The samples and their labels are in `fixtures/`.
+- The GitHub Action and the pre-commit hook pin 0.4.0.
+
 ## 0.3.0 — 2026-10-08
 
 - **The editor lints with the copy a project installs.** Add `jevlint-le` to

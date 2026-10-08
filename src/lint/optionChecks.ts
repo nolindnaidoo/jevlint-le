@@ -1,4 +1,10 @@
-import type { ArrayNode, Node, ObjectNode, Question } from '../types';
+import type {
+	ArrayNode,
+	Node,
+	ObjectNode,
+	Question,
+	StringNode,
+} from '../types';
 import { type Check, NONE, normalizeOption, repeated, report } from './finding';
 import { fallbackFix } from './fix';
 import { LIMITS } from './limits';
@@ -17,9 +23,20 @@ function scoreLevels(question: Question): ArrayNode | undefined {
 		: undefined;
 }
 
+/**
+ * `criteria: { "options": [...] }`: the list of options wrapped in a map with
+ * one key. The API accepts it as a one-option Choice that answers "options"
+ * every time, at confidence 1.0. `JEV006` reports it, so the count rule does not.
+ */
+export function wrapsList(options: ObjectNode): ArrayNode | undefined {
+	if (options.partial || options.props.length !== 1) return undefined;
+	const value = options.props[0]?.value;
+	return value?.kind === 'array' && value.items.length ? value : undefined;
+}
+
 const checkChoiceCount: Check = (question) => {
 	const options = choiceOptions(question);
-	if (!options) return NONE;
+	if (!options || wrapsList(options)) return NONE;
 	const count = options.props.length;
 	if (count > LIMITS.choiceMaxOptions) {
 		return [
@@ -50,7 +67,7 @@ const checkFallback: Check = (question, context) => {
 	)
 		return NONE;
 	const message =
-		"This Choice has no fallback option. When an input fits none of the options, Jev still has to pick one. Add an option such as 'other', or suppress this if the options cover every input.";
+		"This Choice has no fallback option, so an input that fits none of them is forced into one. Measured: with no fallback, every input that fit no option was answered wrong. Add 'other' or 'insufficient_evidence', or suppress this if the options cover every input.";
 	return [
 		{
 			...report('JEV004', question, message),
@@ -133,6 +150,65 @@ const checkNumericLevels: Check = (question) => {
 	return [report('JEV008', question, message, levels.span)];
 };
 
+// "ready": "Ready", "low": "low", "a": "Option A". Case, underscores, hyphens,
+// a closing full stop and the word "option" are spelling, not description.
+const sameWords = (key: string, description: string): boolean =>
+	normalizeOption(key).replace(/\s+/g, ' ') ===
+	normalizeOption(description)
+		.replace(/[.!]\s*$/, '')
+		.replace(/^(?:option|choice)\s+/, '')
+		.replace(/\s+/g, ' ');
+
+/** What people write for a Noul's criteria when they have not described either case. */
+const BARE_ANSWERS: ReadonlySet<string> = new Set([
+	'yes',
+	'no',
+	'true',
+	'false',
+	'y',
+	'n',
+]);
+
+const checkDescriptionRepeatsName: Check = (question) => {
+	const criteria = question.criteria;
+	if (criteria?.kind !== 'object' || criteria.partial) return NONE;
+	if (question.type === 'choice') {
+		return criteria.props
+			.filter(
+				(entry) =>
+					entry.value.kind === 'string' &&
+					sameWords(entry.key, entry.value.value),
+			)
+			.map((entry) =>
+				report(
+					'JEV011',
+					question,
+					`The description of '${entry.key}' only repeats its name. Jev matches the state against the description, so say what belongs under this option.`,
+					entry.value.span,
+				),
+			);
+	}
+	if (question.type === 'noul') {
+		return criteria.props
+			.filter(
+				(entry) =>
+					entry.value.kind === 'string' &&
+					BARE_ANSWERS.has(
+						normalizeOption(entry.value.value).replace(/[.!]\s*$/, ''),
+					),
+			)
+			.map((entry) =>
+				report(
+					'JEV011',
+					question,
+					`The '${entry.key}' criterion says '${(entry.value as StringNode).value}', which only repeats the key. Say what makes the answer ${entry.key}, or leave the criteria out.`,
+					entry.value.span,
+				),
+			);
+	}
+	return NONE;
+};
+
 /** The rules that read a Choice's options or a Score's levels. */
 export const OPTION_CHECKS: ReadonlyArray<Check> = Object.freeze([
 	checkChoiceCount,
@@ -141,4 +217,5 @@ export const OPTION_CHECKS: ReadonlyArray<Check> = Object.freeze([
 	checkLevelCount,
 	checkDuplicateLevels,
 	checkNumericLevels,
+	checkDescriptionRepeatsName,
 ]);

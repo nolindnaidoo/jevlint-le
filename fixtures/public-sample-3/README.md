@@ -76,6 +76,33 @@ Not measured by a rule, because none existed:
 | JEV011 description repeats its name | 10 | 2 |
 | JEV012 instructions do not say what is asked | 23 | 7 |
 
+## After the changes
+
+The same labels, scored again once 0.4.0's rule changes were made. This run
+is a check, not a measurement: `JEV102`, `JEV110` and `JEV112` were changed
+with these misses in view, and `JEV012`'s threshold came from these labels.
+
+| | Default-on rules |
+|---|---|
+| Clear defects under those rules | 41 |
+| Caught | 36 |
+| Findings | 40 |
+| On a borderline label | 4 |
+| Findings that were wrong | 0 |
+
+| Rule | Default | Clear defects | Caught | Fired | Borderline | Wrong |
+|---|---|---|---|---|---|---|
+| JEV011 description-repeats-name | on | 10 | 8 | 8 | 0 | 0 |
+| JEV012 terse-instructions | on | 23 | 20 | 21 | 1 | 0 |
+| JEV102 arithmetic | on | 3 | 3 | 4 | 1 | 0 |
+| JEV110 degree-levels | on | 5 | 5 | 7 | 2 | 0 |
+| JEV112 undefined-boundary | on | 0 | 0 | 0 | 0 | 0 |
+
+`JEV011` misses "success: Successful", a different word from the key, and a
+Noul whose criteria are a Choice's, which `JEV006` reports instead. `JEV012`
+misses "Rate the level.", three words, and "how much?" and "how relevant",
+which open with a question word and so are left alone with "How severe?".
+
 ## What to take from it
 
 - **The defects in public code are structural, not wording.** 33 of 35 are a

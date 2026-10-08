@@ -63,23 +63,23 @@ mistakes that can be read from the text.
 | JEV001 | unpinned-model | warning | `jev-latest` and `jev-preview` move with each release, so answers can change with no change on your side |
 | JEV002 | choice-option-limit | error | A Choice has more than 255 options. The API rejects it |
 | JEV003 | score-level-limit | error | A Score has more than 10 levels. The API rejects it |
-| JEV004 | no-fallback-option | info | A Choice has no `other` or `none of the above`, so an input that fits no option is forced into one |
+| JEV004 | no-fallback-option | warning | A Choice has no `other` or `none of the above`, so an input that fits no option is forced into one. The largest cost measured anywhere |
 | JEV005 | duplicate | error | A question id, option or level appears twice. In an object the later one silently replaces the earlier |
 | JEV006 | criteria-shape | error | A Choice needs a map of options, a Score needs an array of levels, and a Noul takes `true` and `false` |
 | JEV007 | invalid-question | error | The type is missing or unknown, or the instructions are an empty string |
 | JEV008 | numeric-levels | warning | Score levels are bare numbers. Jev matches the state against each description and never sees its position |
 | JEV009 | too-few-options | info | A Choice with one option or a Score with one level gives every input the same answer |
 | JEV010 | unused-disable | warning | A `jevlint-le-disable` comment silences nothing, so it can only hide a finding added later |
+| JEV011 | description-repeats-name | warning | An option's description only repeats its name, or a Noul's criteria say yes and no. Jev matches the state against the description, and this one says nothing |
+| JEV012 | terse-instructions | warning | The instructions are one or two words, so the question leans on its id. Jev is sent the instructions and never the id |
 | JEV101 | double-negative | info | A question negates twice in one clause, or a negation sits directly on another |
 | JEV102 | arithmetic | warning | The question asks Jev to count or compare numbers |
 | JEV103 | date-comparison | info | The question asks Jev to order two times or measure the gap between them |
 | JEV104 | compound | off | A Noul joins two judgments with 'and' |
 | JEV105 | generation | warning | The question asks for a value or for text to be written |
-| JEV106 | multi-hop | off | One sentence chains three or more relationships |
 | JEV107 | negated-noul | off | A Noul with no criteria is phrased so that yes means something is absent |
 | JEV108 | inverted-criteria | off | A Noul's 'true' criterion describes the negative case |
-| JEV109 | multi-dimension-level | off | A Score level lists three or more qualities |
-| JEV110 | degree-levels | off | Score levels are degree words, or one word turned up and down |
+| JEV110 | degree-levels | warning | Score levels are degree words, bare labels, or one word turned up and down. Nothing for Jev to match the state against |
 | JEV111 | numeric-encoding | off | The question refers to a value by hex or RGB encoding |
 | JEV112 | undefined-boundary | info | A Noul with no criteria turns on a word such as large, often or enough |
 | JEV301 | jev-counting | warning | Jev reads the question as needing counting or arithmetic |
@@ -201,7 +201,7 @@ npm install --save-dev jevlint-le
 The editor then lints with that copy, not the one the extension carries, so
 what you see while typing is what `npx jevlint-le` reports in CI. The version
 changes when `package.json` does, and for everyone at once. The status bar
-shows `project 0.3.0` while a project's copy is in use.
+shows `project 0.4.0` while a project's copy is in use.
 
 With nothing installed the extension lints with its own copy, with no setup.
 
@@ -255,7 +255,7 @@ Jev, and it never uses the network, unless you pass `--jev`.
 On GitHub, the action annotates a pull request:
 
 ```yaml
-- uses: nolindnaidoo/jevlint-le@v0.3.0
+- uses: nolindnaidoo/jevlint-le@v0.4.0
   with:
     paths: src
 ```
@@ -277,7 +277,7 @@ With [pre-commit](https://pre-commit.com):
 
 ```yaml
 - repo: https://github.com/nolindnaidoo/jevlint-le
-  rev: v0.3.0
+  rev: v0.4.0
   hooks:
     - id: jevlint-le
 ```
@@ -352,12 +352,13 @@ Nothing else in this extension uses the network. On the command line, only
   reported as unreadable and counted in the status bar. A file is never shown
   as clean while part of it went unread.
 - **Everything about wording.** `JEV101` to `JEV112` are heuristics over
-  English text, and most are off. Each default follows from running a badly
-  written question and its fixed version against Jev: a rule stays on only
-  where the bad wording cost answers or confidence. Seven that describe
-  failure modes in TypeSafe's docs did not fail on `jev-1.13.0` in those runs
-  or were wrong too often on public code. Switch any of them on in
-  `jevlint-le.rules`.
+  English text. A rule is on only where a badly written question cost answers
+  or confidence against Jev, in our runs or in someone else's, and it stays
+  on only while it is right on at least 9 of 10 of its findings on public
+  code it was not tuned against. Four that describe failure modes in
+  TypeSafe's docs, `JEV104`, `JEV107`, `JEV108` and `JEV111`, did not fail on
+  `jev-1.13.0` and are off. Switch any of them on in `jevlint-le.rules`. Two
+  more were removed in 0.4.0 for being wrong every time they fired.
 - **Anything about a question that is not in English.**
 - **What a lone object lacks.** A `{ type, instructions }` outside a
   `questions` map may be a template or half of a builder, so a missing

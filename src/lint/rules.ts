@@ -38,10 +38,13 @@ export const RULES: Readonly<Record<RuleCode, Rule>> = Object.freeze({
 	JEV004: {
 		code: 'JEV004',
 		name: 'no-fallback-option',
-		// Measured 2026-10-04: fires on 9 of the 11 Choice examples TypeSafe
-		// publishes as correct. The vendor's advice is conditional on the options
-		// not covering every input, which text cannot show, so this informs.
-		severity: 'info',
+		// It fires on 9 of the 11 Choice examples TypeSafe publishes as correct,
+		// and the vendor's advice is conditional on the options not covering every
+		// input, which text cannot show. It is a warning anyway, because the cost
+		// is the largest measured anywhere: our run, 4 of 8 right against 8 of 8;
+		// an independent KoBBQ audit, 95% abstention with an "unknown" option
+		// against 0% accuracy on the same items without one.
+		severity: 'warning',
 		docs: DOCS.choice,
 	},
 	JEV005: {
@@ -81,6 +84,26 @@ export const RULES: Readonly<Record<RuleCode, Rule>> = Object.freeze({
 		// The one rule about this tool's own comments, so the one with no vendor page.
 		docs: 'https://github.com/nolindnaidoo/jevlint-le#suppressing-a-finding',
 	},
+	JEV011: {
+		code: 'JEV011',
+		name: 'description-repeats-name',
+		// Measured independently: "billing": "Billing" rewritten as a description
+		// took one question from 0.69 to 0.92 (smkrv/jev-calibrate), and Yes/No
+		// criteria rewritten took another from 83% to 100% (SYED-M-HUSSAIN).
+		// 10 clear cases in public sample 3.
+		severity: 'warning',
+		docs: DOCS.choice,
+	},
+	JEV012: {
+		code: 'JEV012',
+		name: 'terse-instructions',
+		// Dropping the instructions cost calibration in one independent run
+		// (ECE 0.045 to 0.068) and 32 points in another. 23 clear cases in public
+		// sample 3, the most common defect there. The vendor's page says to write
+		// the question out even when the id seems to say it.
+		severity: 'warning',
+		docs: DOCS.primitives,
+	},
 	JEV101: {
 		code: 'JEV101',
 		name: 'double-negative',
@@ -116,12 +139,6 @@ export const RULES: Readonly<Record<RuleCode, Rule>> = Object.freeze({
 		severity: 'warning',
 		docs: `${DOCS.jaggedness}#generation`,
 	},
-	JEV106: {
-		code: 'JEV106',
-		name: 'multi-hop',
-		severity: 'off',
-		docs: `${DOCS.jaggedness}#indirection`,
-	},
 	JEV107: {
 		code: 'JEV107',
 		name: 'negated-noul',
@@ -136,17 +153,15 @@ export const RULES: Readonly<Record<RuleCode, Rule>> = Object.freeze({
 		severity: 'off',
 		docs: `${DOCS.jaggedness}#contradictory-instructions-and-criteria`,
 	},
-	JEV109: {
-		code: 'JEV109',
-		name: 'multi-dimension-level',
-		severity: 'off',
-		docs: DOCS.scoreLevels,
-	},
 	JEV110: {
 		code: 'JEV110',
 		name: 'degree-levels',
-		// Measured: 11 of 12 right either way. No cost found.
-		severity: 'off',
+		// The most common real defect in public code: 15 clear cases across two
+		// samples, and right on every one of its 9 firings there. Our own run
+		// found no cost on 12 easy cases, but an independent one (smkrv/jev-calibrate)
+		// took Low/Medium/High from 0.69 to 0.92 accuracy by describing the
+		// levels, which is what the vendor's own page asks for.
+		severity: 'warning',
 		docs: DOCS.scoreLevels,
 	},
 	JEV111: {

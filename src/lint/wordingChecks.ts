@@ -3,11 +3,11 @@ import { type Check, NONE, PLACEHOLDER, report } from './finding';
 import {
 	ABSENCE,
 	ARITHMETIC,
+	COMPARISON_SYMBOL,
 	DATE_COMPARISON,
 	DEGREE_WORDS,
 	GENERATION_VERB,
 	HAND_OVER,
-	HOP,
 	INTENSIFIERS,
 	JOINED_CLAUSE,
 	LEADS_NEGATIVE,
@@ -18,12 +18,8 @@ import {
 	OPEN_QUESTION,
 	PHRASE_OPENER,
 	STACKED_NEGATION,
-	VAGUE,
+	VAGUE_PREDICATE,
 } from './lexicon';
-
-/** Two hops is ordinary speech ("the customer's order"). Three is where the corpus's good questions stop. */
-const HOP_LIMIT = 3;
-const LEVEL_PART_LIMIT = 3;
 
 /**
  * The sentence a wording rule reads. Structured instructions keep the
@@ -56,8 +52,8 @@ function asked(text: string): string {
 	return questions ? questions.join(' ') : (sentences(text)[0] ?? text);
 }
 
-// Wording rules read English. Text in another script is left alone.
-function isEnglish(text: string): boolean {
+/** Wording rules read English. Text in another script is left alone. */
+export function isEnglish(text: string): boolean {
 	const letters = text.match(/\p{L}/gu)?.length ?? 0;
 	const latin = text.match(/[a-z]/gi)?.length ?? 0;
 	return letters > 0 && latin / letters >= 0.9;
@@ -91,11 +87,6 @@ function negatesTwice(text: string): boolean {
 	return questions.some((sentence) =>
 		clauses(sentence).some((clause) => negations(clause) >= 2),
 	);
-}
-
-// "Which entry is..." opens a question. It does not step from one thing to another.
-function hops(sentence: string): number {
-	return count(sentence.replace(/^\s*(?:which|who|whose|whom)\b/i, ' '), HOP);
 }
 
 // Two judgments, as against two nouns. "muddy and closed" after "Is the trail"
@@ -142,7 +133,9 @@ const checkDoubleNegative = wording(
 const checkArithmetic = wording(
 	'JEV102',
 	'This question asks Jev to count or compare numbers, which it does not do reliably. Ask one question per item and do the arithmetic in code.',
-	(text) => ARITHMETIC.some((pattern) => pattern.test(asked(text))),
+	(text) =>
+		COMPARISON_SYMBOL.test(text) ||
+		ARITHMETIC.some((pattern) => pattern.test(asked(text))),
 );
 
 const checkDateComparison = wording(
@@ -166,12 +159,6 @@ const checkGeneration = wording(
 		(question.type === 'noul' && opensOrHandsOver(text)),
 );
 
-const checkMultiHop = wording(
-	'JEV106',
-	'This question chains several relationships before it reaches the thing it asks about. Each hop costs accuracy. Resolve the chain in code and ask about the result.',
-	(text) => sentences(text).some((sentence) => hops(sentence) >= HOP_LIMIT),
-);
-
 const checkNegatedNoul = wording(
 	'JEV107',
 	'This yes/no question is phrased so that yes means something is absent. Jev reads that less reliably. Ask whether the thing is present and invert the answer in code.',
@@ -188,7 +175,7 @@ const checkUndefinedBoundary = wording(
 		question.type === 'noul' &&
 		!question.criteria &&
 		!questionText(question)?.slots &&
-		VAGUE.test(asked(text)),
+		VAGUE_PREDICATE.test(asked(text)),
 );
 
 const checkNumericEncoding = wording(
@@ -232,26 +219,13 @@ function levelTexts(question: Question): ReadonlyArray<StringNode> {
 	);
 }
 
-function qualities(level: string): number {
-	return level.split(/,\s*(?:and\s+)?|\s+and\s+/i).filter((part) => part.trim())
-		.length;
-}
-
-const checkMultiDimensionLevel: Check = (question) =>
-	levelTexts(question)
-		.filter((level) => isEnglish(level.value))
-		.filter((level) => qualities(level.value) >= LEVEL_PART_LIMIT)
-		.map((level) =>
-			report(
-				'JEV109',
-				question,
-				'This level lists several qualities at once. An input high on one and low on another cannot be placed. Use one Score per quality.',
-				level.span,
-			),
-		);
-
 function words(level: string): ReadonlyArray<string> {
 	return level.toLowerCase().match(/[a-z]+/g) ?? [];
+}
+
+// "Very casual / slang": the label is before the slash, the rest is a gloss on it.
+function label(level: string): string {
+	return level.split(/\s*\/\s*/)[0] ?? level;
 }
 
 function isDegree(level: string): boolean {
@@ -260,6 +234,19 @@ function isDegree(level: string): boolean {
 		all.length > 0 &&
 		all.every((word) => DEGREE_WORDS.has(word) || INTENSIFIERS.has(word))
 	);
+}
+
+const ARTICLES: ReadonlySet<string> = new Set(['a', 'an', 'the']);
+
+// "Shallow", "Like new", "Almost none": a word or two that names a rung and
+// describes nothing. A level with a participle in it ("Not started", "Parts
+// fitted") says what happened, however short, and is left alone.
+function isBareLabel(level: string): boolean {
+	const content = words(level).filter(
+		(word) => !INTENSIFIERS.has(word) && !ARTICLES.has(word),
+	);
+	if (!content.length || content.length > 2) return false;
+	return !content.some((word) => /(?:ed|ing)$/.test(word)) && !/\d/.test(level);
 }
 
 // "Not noisy", "Noisy", "Extremely noisy": one word, turned up and down. So is
@@ -282,9 +269,10 @@ const checkDegreeLevels: Check = (question): ReadonlyArray<Finding> => {
 	const levels = levelTexts(question);
 	if (levels.length < 2 || question.criteria?.kind !== 'array') return NONE;
 	if (levels.length !== question.criteria.items.length) return NONE;
-	const texts = levels.map((level) => level.value);
+	const texts = levels.map((level) => label(level.value));
 	if (!texts.every(isEnglish)) return NONE;
-	if (!texts.every(isDegree) && !isLadder(texts)) return NONE;
+	if (!texts.every(isDegree) && !isLadder(texts) && !texts.every(isBareLabel))
+		return NONE;
 	return [
 		report(
 			'JEV110',
@@ -302,10 +290,8 @@ export const WORDING_CHECKS: ReadonlyArray<Check> = Object.freeze([
 	checkDateComparison,
 	checkCompound,
 	checkGeneration,
-	checkMultiHop,
 	checkNegatedNoul,
 	checkInvertedCriteria,
-	checkMultiDimensionLevel,
 	checkDegreeLevels,
 	checkNumericEncoding,
 	checkUndefinedBoundary,

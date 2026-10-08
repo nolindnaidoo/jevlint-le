@@ -53,12 +53,22 @@ export const ARITHMETIC: ReadonlyArray<RegExp> = Object.freeze([
 	// removed before a rule reads, which leaves "more than of".
 	/\b(?:more|fewer|less) than\s+of\b/i,
 	/\badds? up\b/i,
-	/\b(?:over|under|above|below) \d/i,
+	new RegExp(`\\b(?:over|under|above|below) ${NUMBER}\\b`, 'i'),
+	// Public sample 3: "the number 2 greater than the number 1", "(x > 50)",
+	// "40 minutes or longer". Comparisons with no counting word in them.
+	/\b(?:more|fewer|less|greater|higher|lower|larger|smaller|bigger) than the (?:number|count|total|sum|amount|limit|threshold|budget|deposit|cap|quota|value)\b/i,
+	new RegExp(`\\b${NUMBER} \\w+ or (?:more|longer|less|fewer|shorter)\\b`, 'i'),
 	/\b(?:split|divided?|shared?) (?:evenly|equally)\b/i,
 	/\b(?:twice|double|triple|half) (?:the|of|as)\b/i,
 	/\b(?:divisible by|a multiple of)\b|\b(?:odd|even|prime)\s*\?/i,
 	/\bthe (?:number|count|sum|total|average) of\b/i,
 ]);
+
+/**
+ * "(x > 50)", ">= 8.5". Written as a symbol it is arithmetic wherever it sits,
+ * so this one is read over the whole instruction and not only the question.
+ */
+export const COMPARISON_SYMBOL = /[<>]=?\s*\d|\d\s*[<>]=?/;
 
 // What makes "before" a comparison of two times and not a turn of phrase: a
 // date-like noun or a finished event after it. "Before trial", "before paying"
@@ -89,10 +99,6 @@ export const HAND_OVER = /^\s*(?:name|give|provide|tell)\b/i;
 /** An instruction that asks for text to be produced. */
 export const GENERATION_VERB =
 	/^\s*(?:summari[sz]e|write|list|extract|generate|describe|explain|translate|rewrite|draft|compose)\b/i;
-
-/** One step from a thing to something related to it. */
-export const HOP =
-	/\b(?:of (?:the|a|an|this|that|whoever|whichever)|who|whose|whoever|whom|which|refers? to|belongs? to|registered to|assigned to)\b|\bthe same \w+ as\b|\w's\b|(?<!\b(?:say|says|said|state|states|stated|mention|mentions|mentioned|claim|claims|claimed|report|reports|reported|show|shows|shown|mean|means|think|thinks|believe|believes|suggest|suggests|indicate|indicates|confirm|confirms|note|notes|case|true|false|untrue|so|such|sure|clear|likely) )\bthat\b/gi;
 
 /** Hex colours and literals, and rgb() triples. A six-digit run needs a letter, or `#104000` would be a ticket. */
 export const NUMERIC_ENCODING =
@@ -181,5 +187,20 @@ export const PHRASE_OPENER =
  * Words whose line between yes and no is left to the reader: how large is
  * large? Kept to words that are rarely anything but a threshold.
  */
-export const VAGUE =
-	/\b(?:large|small|big|often|frequently|rarely|recently|soon|experienced|senior|strong|weak|enough|sufficient(?:ly)?|significant(?:ly)?|substantial(?:ly)?|serious(?:ly)?|severe(?:ly)?|expensive|cheap)\b|\b(?:very|too|really|quite|fairly|extremely|highly|unusually|especially|overly|excessively) \w+/i;
+const VAGUE_WORD =
+	'(?:large|small|big|often|frequently|rarely|recently|soon|experienced|senior|strong|weak|enough|sufficient(?:ly)?|significant(?:ly)?|substantial(?:ly)?|serious(?:ly)?|severe(?:ly)?|expensive|cheap)';
+const INTENSIFIED =
+	'(?:very|too|really|quite|fairly|extremely|highly|unusually|especially|overly|excessively) \\w+';
+const BE =
+	'(?:is|are|was|were|be|been|being|seems?|looks?|appears?|gets?|becomes?|feels?|sounds?)';
+
+/**
+ * A vague word where it decides the answer: after a form of "be" ("is the
+ * order large"), or closing the question ("come often?"). "Heavy luggage or
+ * small children" and "evidence sufficient to decide" describe things on the
+ * way to the question and were the rule's wrong findings on public code.
+ */
+export const VAGUE_PREDICATE = new RegExp(
+	`\\b${BE}\\b(?:\\s+\\w+){0,3}\\s+(?:${VAGUE_WORD}|${INTENSIFIED})\\b|\\b(?:${VAGUE_WORD}|${INTENSIFIED})\\s*(?:\\?|$)`,
+	'i',
+);
