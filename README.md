@@ -322,8 +322,10 @@ TYPESAFE_API_KEY=... npx jevlint-le --jev src/    # send it
 
 ## For AI agents
 
-The same program is an MCP server, so an agent that writes Jev questions can
-lint what it wrote and fix it before you see it.
+The same program is an MCP server, so an agent that writes Jev or OpenAI
+Decisions questions can lint what it wrote and fix it before you see it. The
+tool descriptions and the server's instructions name both vendors and all
+three request shapes, so an agent knows to call it for any of them.
 
 Agents running inside VS Code get it with no setup: the extension offers the
 server to the editor, which starts it when an agent calls a tool. For any

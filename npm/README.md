@@ -94,8 +94,10 @@ the command is run in.
 
 ## MCP server
 
-For an AI agent that writes Jev questions. It can lint what it wrote and fix
-it before you see it.
+For an AI agent that writes Jev or OpenAI Decisions questions. It can lint
+what it wrote and fix it before you see it. The tool descriptions and the
+server's instructions name both vendors, so an agent knows to call it for
+either shape.
 
 ```json
 {

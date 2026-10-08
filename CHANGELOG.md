@@ -24,6 +24,10 @@ OpenAI's Decisions API, `gpt-6-luna`, is read and checked the way Jev is.
   asks Jev only. **Clear API Keys** now clears both.
 - **A Score with one degree word beside one described level was flagged as
   a ladder.** `["Low", "Nobody can log in"]` no longer is.
+- **The MCP server tells an agent it reads both vendors.** Its tool
+  descriptions and its `instructions` name Jev, OpenAI's Decisions API and
+  the AI SDK's `decide()`, so an agent writing a Decisions request knows to
+  lint it. The tools themselves already read every shape.
 - The GitHub Action and the pre-commit hook pin 0.5.0.
 
 ## 0.4.0 — 2026-10-08

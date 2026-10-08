@@ -115,7 +115,7 @@ const TOOLS: ReadonlyArray<Tool> = Object.freeze([
 	{
 		name: 'lint_text',
 		description:
-			"Lint questions written for TypeSafe's Jev model (System One) before they are sent. Pass a request body as JSON, or source code that builds one. Returns each finding with its rule, message, position and docs link, plus how many questions were found and how many could not be read in full. Use it after writing or changing a Jev question. It sends nothing over the network.",
+			"Lint questions written for a decision model before they are sent: TypeSafe's Jev (System One, /v1/systemone) and OpenAI's Decisions API (gpt-6-luna, /v1/decisions), in either request shape, or the Vercel AI SDK's decide() for both. Pass a request body as JSON, or source code that builds one. Returns each finding with its rule, message, position and docs link, plus how many questions were found and how many could not be read in full. Use it after writing or changing a question. It sends nothing over the network.",
 		inputSchema: {
 			type: 'object',
 			properties: {
@@ -136,7 +136,7 @@ const TOOLS: ReadonlyArray<Tool> = Object.freeze([
 	{
 		name: 'lint_paths',
 		description:
-			'Lint the Jev questions in files or directories on disk. A directory is searched for the file types the linter reads. Returns the same report as lint_text, one entry per file.',
+			'Lint the Jev and OpenAI Decisions questions in files or directories on disk. A directory is searched for the file types the linter reads. Returns the same report as lint_text, one entry per file.',
 		inputSchema: {
 			type: 'object',
 			properties: {
@@ -156,12 +156,17 @@ const TOOLS: ReadonlyArray<Tool> = Object.freeze([
 	},
 ]);
 
+// What an agent reads once, before it has seen a tool: when to reach for this server.
+const INSTRUCTIONS =
+	"Lints questions written for a decision model, TypeSafe's Jev or OpenAI's Decisions API (gpt-6-luna), before they are sent. Call lint_text after writing or changing a question, in a request body or in code, and fix what it reports. It never calls either model.";
+
 function initialize(params: Json, version: string): Json {
 	const asked = String(params.protocolVersion ?? '');
 	return {
 		protocolVersion: PROTOCOLS.includes(asked) ? asked : PROTOCOLS[0],
 		capabilities: { tools: {} },
 		serverInfo: { name: NAME, version },
+		instructions: INSTRUCTIONS,
 	};
 }
 
