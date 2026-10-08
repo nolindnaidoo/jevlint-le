@@ -70,8 +70,22 @@ export type Syntax = 'js' | 'python' | 'rust' | 'go';
 
 export type QuestionType = 'noul' | 'choice' | 'score';
 
+/**
+ * Whose request shape a question is written in. The rules read every dialect
+ * the same way, through `criteria`; the dialect says which fields it came
+ * from and which API's limits apply.
+ *
+ * - `typesafe`: `{ type: 'noul' | 'choice' | 'score', instructions, criteria }`
+ * - `openai`: `{ type: 'predicate' | 'choice' | 'score', name, instructions, choices: [{ value, description }], levels: [{ label, description }] }`
+ * - `vercel`: the AI SDK's `decide()`, `{ type: 'boolean' | 'choice' | 'score', instructions, options: {}, levels: [] }`
+ */
+export type Dialect = 'typesafe' | 'openai' | 'vercel';
+
 export type Question = Readonly<{
 	id: string | undefined;
+	dialect: Dialect;
+	/** An OpenAI Score's level labels, beside the descriptions `criteria` holds. */
+	levelLabels?: ReadonlyArray<StringNode>;
 	/** Where a finding about the whole question is anchored. */
 	anchor: Span;
 	/** The whole question as written, for finding the one under the cursor. */
@@ -82,6 +96,12 @@ export type Question = Readonly<{
 	criteria: Node | undefined;
 	/** The `criteria` key, where a finding about the criteria's shape belongs. */
 	criteriaKey: Span | undefined;
+	/**
+	 * The options or levels as written, for a dialect whose field `criteria`
+	 * was read out of: OpenAI's `choices` or `levels` list. Shape rules and
+	 * fixes work on this; every other rule reads `criteria`.
+	 */
+	criteriaRaw?: Node;
 	/**
 	 * True when a missing field proves nothing: the object has a spread, or it
 	 * carries another dialect's fields (`prompt`, `options`, `legend`), so the
@@ -109,6 +129,8 @@ export type QuestionMap = Readonly<{
 
 export type Malformed = Readonly<{
 	id: string | undefined;
+	/** Whose type names to offer in place of the wrong one. */
+	dialect: Dialect;
 	anchor: Span;
 	reason: 'unknown-type' | 'missing-type' | 'runtime-question' | 'runtime-type';
 	found: string;

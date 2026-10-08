@@ -27,13 +27,32 @@ export function normalizeOption(name: string): string {
 	return name.toLowerCase().replace(/[_-]+/g, ' ').trim();
 }
 
+// A message names the model that will answer the question. Written for Jev,
+// it is reworded for a question in another vendor's shape.
+const MODEL_NAME: Readonly<Record<Question['dialect'], string | undefined>> =
+	Object.freeze({ typesafe: undefined, openai: 'Luna', vercel: 'the model' });
+
+function forModel(message: string, question: Question): string {
+	const name = MODEL_NAME[question.dialect];
+	if (!name) return message;
+	return message
+		.replace(/\bJev\b/g, name)
+		.replace(/(^|[.!?]\s+)the model\b/g, '$1The model');
+}
+
 export function report(
 	code: RuleCode,
 	question: Question,
 	message: string,
 	span: Span = question.anchor,
 ): Finding {
-	return { code, message, span, questionId: question.id, fix: undefined };
+	return {
+		code,
+		message: forModel(message, question),
+		span,
+		questionId: question.id,
+		fix: undefined,
+	};
 }
 
 export function repeated<T>(

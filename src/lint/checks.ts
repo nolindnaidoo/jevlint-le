@@ -40,6 +40,14 @@ const KIND_LABELS: Readonly<Record<Node['kind'], string>> = Object.freeze({
 	unreadable: 'a runtime value',
 });
 
+/** The type names each dialect's API accepts, for the message and the fix that names the nearest. */
+const TYPE_NAMES: Readonly<Record<Question['dialect'], ReadonlyArray<string>>> =
+	Object.freeze({
+		typesafe: ['noul', 'choice', 'score'],
+		openai: ['predicate', 'choice', 'score'],
+		vercel: ['boolean', 'choice', 'score'],
+	});
+
 const MALFORMED: Readonly<
 	Record<
 		Malformed['reason'],
@@ -49,7 +57,7 @@ const MALFORMED: Readonly<
 	'unknown-type': {
 		code: 'JEV007',
 		message: (m: Malformed) =>
-			`Question type "${m.found}" does not exist. The types are noul, choice and score.`,
+			`Question type "${m.found}" does not exist. The types are ${TYPE_NAMES[m.dialect].join(', ').replace(/, (\w+)$/, ' and $1')}.`,
 	},
 	'missing-type': {
 		code: 'JEV007',
@@ -196,9 +204,53 @@ function noulShape(question: Question): ReadonlyArray<Finding> {
 		});
 }
 
-const SHAPES = Object.freeze({
-	choice: { kind: 'object', needs: 'a map of option to description' },
-	score: { kind: 'array', needs: 'an ordered array of level descriptions' },
+type Shape = Readonly<{ field: string; kind: Node['kind']; needs: string }>;
+
+// What each dialect's API wants the options or levels written as.
+const SHAPES: Readonly<
+	Record<Question['dialect'], Readonly<Record<'choice' | 'score', Shape>>>
+> = Object.freeze({
+	typesafe: {
+		choice: {
+			field: 'criteria',
+			kind: 'object',
+			needs: 'a map of option to description',
+		},
+		score: {
+			field: 'criteria',
+			kind: 'array',
+			needs: 'an ordered array of level descriptions',
+		},
+	},
+	openai: {
+		choice: {
+			field: 'choices',
+			kind: 'array',
+			needs: 'an array of { value, description }',
+		},
+		score: {
+			field: 'levels',
+			kind: 'array',
+			needs: 'an ordered array of { label, description }',
+		},
+	},
+	vercel: {
+		choice: {
+			field: 'options',
+			kind: 'object',
+			needs: 'a map of option to description',
+		},
+		score: {
+			field: 'levels',
+			kind: 'array',
+			needs: 'an ordered array of level descriptions',
+		},
+	},
+});
+
+const ENTRY_FIELDS = Object.freeze({
+	choice: "'value' and 'description'",
+	score: "'label' and 'description'",
 });
 
 function reshapeFix(question: Question, context: CheckContext) {
@@ -221,50 +273,69 @@ const checkCriteriaShape: Check = (question, context) => {
 	if (question.open) return NONE;
 	if (isPlaceholder(question.criteria)) return NONE;
 	if (question.type === 'noul') return noulShape(question);
-	const shape = SHAPES[question.type];
-	const criteria = question.criteria;
-	if (!criteria || criteria.kind === 'null') {
+	const shape = SHAPES[question.dialect][question.type];
+	// Shape is judged on the field as written. The rules read it as `criteria`.
+	const written = question.criteriaRaw ?? question.criteria;
+	if (!written || written.kind === 'null') {
 		if (!question.inRequest) return NONE;
 		return [
 			report(
 				'JEV006',
 				question,
-				`A ${question.type} question needs 'criteria': ${shape.needs}.`,
+				`A ${question.type} question needs '${shape.field}': ${shape.needs}.`,
 			),
 		];
 	}
-	if (criteria.kind === 'unreadable') return NONE;
-	if (criteria.kind === shape.kind) {
-		if (criteria.kind !== 'object') return NONE;
-		const list = wrapsList(criteria);
-		if (!list) return NONE;
-		const key = criteria.props[0]?.key ?? 'options';
-		const syntax = context.syntaxAt(question.span.start);
+	if (written.kind === 'unreadable') return NONE;
+	if (written.kind !== shape.kind) {
+		const found = KIND_LABELS[written.kind];
 		return [
 			{
 				...report(
 					'JEV006',
 					question,
-					`The criteria hold one option, '${key}', whose description is a list. The API accepts that as a one-option Choice, which answers '${key}' every time at full confidence. Make each entry of the list an option.`,
+					`The ${shape.field} of a ${question.type} question must be ${shape.needs}, not ${found}.`,
 					question.criteriaKey,
 				),
 				fix:
-					syntax === 'js' || syntax === 'python'
-						? choiceMapFix(context.text, list, syntax, criteria.span)
+					question.dialect === 'typesafe'
+						? reshapeFix(question, context)
 						: undefined,
 			},
 		];
 	}
-	const found = KIND_LABELS[criteria.kind];
+	if (question.dialect === 'openai' && written.kind === 'array') {
+		// A list of bare names is Jev's habit carried over. OpenAI wants an object per entry.
+		const bare = written.items.find(
+			(item) => item.kind !== 'object' && item.kind !== 'unreadable',
+		);
+		if (!bare) return NONE;
+		return [
+			report(
+				'JEV006',
+				question,
+				`Each entry of '${shape.field}' must be an object with ${ENTRY_FIELDS[question.type]}, not ${KIND_LABELS[bare.kind]}.`,
+				bare.span,
+			),
+		];
+	}
+	if (written.kind !== 'object') return NONE;
+	const list = wrapsList(written);
+	if (!list) return NONE;
+	const key = written.props[0]?.key ?? 'options';
+	const syntax = context.syntaxAt(question.span.start);
 	return [
 		{
 			...report(
 				'JEV006',
 				question,
-				`The criteria of a ${question.type} question must be ${shape.needs}, not ${found}.`,
+				`The criteria hold one option, '${key}', whose description is a list. The API accepts that as a one-option Choice, which answers '${key}' every time at full confidence. Make each entry of the list an option.`,
 				question.criteriaKey,
 			),
-			fix: reshapeFix(question, context),
+			fix:
+				syntax === 'js' || syntax === 'python'
+					? choiceMapFix(context.text, list, syntax, written.span)
+					: undefined,
 		},
 	];
 };
@@ -287,7 +358,12 @@ function checkMalformed(malformed: Malformed, text: string): Finding {
 		questionId: malformed.id,
 		fix:
 			malformed.reason === 'unknown-type'
-				? nearestTypeFix(text, malformed.anchor, malformed.found)
+				? nearestTypeFix(
+						text,
+						malformed.anchor,
+						malformed.found,
+						TYPE_NAMES[malformed.dialect],
+					)
 				: undefined,
 	};
 }

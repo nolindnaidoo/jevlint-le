@@ -6,7 +6,7 @@ import type {
 	StringNode,
 } from '../types';
 import { type Check, NONE, normalizeOption, repeated, report } from './finding';
-import { fallbackFix } from './fix';
+import { fallbackFix, fallbackListFix } from './fix';
 import { LIMITS } from './limits';
 
 const NUMERIC = /^\s*-?\d+(\.\d+)?\s*$/;
@@ -38,7 +38,8 @@ const checkChoiceCount: Check = (question) => {
 	const options = choiceOptions(question);
 	if (!options || wrapsList(options)) return NONE;
 	const count = options.props.length;
-	if (count > LIMITS.choiceMaxOptions) {
+	// The limits are TypeSafe's. OpenAI publishes none, and the AI SDK routes to either.
+	if (count > LIMITS.choiceMaxOptions && question.dialect === 'typesafe') {
 		return [
 			report(
 				'JEV002',
@@ -69,15 +70,15 @@ const checkFallback: Check = (question, context) => {
 	if (options.props.some((entry) => isFallback(entry.key))) return NONE;
 	const message =
 		"This Choice has no fallback option, so an input that fits none of them is forced into one. Measured: with no fallback, every input that fit no option was answered wrong. Add 'other' or 'insufficient_evidence', or suppress this if the options cover every input.";
+	const syntax = context.syntaxAt(options.span.start);
+	const raw = question.criteriaRaw;
 	return [
 		{
 			...report('JEV004', question, message),
-			fix: fallbackFix(
-				options,
-				context.text,
-				context.fallbackName,
-				context.syntaxAt(options.span.start),
-			),
+			fix:
+				raw?.kind === 'array'
+					? fallbackListFix(raw, context.text, context.fallbackName, syntax)
+					: fallbackFix(options, context.text, context.fallbackName, syntax),
 		},
 	];
 };
@@ -99,7 +100,7 @@ const checkLevelCount: Check = (question) => {
 	const levels = scoreLevels(question);
 	if (!levels) return NONE;
 	const count = levels.items.length;
-	if (count > LIMITS.scoreMaxLevels) {
+	if (count > LIMITS.scoreMaxLevels && question.dialect === 'typesafe') {
 		return [
 			report(
 				'JEV003',
@@ -172,8 +173,10 @@ const BARE_ANSWERS: ReadonlySet<string> = new Set([
 
 const checkDescriptionRepeatsName: Check = (question) => {
 	const criteria = question.criteria;
-	if (criteria?.kind !== 'object' || criteria.partial) return NONE;
-	if (question.type === 'choice') {
+	if (!criteria || criteria.kind === 'unreadable') return NONE;
+	if (criteria.kind !== 'array' && criteria.kind !== 'object') return NONE;
+	if (criteria.partial) return NONE;
+	if (question.type === 'choice' && criteria.kind === 'object') {
 		return criteria.props
 			.filter(
 				(entry) =>
@@ -189,7 +192,27 @@ const checkDescriptionRepeatsName: Check = (question) => {
 				),
 			);
 	}
-	if (question.type === 'noul') {
+	if (question.type === 'score' && question.levelLabels) {
+		// OpenAI's levels carry a label beside the description: "low": "Low" says nothing twice.
+		return question.levelLabels.flatMap((label, index) => {
+			const description =
+				criteria.kind === 'array' ? criteria.items[index] : undefined;
+			if (
+				description?.kind !== 'string' ||
+				!sameWords(label.value, description.value)
+			)
+				return [];
+			return [
+				report(
+					'JEV011',
+					question,
+					`The description of level '${label.value}' only repeats its label. Jev matches the state against the description, so say what this level looks like.`,
+					description.span,
+				),
+			];
+		});
+	}
+	if (question.type === 'noul' && criteria.kind === 'object') {
 		return criteria.props
 			.filter(
 				(entry) =>

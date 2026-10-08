@@ -58,6 +58,56 @@ export function fallbackFix(
 	};
 }
 
+// `{ "value": "other", "description": "..." }`, spelt the way the entry before it is.
+function listEntryText(
+	name: string,
+	last: ObjectNode,
+	text: string,
+	syntax: Syntax,
+): string {
+	const keyQuote = syntax === 'python' ? '"' : (last.props[0]?.quote ?? '');
+	const valueQuote =
+		syntax === 'python'
+			? '"'
+			: last.props[0]?.value.kind === 'string'
+				? (text[last.props[0].value.span.start] ?? '"')
+				: '"';
+	const key = (word: string) =>
+		keyQuote ? `${keyQuote}${word}${keyQuote}` : word;
+	const quoted = (word: string) => `${valueQuote}${word}${valueQuote}`;
+	const space = keyQuote === '"' && syntax !== 'python' ? ' ' : ' ';
+	return `{${space}${key('value')}: ${quoted(name)}, ${key('description')}: ${quoted(DESCRIPTION)}${space}}`;
+}
+
+/**
+ * The edit that appends a fallback entry to a list of `{ value, description }`
+ * options, OpenAI's shape. The same caution as `fallbackFix`: nothing is
+ * offered where the text after the last entry is not whitespace and a comma.
+ */
+export function fallbackListFix(
+	list: ArrayNode,
+	text: string,
+	name: string,
+	syntax: Syntax = 'js',
+): Fix | undefined {
+	const last = list.items[list.items.length - 1];
+	if (last?.kind !== 'object' || last.partial) return undefined;
+	const tail = text.slice(last.span.end, list.span.end - 1);
+	if (!/^\s*,?\s*$/.test(tail)) return undefined;
+	const comma = tail.indexOf(',');
+	const trailing = comma !== -1;
+	const at = trailing ? last.span.end + comma + 1 : last.span.end;
+	const entry = listEntryText(name, last, text, syntax);
+	const indent = indentOf(text, last.span.start);
+	const lead = indent === undefined ? ' ' : `\n${indent}`;
+	const inserted = trailing ? `${lead}${entry},` : `,${lead}${entry}`;
+	return {
+		title: `Add ${/^[aeiou]/i.test(name) ? 'an' : 'a'} '${name}' option`,
+		edits: [{ span: { start: at, end: at }, text: inserted }],
+		safe: false,
+	};
+}
+
 const replace = (
 	title: string,
 	span: Span,
@@ -121,10 +171,9 @@ export function nearestTypeFix(
 	text: string,
 	span: Span,
 	found: string,
+	types: ReadonlyArray<string> = ['noul', 'choice', 'score'],
 ): Fix | undefined {
-	const near = ['noul', 'choice', 'score'].filter(
-		(type) => distance(found.toLowerCase(), type) <= 2,
-	);
+	const near = types.filter((type) => distance(found.toLowerCase(), type) <= 2);
 	if (near.length !== 1) return undefined;
 	const type = near[0] as string;
 	return replace(`Change to '${type}'`, span, requote(text, span, type));

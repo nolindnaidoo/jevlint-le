@@ -105,12 +105,25 @@ function calleeAt(source: Source, at: number): Callee | undefined {
 	return builtIn && { type: builtIn, imported };
 }
 
-function isRequestCall(tokens: ReadonlyArray<Token>, at: number): boolean {
+// `client.decisions.create(model=..., input=..., questions=[...])`: OpenAI's
+// request, keyword arguments only, so the body is the arguments as written.
+const OPENAI_REQUEST = ['decisions', '.', 'create'] as const;
+
+function isOpenAIRequestCall(
+	tokens: ReadonlyArray<Token>,
+	at: number,
+): boolean {
 	return (
-		isIdent(tokens[at], REQUEST_METHOD) &&
-		isPunct(tokens[at + 1], '(') &&
-		!isIdent(tokens[at - 1], 'def')
+		isIdent(tokens[at], OPENAI_REQUEST[2]) &&
+		isPunct(tokens[at - 1], OPENAI_REQUEST[1]) &&
+		isIdent(tokens[at - 2], OPENAI_REQUEST[0])
 	);
+}
+
+function isRequestCall(tokens: ReadonlyArray<Token>, at: number): boolean {
+	if (!isPunct(tokens[at + 1], '(') || isIdent(tokens[at - 1], 'def'))
+		return false;
+	return isIdent(tokens[at], REQUEST_METHOD) || isOpenAIRequestCall(tokens, at);
 }
 
 // `questions = {...}` and `TRIAGE_QUESTIONS: dict = {...}` hold a request's
