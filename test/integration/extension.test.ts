@@ -201,7 +201,10 @@ describe('JevLint-LE in a real editor', function () {
 			]),
 		);
 		assert.strictEqual(bySeverity.JEV000, vscode.DiagnosticSeverity.Hint);
-		assert.strictEqual(bySeverity.JEV004, vscode.DiagnosticSeverity.Warning);
+		assert.strictEqual(
+			bySeverity.JEV004,
+			vscode.DiagnosticSeverity.Information,
+		);
 		assert.strictEqual(bySeverity.JEV001, vscode.DiagnosticSeverity.Warning);
 		assert.strictEqual(bySeverity.JEV007, vscode.DiagnosticSeverity.Error);
 		for (const diagnostic of ours(sample('triage.ts'))) {

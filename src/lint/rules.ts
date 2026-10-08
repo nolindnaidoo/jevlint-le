@@ -38,13 +38,16 @@ export const RULES: Readonly<Record<RuleCode, Rule>> = Object.freeze({
 	JEV004: {
 		code: 'JEV004',
 		name: 'no-fallback-option',
-		// It fires on 9 of the 11 Choice examples TypeSafe publishes as correct,
-		// and the vendor's advice is conditional on the options not covering every
-		// input, which text cannot show. It is a warning anyway, because the cost
-		// is the largest measured anywhere: our run, 4 of 8 right against 8 of 8;
-		// an independent KoBBQ audit, 95% abstention with an "unknown" option
-		// against 0% accuracy on the same items without one.
-		severity: 'warning',
+		// The cost is the largest measured anywhere: our run, 4 of 8 right against
+		// 8 of 8; an independent KoBBQ audit, 95% abstention with an "unknown"
+		// option against 0% accuracy on the same items without one. It still
+		// informs, because text cannot show whether the options cover every
+		// input: it fires on 9 of the 11 Choice examples TypeSafe publishes as
+		// correct and on 65 of the 86 Choices in public sample 3. ESLint's
+		// default-case and Biome's useDefaultSwitchClause, the same rule for a
+		// switch, are off in both recommended sets for the same reason. The
+		// message carries the measurement.
+		severity: 'info',
 		docs: DOCS.choice,
 	},
 	JEV005: {

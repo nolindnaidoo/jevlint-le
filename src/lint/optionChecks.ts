@@ -60,12 +60,13 @@ const checkChoiceCount: Check = (question) => {
 const checkFallback: Check = (question, context) => {
 	const options = choiceOptions(question);
 	if (!options || options.partial || options.props.length < 2) return NONE;
-	if (
-		options.props.some((entry) =>
-			context.fallback.has(normalizeOption(entry.key)),
-		)
-	)
-		return NONE;
+	// "none_implied" and "other_or_unclear" are fallbacks with a word added, so
+	// a configured name counts wherever it appears whole in the option's name.
+	const isFallback = (key: string): boolean => {
+		const padded = ` ${normalizeOption(key)} `;
+		return [...context.fallback].some((name) => padded.includes(` ${name} `));
+	};
+	if (options.props.some((entry) => isFallback(entry.key))) return NONE;
 	const message =
 		"This Choice has no fallback option, so an input that fits none of them is forced into one. Measured: with no fallback, every input that fit no option was answered wrong. Add 'other' or 'insufficient_evidence', or suppress this if the options cover every input.";
 	return [
