@@ -17,7 +17,7 @@ vi.mock('../lint/lint', async (original) => {
 	};
 });
 
-const BARE = `const q = { type: 'choice', instructions: 'Which team?', criteria: { billing: 'Charges', technical: 'Faults' } };`;
+const BARE = `const q = { type: 'choice', instructions: 'Which team takes it?', criteria: { billing: 'Charges', technical: 'Faults' } };`;
 
 function doc(text: string) {
 	const self = {

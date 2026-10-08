@@ -16,7 +16,7 @@ const manifest = JSON.parse(
 	readFileSync(new URL('../package.json', import.meta.url), 'utf8'),
 );
 
-const BARE_CHOICE = `const q = { type: 'choice', instructions: 'Which?', criteria: { a: null, b: null } };`;
+const BARE_CHOICE = `const q = { type: 'choice', instructions: 'Which one fits?', criteria: { a: null, b: null } };`;
 
 type Doc = vscode.TextDocument & { text: string };
 
@@ -139,7 +139,7 @@ describe('diagnostics', () => {
 		expect(diagnostics()).toHaveLength(1);
 		expect(diagnostics()[0]).toMatchObject({
 			source: 'jevlint-le',
-			severity: vscode.DiagnosticSeverity.Information,
+			severity: vscode.DiagnosticSeverity.Warning,
 		});
 		expect(diagnostics()[0]?.code).toMatchObject({ value: 'JEV004' });
 		expect(_state.statusBar).toMatchObject({
@@ -214,7 +214,7 @@ describe('quick fix', () => {
 	};
 
 	it('fixes everything safe at once when asked by kind, as fix on save asks', () => {
-		const broken = `const q = { questions: { late: { type: 'noul', instructions: 'Did it arrive late?', criteria: { yes: 'Late', no: 'On time' } }, team: { type: 'choice', instructions: 'Which team?', criteria: { billing: 'Charges', technical: 'Faults' } } } };`;
+		const broken = `const q = { questions: { late: { type: 'noul', instructions: 'Did it arrive late?', criteria: { yes: 'Late', no: 'On time' } }, team: { type: 'choice', instructions: 'Which team takes it?', criteria: { billing: 'Charges', technical: 'Faults' } } } };`;
 		const document = doc(broken);
 		start(document);
 		const provider = _state.provider as vscode.CodeActionProvider;
@@ -275,7 +275,7 @@ describe('quick fix', () => {
 			document.text.slice(at)
 		);
 	};
-	const SPREAD = `const r = {\n\tquestions: {\n\t\tteam: { type: 'choice', instructions: 'Which?', criteria: { a: 'A', b: 'B' } },\n\t},\n};`;
+	const SPREAD = `const r = {\n\tquestions: {\n\t\tteam: { type: 'choice', instructions: 'Which one fits?', criteria: { a: 'Apples', b: 'Bread' } },\n\t},\n};`;
 
 	it('silences a finding on its line with a comment at the same indent', () => {
 		const document = doc(SPREAD);
@@ -300,7 +300,7 @@ describe('quick fix', () => {
 
 	it('writes the comment the way the language does', () => {
 		const python = doc(
-			`q = {"questions": {"team": {"type": "choice", "instructions": "Which?", "criteria": {"a": "A", "b": "B"}}}}`,
+			`q = {"questions": {"team": {"type": "choice", "instructions": "Which one fits?", "criteria": {"a": "A", "b": "B"}}}}`,
 			'file:///q.py',
 			'python',
 		);
@@ -313,12 +313,12 @@ describe('quick fix', () => {
 	it.each([
 		[
 			'strict JSON, which has no comments',
-			`{ "questions": { "team": { "type": "choice", "instructions": "Which?", "criteria": { "a": "A", "b": "B" } } } }`,
+			`{ "questions": { "team": { "type": "choice", "instructions": "Which one fits?", "criteria": { "a": "Apples", "b": "Bread" } } } }`,
 			'json',
 		],
 		[
 			'JSON pasted into a string',
-			`const body = '{"questions":{"team":{"type":"choice","instructions":"Which?","criteria":{"a":"A","b":"B"}}}}';`,
+			`const body = '{"questions":{"team":{"type":"choice","instructions":"Which one fits?","criteria":{"a":"Apples","b":"Bread"}}}}';`,
 			'typescript',
 		],
 	])('offers no comment in %s', (_name, text, language) => {
@@ -393,7 +393,7 @@ describe('commands', () => {
 		start();
 		const good = doc(BARE_CHOICE, 'file:///good.ts');
 		const python = doc(
-			`from typesafe_sdk import Choice\nq = {"questions": {"a": Choice(instructions="Which team?", criteria={"billing": "Charges", "technical": "Faults"})}}\n`,
+			`from typesafe_sdk import Choice\nq = {"questions": {"a": Choice(instructions="Which team takes it?", criteria={"billing": "Charges", "technical": "Faults"})}}\n`,
 			'file:///deep/triage.py',
 		);
 		for (const document of [good, python])
@@ -569,7 +569,7 @@ describe('check with Jev', () => {
 	});
 
 	it('underlines the option Jev points at and names the pair', async () => {
-		const overlapping = `const r = { questions: { kind: { type: 'choice', instructions: 'Which?', criteria: { pet: 'An animal kept at home', dog: 'A dog', other: 'Anything else' } } } };`;
+		const overlapping = `const r = { questions: { kind: { type: 'choice', instructions: 'Which one fits?', criteria: { pet: 'An animal kept at home', dog: 'A dog', other: 'Anything else' } } } };`;
 		vi.stubGlobal(
 			'fetch',
 			jevSays({
@@ -607,7 +607,7 @@ describe('check with Jev', () => {
 		_state.config = { 'jev.sendState': true, 'jev.confirm': true };
 		start(
 			doc(
-				`{ "state": "note", "questions": { "a": { "type": "noul", "instructions": "One?" } } }`,
+				`{ "state": "note", "questions": { "a": { "type": "noul", "instructions": "Is there one?" } } }`,
 				'file:///a.ts',
 				'json',
 			),
@@ -702,7 +702,7 @@ describe('check with Jev', () => {
 		const fetch = jevSays({});
 		vi.stubGlobal('fetch', fetch);
 		_state.config = { 'jev.maxCalls': 2 };
-		const many = `const r = { questions: { a: { type: 'noul', instructions: 'One?' }, b: { type: 'noul', instructions: 'Two?' }, c: { type: 'noul', instructions: 'Three?' } } };`;
+		const many = `const r = { questions: { a: { type: 'noul', instructions: 'Is there one?' }, b: { type: 'noul', instructions: 'Are there two?' }, c: { type: 'noul', instructions: 'Are there three?' } } };`;
 		start(doc(many));
 		_state.secrets.set('jevlint-le.typesafeApiKey', 'k');
 		await run(JEV_COMMANDS.checkWithJev);
@@ -716,7 +716,7 @@ describe('check with Jev', () => {
 	it('stops on a rejected key after one request', async () => {
 		const fetch = jevSays({}, 401);
 		vi.stubGlobal('fetch', fetch);
-		const two = `const r = { questions: { a: { type: 'noul', instructions: 'One?' }, b: { type: 'noul', instructions: 'Two?' } } };`;
+		const two = `const r = { questions: { a: { type: 'noul', instructions: 'Is there one?' }, b: { type: 'noul', instructions: 'Are there two?' } } };`;
 		start(doc(two));
 		_state.secrets.set('jevlint-le.typesafeApiKey', 'wrong');
 		await run(JEV_COMMANDS.checkWithJev);
@@ -725,7 +725,7 @@ describe('check with Jev', () => {
 		expect(_state.messages.join(' ')).not.toContain('wrong');
 	});
 
-	const TWO = `{ "state": { "note": "Wheel wobbles." }, "model": "jev-1.13.0", "questions": { "a": { "type": "noul", "instructions": "One?" }, "b": { "type": "noul", "instructions": "Two?" } } }`;
+	const TWO = `{ "state": { "note": "Wheel wobbles." }, "model": "jev-1.13.0", "questions": { "a": { "type": "noul", "instructions": "Is there one?" }, "b": { "type": "noul", "instructions": "Are there two?" } } }`;
 	const bodies = (fetch: ReturnType<typeof jevSays>) =>
 		fetch.mock.calls.map((call) =>
 			JSON.parse((call as unknown as [string, { body: string }])[1].body),
@@ -1333,7 +1333,7 @@ describe('the MCP server offered to agents in the editor', () => {
 });
 
 describe('a project settings file in the editor', () => {
-	const NO_FALLBACK = `const r = { questions: { team: { type: 'choice', instructions: 'Which team?', criteria: { billing: 'Charges', technical: 'Faults' } } } };`;
+	const NO_FALLBACK = `const r = { questions: { team: { type: 'choice', instructions: 'Which team takes it?', criteria: { billing: 'Charges', technical: 'Faults' } } } };`;
 	// What stands in for loading a project's own copy. A test sets it.
 	let load: (path: string) => unknown = () => {
 		throw new Error('nothing to load');
@@ -1399,7 +1399,7 @@ describe('a project settings file in the editor', () => {
 		});
 		const messages = () =>
 			diagnostics('file:///work/app/src/q.ts').map((found) => found.message);
-		const BUNDLED = 'This Choice has no fallback option.';
+		const BUNDLED = 'This Choice has no fallback option, so';
 
 		beforeEach(() => {
 			_state.workspaceFolder = '/work/app';

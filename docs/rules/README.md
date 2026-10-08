@@ -8,23 +8,23 @@ One page per rule: what it catches, an example the linter is run on, how to fix 
 | [JEV001](JEV001.md) | unpinned-model | warning | `jev-latest` and `jev-preview` move with each release, so answers can change with no change on your side |
 | [JEV002](JEV002.md) | choice-option-limit | error | A Choice has more than 255 options. The API rejects it |
 | [JEV003](JEV003.md) | score-level-limit | error | A Score has more than 10 levels. The API rejects it |
-| [JEV004](JEV004.md) | no-fallback-option | info | A Choice has no `other` or `none of the above`, so an input that fits no option is forced into one |
+| [JEV004](JEV004.md) | no-fallback-option | warning | A Choice has no `other` or `none of the above`, so an input that fits no option is forced into one. The largest cost measured anywhere |
 | [JEV005](JEV005.md) | duplicate | error | A question id, option or level appears twice. In an object the later one silently replaces the earlier |
 | [JEV006](JEV006.md) | criteria-shape | error | A Choice needs a map of options, a Score needs an array of levels, and a Noul takes `true` and `false` |
 | [JEV007](JEV007.md) | invalid-question | error | The type is missing or unknown, or the instructions are an empty string |
 | [JEV008](JEV008.md) | numeric-levels | warning | Score levels are bare numbers. Jev matches the state against each description and never sees its position |
 | [JEV009](JEV009.md) | too-few-options | info | A Choice with one option or a Score with one level gives every input the same answer |
 | [JEV010](JEV010.md) | unused-disable | warning | A `jevlint-le-disable` comment silences nothing, so it can only hide a finding added later |
+| [JEV011](JEV011.md) | description-repeats-name | warning | An option's description only repeats its name, or a Noul's criteria say yes and no. Jev matches the state against the description, and this one says nothing |
+| [JEV012](JEV012.md) | terse-instructions | warning | The instructions are one or two words, so the question leans on its id. Jev is sent the instructions and never the id |
 | [JEV101](JEV101.md) | double-negative | info | A question negates twice in one clause, or a negation sits directly on another |
 | [JEV102](JEV102.md) | arithmetic | warning | The question asks Jev to count or compare numbers |
 | [JEV103](JEV103.md) | date-comparison | info | The question asks Jev to order two times or measure the gap between them |
 | [JEV104](JEV104.md) | compound | off | A Noul joins two judgments with 'and' |
 | [JEV105](JEV105.md) | generation | warning | The question asks for a value or for text to be written |
-| [JEV106](JEV106.md) | multi-hop | off | One sentence chains three or more relationships |
 | [JEV107](JEV107.md) | negated-noul | off | A Noul with no criteria is phrased so that yes means something is absent |
 | [JEV108](JEV108.md) | inverted-criteria | off | A Noul's 'true' criterion describes the negative case |
-| [JEV109](JEV109.md) | multi-dimension-level | off | A Score level lists three or more qualities |
-| [JEV110](JEV110.md) | degree-levels | off | Score levels are degree words, or one word turned up and down |
+| [JEV110](JEV110.md) | degree-levels | warning | Score levels are degree words, bare labels, or one word turned up and down. Nothing for Jev to match the state against |
 | [JEV111](JEV111.md) | numeric-encoding | off | The question refers to a value by hex or RGB encoding |
 | [JEV112](JEV112.md) | undefined-boundary | info | A Noul with no criteria turns on a word such as large, often or enough |
 | [JEV301](JEV301.md) | jev-counting | warning | Jev reads the question as needing counting or arithmetic |

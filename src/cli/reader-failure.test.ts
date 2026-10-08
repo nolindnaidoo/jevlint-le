@@ -15,7 +15,7 @@ vi.mock('../lint/lint', async (original) => {
 	};
 });
 
-const BAD = `{ "questions": { "team": { "type": "choice", "instructions": "Which team?", "criteria": { "billing": "Charges", "technical": "Faults" } } } }`;
+const BAD = `{ "questions": { "team": { "type": "choice", "instructions": "Which team takes it?", "criteria": { "billing": "Charges", "technical": "Faults" } } } }`;
 
 async function cli(args: string[], tree: Record<string, string>) {
 	const out: string[] = [];

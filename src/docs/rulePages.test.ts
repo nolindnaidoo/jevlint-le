@@ -64,7 +64,7 @@ describe('the rule pages', () => {
 
 	it('shows the message the linter really gives for the bad example', () => {
 		expect(pages['JEV004.md']).toContain(
-			'> This Choice has no fallback option.',
+			'> This Choice has no fallback option, so',
 		);
 	});
 

@@ -60,7 +60,7 @@ const q = { questions: { a: { type: 'noul', instructions: TEXT.late.ask }, b: { 
 
 	it('reports each question that shares a literal, and one fix mends them all', () => {
 		const text = `const TEAMS = { billing: 'Charges', technical: 'Faults' };
-const q = { questions: { a: { type: 'choice', instructions: 'Which team?', criteria: TEAMS }, b: { type: 'choice', instructions: 'Who owns it?', criteria: TEAMS } } };`;
+const q = { questions: { a: { type: 'choice', instructions: 'Which team takes it?', criteria: TEAMS }, b: { type: 'choice', instructions: 'Who owns it?', criteria: TEAMS } } };`;
 		const found = lintText(text).findings;
 		expect(found.map((finding) => finding.questionId)).toEqual(['a', 'b']);
 		const edit = found[0]?.fix?.edits[0];
@@ -73,7 +73,7 @@ const q = { questions: { a: { type: 'choice', instructions: 'Which team?', crite
 
 	it('reports a mistake in a shared literal once', () => {
 		const text = `const LEVELS = ['1', '2', '3'];
-const q = { questions: { a: { type: 'score', instructions: 'How bad?', criteria: LEVELS }, b: { type: 'score', instructions: 'How soon?', criteria: LEVELS } } };`;
+const q = { questions: { a: { type: 'score', instructions: 'How bad is it?', criteria: LEVELS }, b: { type: 'score', instructions: 'How soon is it?', criteria: LEVELS } } };`;
 		expect(codes(text)).toEqual(['JEV008']);
 	});
 
@@ -108,7 +108,7 @@ const q = { questions: { a: { type: 'score', instructions: 'How bad?', criteria:
 	});
 
 	it('is not taken from a type annotation', () => {
-		const text = `import { Q } from './types';\nconst ROUTE: Q = { type: 'choice', instructions: 'Which?', criteria: { a: 'A', other: 'Else' } };`;
+		const text = `import { Q } from './types';\nconst ROUTE: Q = { type: 'choice', instructions: 'Which one fits?', criteria: { a: 'Apples', other: 'Else' } };`;
 		expect(readQuestions(text).questions).toHaveLength(1);
 		expect(codes(text)).toEqual([]);
 	});
@@ -116,12 +116,12 @@ const q = { questions: { a: { type: 'score', instructions: 'How bad?', criteria:
 	it('counts a binding inside a callback, so two of them are not followed', () => {
 		const text = `test('a', () => { const criteria = ['x']; use(criteria); });
 const criteria = { a: 'A', b: 'B' };
-test('b', () => { const q = { questions: { t: { type: 'choice', instructions: 'Which?', criteria } } }; });`;
+test('b', () => { const q = { questions: { t: { type: 'choice', instructions: 'Which one fits?', criteria } } }; });`;
 		expect(codes(text)).toEqual(['JEV000']);
 	});
 
 	it('does not read a Python comprehension as a list of one', () => {
-		const text = `levels = [l.strip() for l in raw.split(",")]\nq = {"questions": {"a": {"type": "score", "instructions": "Rate", "criteria": levels}}}`;
+		const text = `levels = [l.strip() for l in raw.split(",")]\nq = {"questions": {"a": {"type": "score", "instructions": "Rate the damage", "criteria": levels}}}`;
 		expect(codes(text, 'python')).toEqual(['JEV000']);
 	});
 });

@@ -11,7 +11,7 @@ const BROKEN = `{
   "model": "jev-latest",
   "questions": {
     "late": { "type": "noul", "instructions": "Did it arrive late?", "criteria": { "yes": "After the day promised", "no": "On or before it" } },
-    "team": { "type": "choise", "instructions": "Which team?", "criteria": { "billing": "Charges", "technical": "Faults" } },
+    "team": { "type": "choise", "instructions": "Which team takes it?", "criteria": { "billing": "Charges", "technical": "Faults" } },
     "mood": { "type": "score", "instructions": "How upset is the writer?", "criteria": { "low": "Calm", "high": "Furious" } }
   }
 }`;

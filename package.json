@@ -4,7 +4,7 @@
   "displayName": "JevLint-LE",
   "description": "Lint the questions you send to TypeSafe's Jev model as you type, with no API key and no network calls. An optional command asks Jev itself to check a file",
   "icon": "src/assets/images/icon.png",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "license": "MIT",
   "author": {

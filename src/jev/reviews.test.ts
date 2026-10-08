@@ -24,11 +24,11 @@ describe('a question as data', () => {
 	it('is the question exactly as written', () => {
 		expect(
 			literalOf(
-				`const r = { questions: { q: { type: 'choice', instructions: 'Which?', criteria: { a: 'A', b: null } } } };`,
+				`const r = { questions: { q: { type: 'choice', instructions: 'Which one fits?', criteria: { a: 'A', b: null } } } };`,
 			),
 		).toEqual({
 			type: 'choice',
-			instructions: 'Which?',
+			instructions: 'Which one fits?',
 			criteria: { a: 'A', b: null },
 		});
 	});
@@ -37,11 +37,11 @@ describe('a question as data', () => {
 		['instructions', `{ type: 'noul', instructions: build() }`],
 		[
 			'one option',
-			`{ type: 'choice', instructions: 'Which?', criteria: { a: label, b: 'B' } }`,
+			`{ type: 'choice', instructions: 'Which one fits?', criteria: { a: label, b: 'B' } }`,
 		],
 		[
 			'a spread',
-			`{ type: 'choice', instructions: 'Which?', criteria: { ...rest, b: 'B' } }`,
+			`{ type: 'choice', instructions: 'Which one fits?', criteria: { ...rest, b: 'B' } }`,
 		],
 	])('is withheld when %s is built at runtime', (_name, source) => {
 		expect(
@@ -74,33 +74,37 @@ describe('what is put to Jev', () => {
 		).filter((key) => !key.includes('.'));
 
 	it('asks only the checks that fit the question type', () => {
-		expect(main({ type: 'noul', instructions: 'Is it?' })).toEqual([
+		expect(main({ type: 'noul', instructions: 'Is it so?' })).toEqual([
 			'JEV301',
 			'JEV302',
 		]);
 		expect(
 			main({
 				type: 'choice',
-				instructions: 'Which?',
+				instructions: 'Which one fits?',
 				criteria: { a: 'A', b: 'B', c: 'C' },
 			}),
 		).toEqual(['JEV301', 'JEV303', 'JEV305', 'JEV306', 'JEV307']);
 		expect(
-			main({ type: 'score', instructions: 'Rate', criteria: ['x', 'y'] }),
+			main({
+				type: 'score',
+				instructions: 'Rate the damage',
+				criteria: ['x', 'y'],
+			}),
 		).toEqual(['JEV301', 'JEV304', 'JEV306', 'JEV308']);
 	});
 
 	it('asks about other questions only when there are some, and names them', () => {
 		const alone = buildRequest(
-			{ type: 'noul', instructions: 'Is it?' },
+			{ type: 'noul', instructions: 'Is it so?' },
 			MODEL,
 			ALL,
 		);
 		expect(alone?.state).toEqual({
-			question: { type: 'noul', instructions: 'Is it?' },
+			question: { type: 'noul', instructions: 'Is it so?' },
 		});
 		const beside = buildRequest(
-			{ type: 'noul', instructions: 'Is it?' },
+			{ type: 'noul', instructions: 'Is it so?' },
 			MODEL,
 			ALL,
 			{
@@ -113,14 +117,14 @@ describe('what is put to Jev', () => {
 
 	it('sends the state only when it is given one', () => {
 		const without = buildRequest(
-			{ type: 'noul', instructions: 'Is it?' },
+			{ type: 'noul', instructions: 'Is it so?' },
 			MODEL,
 			ALL,
 			{ siblings: [] },
 		);
 		expect('state' in (without?.state ?? {})).toBe(false);
 		const withState = buildRequest(
-			{ type: 'noul', instructions: 'Is it?' },
+			{ type: 'noul', instructions: 'Is it so?' },
 			MODEL,
 			ALL,
 			{
@@ -134,7 +138,11 @@ describe('what is put to Jev', () => {
 
 	it('sends nothing when every check that fits is switched off', () => {
 		expect(
-			buildRequest({ type: 'noul', instructions: 'Is it?' }, MODEL, new Set()),
+			buildRequest(
+				{ type: 'noul', instructions: 'Is it so?' },
+				MODEL,
+				new Set(),
+			),
 		).toBeUndefined();
 	});
 
@@ -152,7 +160,7 @@ describe('what is put to Jev', () => {
 		const request = buildRequest(
 			{
 				type: 'choice',
-				instructions: 'Which?',
+				instructions: 'Which one fits?',
 				criteria: { pet: 'An animal kept at home', dog: 'A dog' },
 			},
 			MODEL,
@@ -189,7 +197,7 @@ describe('what is put to Jev', () => {
 			Array.from({ length: 13 }, (_, i) => [`o${i}`, null]),
 		);
 		const request = buildRequest(
-			{ type: 'choice', instructions: 'Which?', criteria },
+			{ type: 'choice', instructions: 'Which one fits?', criteria },
 			MODEL,
 			new Set(['JEV303']),
 		);
@@ -198,9 +206,9 @@ describe('what is put to Jev', () => {
 
 	it('asks one request about every pair of questions, and about the state if given', () => {
 		const questions = {
-			a: { type: 'noul' as const, instructions: 'One?' },
-			b: { type: 'noul' as const, instructions: 'Two?' },
-			c: { type: 'noul' as const, instructions: 'Three?' },
+			a: { type: 'noul' as const, instructions: 'Is there one?' },
+			b: { type: 'noul' as const, instructions: 'Are there two?' },
+			c: { type: 'noul' as const, instructions: 'Are there three?' },
 		};
 		const pairs = buildRequestReview(
 			questions,
@@ -295,7 +303,7 @@ describe('cutoffs against the saved calibration', () => {
 
 describe('the client', () => {
 	const request = buildRequest(
-		{ type: 'noul', instructions: 'Is it?' },
+		{ type: 'noul', instructions: 'Is it so?' },
 		MODEL,
 		ALL,
 	);
@@ -333,7 +341,7 @@ describe('the client', () => {
 			]
 		)[1];
 		expect(init.headers.Authorization).toBe('Bearer secret-key');
-		expect(JSON.parse(init.body).state.question.instructions).toBe('Is it?');
+		expect(JSON.parse(init.body).state.question.instructions).toBe('Is it so?');
 	});
 
 	it('does not retry a bad key', async () => {

@@ -27,7 +27,7 @@ const noul = (instructions: unknown, criteria?: unknown) => ({
 });
 const score = (levels: unknown[]) => ({
 	type: 'score',
-	instructions: 'Rate it',
+	instructions: 'Rate the damage',
 	criteria: levels,
 });
 
@@ -46,12 +46,6 @@ describe('each wording rule fires on its defect', () => {
 				criteria: { a: null, other: null },
 			},
 		],
-		[
-			'JEV106',
-			noul(
-				'Is the owner of the account that placed this order in the same city as the store which shipped it?',
-			),
-		],
 		['JEV107', noul('Does the reply lack an apology?')],
 		[
 			'JEV108',
@@ -60,7 +54,6 @@ describe('each wording rule fires on its defect', () => {
 				false: 'An apology appears.',
 			}),
 		],
-		['JEV109', score(['Slow, rude, and wrong', 'Fast, polite, and right'])],
 		['JEV110', score(['Poor', 'Fair', 'Good'])],
 		['JEV111', noul('Is 0x4A the returns prefix?')],
 	])('%s', (code, question) => {
@@ -158,6 +151,61 @@ describe('structured instructions', () => {
 	});
 });
 
+describe('what public sample 3 taught', () => {
+	it.each([
+		['JEV110', score(['Shallow', 'Medium', 'Deep'])],
+		['JEV110', score(['Broken', 'Poor', 'Fair', 'Good', 'Like new'])],
+		['JEV110', score(['Almost none', 'Some', 'A lot'])],
+		[
+			'JEV110',
+			score([
+				'Very casual / slang',
+				'Casual',
+				'Neutral',
+				'Formal',
+				'Very formal',
+			]),
+		],
+		[
+			'JEV110',
+			score([
+				'Very simple / one thing',
+				'Slightly complex',
+				'Moderate',
+				'Complex / multiple parts',
+				'Very complex / many parts',
+			]),
+		],
+		['JEV102', noul('Is the number 2 greater than the number 1?')],
+		['JEV102', noul('Play now? Yes if a troop is past the line (x > 50).')],
+		['JEV102', noul('Does the recording run 40 minutes or longer?')],
+		['JEV102', noul('Is the fuse under five seconds?')],
+	])('%s fires', (code, question) => {
+		expect(codes(question)).toContain(code);
+	});
+
+	it.each([
+		[
+			'a short level that says what happened',
+			score(['Not started', 'Parts fitted', 'Tested']),
+		],
+		[
+			'a vague word on a noun',
+			noul('Does the visitor need help with heavy luggage or small children?'),
+		],
+		[
+			'a vague word bounded by what follows',
+			noul('Does the state hold evidence sufficient to decide it?'),
+		],
+		[
+			'over and above as turns of phrase',
+			noul('Is the request above what the policy allows?'),
+		],
+	])('quiet on %s', (_name, question) => {
+		expect(codes(question)).toEqual([]);
+	});
+});
+
 describe('what the public questions taught', () => {
 	it.each([
 		[
@@ -225,7 +273,7 @@ describe('what the public questions taught', () => {
 			),
 		],
 	])('quiet on %s', (_name, question) => {
-		expect(codes(question).filter((code) => code !== 'JEV109')).toEqual([]);
+		expect(codes(question)).toEqual([]);
 	});
 
 	it('still catches a negation stacked on another inside guidance', () => {
@@ -259,20 +307,25 @@ describe('defaults', () => {
 	it('leaves every rule that showed no cost against Jev switched off', () => {
 		const text = JSON.stringify({
 			questions: {
-				a: noul(
-					"Is the bike that the owner's son rides at the shop which sold it to the mechanic who fixed it?",
-				),
 				b: noul('Is the user annoyed and asking to cancel?'),
-				c: score(['Slow, rude, and wrong', 'Fast, polite, and right']),
 				d: noul('Does the reply lack an apology?'),
 				e: noul('Does the reply apologise?', {
 					true: 'No apology appears.',
 					false: 'An apology appears.',
 				}),
-				f: score(['Poor', 'Fair', 'Good']),
+				g: noul('Is 0x4A the returns prefix?'),
 			},
 		});
 		expect(lintText(text).findings).toEqual([]);
+	});
+
+	it('keeps degree levels on, the most common defect in public code', () => {
+		const text = JSON.stringify({
+			questions: { f: score(['Poor', 'Fair', 'Good']) },
+		});
+		expect(lintText(text).findings.map((finding) => finding.code)).toEqual([
+			'JEV110',
+		]);
 	});
 
 	it('keeps the measured ones on', () => {

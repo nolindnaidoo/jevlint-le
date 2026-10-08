@@ -25,7 +25,12 @@ const drawn: { hash: string; id?: string; type: string; instructions: string; cr
 	JSON.parse(readFileSync(drawnPath, 'utf8')).sample;
 const text = new Map(drawn.map((question) => [question.hash, question]));
 
-const WORDING = RULE_CODES.filter((code) => code > 'JEV100' && code < 'JEV300');
+// Every wording rule, plus any exact rule the labels name, so a rule added
+// after a sample was labelled for it is scored on that sample too.
+const labelled = new Set(labels.flatMap((label) => [...label.defects, ...label.borderline]));
+const WORDING = RULE_CODES.filter(
+	(code) => (code > 'JEV100' && code < 'JEV300') || (code < 'JEV100' && labelled.has(code)),
+);
 const allOn: LintOptions = {
 	rules: Object.fromEntries(WORDING.map((code) => [code, 'warning'])),
 	fallbackOptions: ['other', 'none'],

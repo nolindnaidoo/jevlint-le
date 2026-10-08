@@ -22,8 +22,12 @@ import {
 	scoreArrayFix,
 } from './fix';
 import { MODEL_ALIASES, NOUL_CRITERIA_KEYS } from './limits';
-import { OPTION_CHECKS } from './optionChecks';
-import { WORDING_CHECKS } from './wordingChecks';
+import { OPTION_CHECKS, wrapsList } from './optionChecks';
+import { isEnglish, WORDING_CHECKS } from './wordingChecks';
+
+// Two words is where the labelled public questions put the line: "how much?",
+// "Only tests?" and "Pick one." lean on the id, "Is this toxic?" does not.
+const TERSE_WORDS = 2;
 
 const KIND_LABELS: Readonly<Record<Node['kind'], string>> = Object.freeze({
 	string: 'a string',
@@ -120,6 +124,39 @@ function isPlaceholder(node: Node | undefined): boolean {
 	return node?.kind === 'string' && PLACEHOLDER.test(node.value);
 }
 
+// "How severe?" and "Who answers?" ask something in two words. "Is it?",
+// "Pick one." and "how much?" do not, and were the labelled public cases.
+const ASKS = /^(?:how|who|what|which|where|when|why)$/i;
+
+const SAID: ReadonlyArray<string> = [
+	'have no words in them',
+	'are one word',
+	'are two words',
+];
+
+// "p", "Rate", "Which?": Jev is sent the instructions and never the id, so a
+// question whose meaning is in its id asks Jev nothing.
+const checkTerseInstructions: Check = (question) => {
+	const instructions = question.instructions;
+	if (instructions?.kind !== 'string' || question.open) return NONE;
+	const text = instructions.value.trim();
+	if (!text || PLACEHOLDER.test(text)) return NONE;
+	// "?" alone is no words in any language, so it is not left to the English check.
+	const count = /\p{L}/u.test(text) ? text.split(/\s+/).length : 0;
+	if (count && !isEnglish(text)) return NONE;
+	if (count > TERSE_WORDS) return NONE;
+	if (count === TERSE_WORDS && ASKS.test(text.split(/\s+/)[0] ?? ''))
+		return NONE;
+	return [
+		report(
+			'JEV012',
+			question,
+			`The instructions ${SAID[count]}, so the question leans on its id for its meaning. Jev reads only the instructions. Write out what is being asked.`,
+			instructions.span,
+		),
+	];
+};
+
 // What people write when they mean true and false.
 const NOUL_KEY_FIXES: Readonly<Record<string, string>> = Object.freeze({
 	yes: 'true',
@@ -196,8 +233,28 @@ const checkCriteriaShape: Check = (question, context) => {
 			),
 		];
 	}
-	if (criteria.kind === shape.kind || criteria.kind === 'unreadable')
-		return NONE;
+	if (criteria.kind === 'unreadable') return NONE;
+	if (criteria.kind === shape.kind) {
+		if (criteria.kind !== 'object') return NONE;
+		const list = wrapsList(criteria);
+		if (!list) return NONE;
+		const key = criteria.props[0]?.key ?? 'options';
+		const syntax = context.syntaxAt(question.span.start);
+		return [
+			{
+				...report(
+					'JEV006',
+					question,
+					`The criteria hold one option, '${key}', whose description is a list. The API accepts that as a one-option Choice, which answers '${key}' every time at full confidence. Make each entry of the list an option.`,
+					question.criteriaKey,
+				),
+				fix:
+					syntax === 'js' || syntax === 'python'
+						? choiceMapFix(context.text, list, syntax, criteria.span)
+						: undefined,
+			},
+		];
+	}
 	const found = KIND_LABELS[criteria.kind];
 	return [
 		{
@@ -215,6 +272,7 @@ const checkCriteriaShape: Check = (question, context) => {
 const QUESTION_CHECKS: ReadonlyArray<Check> = Object.freeze([
 	checkUnreadable,
 	checkInstructions,
+	checkTerseInstructions,
 	checkCriteriaShape,
 	...OPTION_CHECKS,
 	...WORDING_CHECKS,
