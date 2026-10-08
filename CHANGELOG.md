@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.0 — unreleased
+## 0.3.0 — 2026-10-08
 
 - **The editor lints with the copy a project installs.** Add `jevlint-le` to
   a project's dev dependencies and the extension uses that copy, for findings
@@ -33,7 +33,8 @@
   and a file holding only that was never read. Both are fixed, and the same
   goes for a lone question with criteria and no type.
 - The npm package can be required as a library: `lint`, `fix`, `rules`,
-  `syntaxes` and an `api` number. This is what the editor loads.
+  `syntaxes` and an `api` number. This is what the editor loads. A syntax it
+  does not have is refused with a message naming the four it does.
 - Check with Jev and the probe always run the extension's own code. They
   spend your key, and are not handed to code from a workspace.
 
