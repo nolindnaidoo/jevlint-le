@@ -58,9 +58,9 @@ A request like this one looks fine and has three problems:
 
 ## What it catches
 
-Jev guarantees the type of its answer, not the answer. A badly formed question
-still comes back with a confident-looking number. These rules catch the
-mistakes that can be read from the text.
+Jev and Luna guarantee the type of the answer, not the answer. A badly formed
+question still comes back with a confident-looking number. These rules catch
+the mistakes that can be read from the text.
 
 | Code | Name | Default | What it means |
 |---|---|---|---|
@@ -122,6 +122,37 @@ Each finding links to [its own page](https://github.com/nolindnaidoo/jevlint-le/
   `.jev.json` file and open that. Every check runs on it, and nothing in it
   is built at runtime, so nothing is skipped.
 - `jev/ask` rules in an `oxlint-plugin-jev` config.
+
+## OpenAI's Decisions API
+
+OpenAI's Decisions API, model `gpt-6-luna`, asks the same kind of question
+as Jev in a different shape. JevLint-LE reads it from 0.5.0. What that
+covers, exactly:
+
+- **Read.** A `/v1/decisions` request body, `client.decisions.create(...)`
+  in TypeScript and Python, and the Vercel AI SDK's `decide()`. A
+  `predicate` is read as a Noul, `choices: [{ value, description }]` as a
+  Choice's options and `levels: [{ label, description }]` as a Score's
+  levels, into the same rules.
+- **Checked.** Every rule with evidence behind it: the missing fallback
+  option, a description that only repeats its name, terse instructions,
+  degree levels, duplicates, counting, an undefined boundary and the rest.
+  Findings name Luna. OpenAI's own guide asks for the same things.
+- **Held back.** `JEV002` and `JEV003` are about TypeSafe's request limits,
+  and OpenAI publishes none. `JEV001` is about Jev's moving aliases, and
+  OpenAI has one model id.
+- **Shape mistakes** are reported in OpenAI's own field names: `choices`
+  written as a map or as bare names, a Choice with no `choices`, a Score
+  with no `levels`. A mistyped `predicate` is fixed on the lightbulb. The
+  reshape fix is Jev-only.
+- **Asking Luna.** Set `jevlint-le.jev.model` to `gpt-6-luna`, or pass
+  `--jev-model gpt-6-luna`, with an OpenAI key. The next section says how.
+- **Measured on Jev, not yet on Luna.** Every default in these rules was
+  set by measuring what the defect costs `jev-1.13.0`. Luna has not been
+  measured, so on a Luna question they are the same rules with Jev's
+  defaults, and every finding from asking Luna says its cutoff was set on
+  Jev. The request sent to Luna follows OpenAI's API reference and has not
+  yet been run against the live API. Both wait on a key.
 
 ## Check a file with Jev
 
@@ -216,7 +247,7 @@ npm install --save-dev jevlint-le
 The editor then lints with that copy, not the one the extension carries, so
 what you see while typing is what `npx jevlint-le` reports in CI. The version
 changes when `package.json` does, and for everyone at once. The status bar
-shows `project 0.5.1` while a project's copy is in use.
+shows `project 0.5.2` while a project's copy is in use.
 
 With nothing installed the extension lints with its own copy, with no setup.
 
@@ -270,7 +301,7 @@ Jev, and it never uses the network, unless you pass `--jev`.
 On GitHub, the action annotates a pull request:
 
 ```yaml
-- uses: nolindnaidoo/jevlint-le@v0.5.1
+- uses: nolindnaidoo/jevlint-le@v0.5.2
   with:
     paths: src
 ```
@@ -292,7 +323,7 @@ With [pre-commit](https://pre-commit.com):
 
 ```yaml
 - repo: https://github.com/nolindnaidoo/jevlint-le
-  rev: v0.5.1
+  rev: v0.5.2
   hooks:
     - id: jevlint-le
 ```

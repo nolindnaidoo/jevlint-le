@@ -1,8 +1,13 @@
 # jevlint-le
 
-Lints the questions you write for TypeSafe's Jev model, before they are sent.
-Jev answers a badly written question as confidently as a good one, so the
-mistake shows up later as wrong answers. This finds it in the code.
+Lints the questions you write for TypeSafe's Jev model and for OpenAI's
+Decisions API (`gpt-6-luna`), before they are sent. Either model answers a
+badly written question as confidently as a good one, so the mistake shows up
+later as wrong answers. This finds it in the code.
+
+The rules and their defaults were set by measuring what each defect costs
+Jev. Luna has not been measured yet, so on a Luna question they are the same
+rules with Jev's defaults.
 
 One package: a command line, an MCP server and a library. None needs an API
 key or uses the network, unless you pass `--jev` to the command line.
