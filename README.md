@@ -216,7 +216,7 @@ npm install --save-dev jevlint-le
 The editor then lints with that copy, not the one the extension carries, so
 what you see while typing is what `npx jevlint-le` reports in CI. The version
 changes when `package.json` does, and for everyone at once. The status bar
-shows `project 0.5.0` while a project's copy is in use.
+shows `project 0.5.1` while a project's copy is in use.
 
 With nothing installed the extension lints with its own copy, with no setup.
 
@@ -270,7 +270,7 @@ Jev, and it never uses the network, unless you pass `--jev`.
 On GitHub, the action annotates a pull request:
 
 ```yaml
-- uses: nolindnaidoo/jevlint-le@v0.5.0
+- uses: nolindnaidoo/jevlint-le@v0.5.1
   with:
     paths: src
 ```
@@ -292,7 +292,7 @@ With [pre-commit](https://pre-commit.com):
 
 ```yaml
 - repo: https://github.com/nolindnaidoo/jevlint-le
-  rev: v0.5.0
+  rev: v0.5.1
   hooks:
     - id: jevlint-le
 ```
