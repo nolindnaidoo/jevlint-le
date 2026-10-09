@@ -1,6 +1,6 @@
 # Lints the Jev questions in a repository and annotates the pull request.
 #
-#   - uses: nolindnaidoo/jevlint-le@v0.5.0
+#   - uses: nolindnaidoo/jevlint-le@v0.5.1
 #     with:
 #       paths: src
 #
@@ -19,7 +19,7 @@ inputs:
   version:
     description: The jevlint-le version to run. Defaults to the one this action was released with.
     required: false
-    default: 0.5.0
+    default: 0.5.1
   format:
     description: How findings are printed. github annotates the pull request. sarif is for code scanning.
     required: false
