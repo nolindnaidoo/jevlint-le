@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.2 — 2026-10-09
+
+- **The listing says Luna.** The Marketplace and npm descriptions and
+  keywords name OpenAI's Decisions API and `gpt-6-luna`, and the README has
+  a section that says exactly what is read, checked, held back and not yet
+  measured on Luna.
+- The GitHub Action and the pre-commit hook pin 0.5.2.
+
 ## 0.5.1 — 2026-10-09
 
 - **The MCP server tells an agent it reads both vendors.** Its tool
