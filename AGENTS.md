@@ -535,7 +535,7 @@ difference matters when the family changes one.
 | `.cursorrules`, `.windsurfrules`, `.clinerules`, `GEMINI.md`, `.github/copilot-instructions.md`, `.cursor/rules/project.mdc`, `scripts/check-agent-files.py`, `src/agent-files.test.ts` | Copies. The six instruction files are one document, and the test fails if they differ |
 | `.github/workflows/codeql.yml`, `.github/codeql-config.yml`, `.github/workflows/dependabot-auto-merge.yml`, `.gitattributes`, `.editorconfig`, `biome.json`, `tsconfig.it.json` | Copies |
 | `.github/workflows/ci.yml` | Cut down: no second extension toolchain, no generated README check, no bundle gate. Adds `test:cli` |
-| `.github/workflows/release.yml` | Changed: publishes `npm/` with the `NPM_TOKEN` secret where the family uses trusted publishing. The MCP registry step is the family's |
+| `.github/workflows/release.yml` | Changed: publishes `npm/` with the `NPM_TOKEN` secret where the family uses trusted publishing. The MCP registry step is the family's, in a job of its own that first waits for npm to serve the version, so a listing that fails is re-run alone |
 | `.github/dependabot.yml` | Cut down: no `cargo` entry |
 
 - **`letools-site`'s fleet check names this repo and does not compare it.** It
