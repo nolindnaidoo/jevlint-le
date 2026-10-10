@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.7.0 — 2026-10-10
+
+The MCP server gets a package of its own, `jevlint-le-mcp`, as every sibling
+has.
+
+- **`npx -y jevlint-le-mcp` is the server, with no flag.** A client that
+  installs by package name, and an index that reads one, gets the server
+  and not a linter that exits. It is the same server as `jevlint-le --mcp`,
+  built from the same source at the same version, and `jevlint-le` keeps
+  `--mcp` for a project that already pins it and for the copy inside the
+  VSIX.
+- **The registry listing points at `jevlint-le-mcp`** from this version,
+  so `io.github.nolindnaidoo/jevlint-le` has the family's shape: a package
+  that is the server, and nothing to pass. `mcpName` moves to that package
+  and off `jevlint-le`, since the registry verifies ownership from the
+  package its listing names.
+- The Release workflow publishes both packages, refuses either version that
+  exists, and lists the server after npm serves `jevlint-le-mcp`. CI holds
+  the four versions and the registry identity together.
+- The GitHub Action and the pre-commit hook pin 0.7.0.
+
 ## 0.6.0 — 2026-10-10
 
 The MCP server gives an agent something to act on, and the release publishes

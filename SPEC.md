@@ -858,10 +858,16 @@ The extension also offers the server to the editor it runs in, through
 setup. The command line bundle ships in the VSIX as `dist/cli.js` for this.
 An editor without agent mode is left alone.
 
-It is in the same package as the command line and not a package of its own,
-which is where this differs from the rest of the family. There the command
-line is a Rust crate, so the npm package holds only the server. Here both are
-one JavaScript bundle, and two packages would be two versions to keep equal.
+From 0.7.0 it is also a package of its own, `jevlint-le-mcp`, as every
+sibling's server is: one `bin` that is the server, with no flag. Until then
+the server was reached only as `jevlint-le --mcp`, on the reasoning that two
+packages would be two versions to keep equal. What changed the decision: a
+client that installs by package name, and an index that reads one, starts
+`jevlint-le` bare and gets a linter that exits, and the family's convention
+is what the outside world pattern-matches. The two versions are kept equal
+the way the family keeps them: `build-npm.js` writes both from one source and
+CI fails if they differ. `jevlint-le` keeps `--mcp` for a project that already
+pins it, and the VSIX starts its own bundled copy that way.
 
 A bad argument, an unknown tool or a tool that throws is a failed call with
 the reason in it. Bad JSON, JSON that is not a request and an unknown method

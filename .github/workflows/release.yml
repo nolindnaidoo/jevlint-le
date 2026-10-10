@@ -200,22 +200,31 @@ jobs:
       - name: Refuse to republish an existing version
         run: |
           version=$(node -p "require('./package.json').version")
-          name=$(node -p "require('./npm/package.json').name")
-          if npm view "$name@$version" version >/dev/null 2>&1; then
-            echo "::error::$name@$version is already published — bump the version first."
-            exit 1
-          fi
-          echo "Publishing $name@$version"
+          for dir in npm mcp; do
+            name=$(node -p "require('./$dir/package.json').name")
+            if npm view "$name@$version" version >/dev/null 2>&1; then
+              echo "::error::$name@$version is already published — bump the version first."
+              exit 1
+            fi
+            echo "Publishing $name@$version"
+          done
 
-      # Builds npm/, runs the bundle as a process, and checks that only the
-      # bundle, its manifest, the readme and the license would be uploaded.
-      - name: Build and gate the package
+      # Builds npm/ and mcp/, runs each bundle as a process, and checks that
+      # only the bundles, the manifests, the readmes and the licenses would
+      # be uploaded.
+      - name: Build and gate the packages
         run: bun run test:cli
 
-      - name: Publish to npm
+      # Two steps, so a failure names the package that did not go out.
+      - name: Publish jevlint-le to npm
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish ./npm --access public
+
+      - name: Publish jevlint-le-mcp to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish ./mcp --access public
 
   # The registry hosts metadata pointing at the npm package, and refuses a
   # version npm does not serve yet. npm serves one minutes after `npm publish`
@@ -240,7 +249,8 @@ jobs:
       - name: Wait for npm to serve the version
         run: |
           version=$(node -p "require('./package.json').version")
-          name=$(node -p "require('./npm/package.json').name")
+          # The package the listing points at, which carries mcpName.
+          name=$(node -p "require('./mcp/package.json').name")
           for attempt in $(seq 1 30); do
             if npm view "$name@$version" version >/dev/null 2>&1; then
               echo "$name@$version is on npm"

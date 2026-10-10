@@ -4,7 +4,7 @@
   "displayName": "JevLint-LE",
   "description": "Lint the questions you send to TypeSafe's Jev model and OpenAI's Decisions API (gpt-6-luna) as you type, with no API key and no network calls. An optional command asks Jev or Luna itself to check a file",
   "icon": "src/assets/images/icon.png",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "private": true,
   "license": "MIT",
   "author": {

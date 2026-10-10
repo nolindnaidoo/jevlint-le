@@ -16,7 +16,8 @@ Part of the LE family.
   `ext install nolindnaidoo.jevlint-le`.
 - **Cursor, VSCodium and other editors that use Open VSX:** the same name,
   `nolindnaidoo.jevlint-le`.
-- **Command line and MCP server:** `npx jevlint-le`. Nothing to install first.
+- **Command line:** `npx jevlint-le`. Nothing to install first.
+- **MCP server, for an agent host:** `npx -y jevlint-le-mcp`.
 
 ## At a glance
 
@@ -360,15 +361,19 @@ three request shapes, so an agent knows to call it for any of them.
 
 Agents running inside VS Code get it with no setup: the extension offers the
 server to the editor, which starts it when an agent calls a tool. For any
-other client, point it at the program:
+other client, point it at the server package:
 
 ```json
 {
   "mcpServers": {
-    "jevlint-le": { "command": "npx", "args": ["-y", "jevlint-le", "--mcp"] }
+    "jevlint-le": { "command": "npx", "args": ["-y", "jevlint-le-mcp"] }
   }
 }
 ```
+
+A project that already pins `jevlint-le` for CI has the same server behind
+`npx jevlint-le --mcp`. The package with no flag is the one to give a client,
+because `jevlint-le` started bare is a linter that exits, not a server.
 
 It offers five tools. `lint_text` lints a request or source code passed as
 text and `lint_paths` lints files on disk, with each finding carrying the

@@ -9,8 +9,11 @@ The rules and their defaults were set by measuring what each defect costs
 Jev. Luna has not been measured yet, so on a Luna question they are the same
 rules with Jev's defaults.
 
-One package: a command line, an MCP server and a library. None needs an API
-key or uses the network, unless you pass `--jev` to the command line.
+This package is the command line and the library, with the MCP server behind
+`--mcp`. An agent host installs the server on its own as
+[`jevlint-le-mcp`](https://www.npmjs.com/package/jevlint-le-mcp). None of it
+needs an API key or uses the network, unless you pass `--jev` to the command
+line.
 
 ## Command line
 
@@ -103,6 +106,11 @@ For an AI agent that writes Jev or OpenAI Decisions questions. It can lint
 what it wrote and fix it before you see it. The tool descriptions and the
 server's instructions name both vendors, so an agent knows to call it for
 either shape.
+
+An agent host should install
+[`jevlint-le-mcp`](https://www.npmjs.com/package/jevlint-le-mcp), which is
+this server and nothing else, with no flag to forget. A project that already
+has this package reaches the same server with the flag:
 
 ```json
 {

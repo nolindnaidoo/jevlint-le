@@ -159,4 +159,36 @@ assert.strictEqual(
 	require(join(root, 'package.json')).homepage,
 );
 
+// The server-only package: the same server as `--mcp`, reached with no flag,
+// and the same answers, from the same working directory.
+const server = join(root, 'mcp', 'server.js');
+const spoken = spawnSync(process.execPath, [server], {
+	cwd: join(root, 'samples'),
+	input: `${requests.map((request) => JSON.stringify(request)).join('\n')}\n`,
+	encoding: 'utf8',
+	env,
+});
+assert.strictEqual(spoken.status, 0, spoken.stderr);
+const answers = spoken.stdout.trim().split('\n').map((line) => JSON.parse(line));
+assert.strictEqual(answers[0].result.serverInfo.version, require(join(root, 'package.json')).version);
+assert.deepStrictEqual(answers[1].result.tools, replies[1].result.tools);
+assert.deepStrictEqual(JSON.parse(answers[2].result.content[0].text), linted);
+
+// The registry verifies ownership by the mcpName inside the package its
+// listing points at, so that package carries it and the other does not.
+const mcpManifest = require(join(root, 'mcp', 'package.json'));
+const listing = require(join(root, 'server.json'));
+assert.strictEqual(mcpManifest.name, 'jevlint-le-mcp');
+assert.strictEqual(mcpManifest.mcpName, listing.name);
+assert.strictEqual(npmManifest.mcpName, undefined);
+assert.strictEqual(listing.packages[0].identifier, mcpManifest.name);
+assert.strictEqual(listing.packages[0].packageArguments, undefined);
+assert.strictEqual(mcpManifest.homepage, require(join(root, 'package.json')).homepage);
+
+const packedMcp = spawnSync('npm', ['pack', '--dry-run', '--json'], { cwd: join(root, 'mcp'), encoding: 'utf8' });
+assert.strictEqual(packedMcp.status, 0, packedMcp.stderr);
+const [serverTarball] = JSON.parse(packedMcp.stdout);
+assert.deepStrictEqual(serverTarball.files.map((file) => file.path).sort(), ['LICENSE', 'README.md', 'package.json', 'server.js']);
+assert.strictEqual(serverTarball.version, require(join(root, 'package.json')).version);
+
 console.log('COMMAND-LINE TEST: PASS');

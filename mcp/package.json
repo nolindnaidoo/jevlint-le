@@ -1,26 +1,27 @@
 {
-  "name": "jevlint-le",
+  "name": "jevlint-le-mcp",
   "version": "0.7.0",
-  "description": "Lint the questions you send to TypeSafe's Jev model and OpenAI's Decisions API (gpt-6-luna): a command line for CI and a library for the editor, with the MCP server behind --mcp. Agent hosts install jevlint-le-mcp instead. No API key and no network calls.",
+  "mcpName": "io.github.nolindnaidoo/jevlint-le",
+  "description": "Lint questions for TypeSafe's Jev and OpenAI's Decisions API before sending. No key, no network.",
   "keywords": [
-    "jev",
-    "typesafe",
-    "system-one",
-    "luna",
-    "gpt-6-luna",
-    "openai",
-    "decisions",
-    "decisions-api",
-    "lunalint",
-    "lint",
-    "linter",
-    "cli",
     "mcp",
     "modelcontextprotocol",
     "model-context-protocol",
     "mcp-server",
     "ai-agent",
+    "claude",
+    "cursor",
+    "vscode",
+    "llm-tools",
+    "jev",
+    "typesafe",
+    "luna",
+    "gpt-6-luna",
+    "openai",
+    "decisions-api",
+    "lint",
     "jevlint-le",
+    "jevlint-le-mcp",
     "nolindnaidoo",
     "letools"
   ],
@@ -33,23 +34,17 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/nolindnaidoo/jevlint-le.git",
-    "directory": "npm"
+    "directory": "mcp"
   },
   "bugs": {
     "url": "https://github.com/nolindnaidoo/jevlint-le/issues"
   },
   "type": "commonjs",
-  "main": "lib.js",
-  "exports": {
-    ".": "./lib.js",
-    "./package.json": "./package.json"
-  },
   "bin": {
-    "jevlint-le": "cli.js"
+    "jevlint-le-mcp": "server.js"
   },
   "files": [
-    "cli.js",
-    "lib.js",
+    "server.js",
     "README.md",
     "LICENSE"
   ],
