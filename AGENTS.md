@@ -73,7 +73,8 @@ cli/
   format.ts              stylish, compact, JSON, GitHub annotation, SARIF and JUnit output
   run.ts                 run(argv, io) -> exit status. Everything but the process
   jev.ts                 --jev: the plan across files under one call limit, and the run
-  mcp.ts                 the MCP server: three tools over the same linting
+  mcp.ts                 the MCP server: five read-only tools over the same
+                         linting, the fixes and the rule pages
   main.ts                the process: real filesystem, streams and exit code
 services/linter.ts       diagnostics collection, per-document results, debounce
 services/reviewer.ts     shows what jev/review.ts finds in a document, in its own collection
@@ -125,7 +126,8 @@ family's files, copied unchanged from `regex-le`.
 - **No vendor number outside `lint/limits.ts`.** Each entry carries the page it
   was read from. `VERIFIED_ON` is the date.
 - **The rule tables in SPEC.md and README.md must equal `lint/rules.ts`.**
-  `lint/rules.test.ts` fails when code, name or default severity differ.
+  `lint/rules.test.ts` fails when code, name or default severity differ, and
+  when the README's "What it means" column is not the registry's `meaning`.
 - **`CONFIG_DEFAULTS` must equal the defaults in `package.json`**, and every
   declared command must be registered. `extension.test.ts` holds both.
 - **A fix must not guess.** `fix.ts` returns no edit when anything but
@@ -347,8 +349,13 @@ family's files, copied unchanged from `regex-le`.
 - **The call limit on the command line is for the run, not the file.** Each
   file is planned with what the files before it left. A run that needed more
   exits 2, as does one that failed or was stopped.
-- **The MCP server never calls Jev.** Its tool descriptions say it sends
-  nothing. `--jev` with `--mcp` is refused.
+- **The MCP server never calls Jev and never writes a file.** Its tool
+  descriptions say it sends nothing, `--jev` with `--mcp` is refused, and
+  `fix_text` returns the mended text in place of writing it. That is what
+  lets every tool carry `readOnlyHint`, and a test fails if one does not.
+- **Every MCP tool declares an `outputSchema` and answers with
+  `structuredContent` equal to its text.** A client reads either. A tool
+  that answers prose, `explain_rule`, puts the page in both.
 - **The API key lives in secret storage, the environment, or the user's own
   settings, and never in a workspace's.** The `jev.apiKey` setting has
   application scope and `ignoreSync`, and a test fails if either is removed,
@@ -427,6 +434,14 @@ family's files, copied unchanged from `regex-le`.
   version into `npm/package.json`. Never edit that version by hand.
   `scripts/e2e-cli.js` fails if the two differ or if anything but the bundle,
   the manifest, the readme and the license would be uploaded.
+- **Three files carry the version, and CI fails unless they agree:**
+  `package.json`, `npm/package.json` and `server.json`, both its `.version`
+  and `.packages[0].version`. The same step holds `server.json.name` to the
+  manifest's `mcpName`, `.packages[0].identifier` to the npm name, and
+  `--mcp` among the package arguments, without which a client would start
+  the command line. Not relaxable: the registry verifies ownership by reading
+  `mcpName` out of the published package, so a mismatch is found only after
+  the version is spent, and a version can never be republished.
 - **The MCP server returns what `--format json` prints.** Both come from
   `toReport`, so an agent and a CI job read one shape.
 - **`cli/run.ts` takes its filesystem and streams as arguments.** Only
@@ -435,10 +450,13 @@ family's files, copied unchanged from `regex-le`.
   stays quiet on a value it cannot read. A rule the linter runs offline also
   ships with a pair in `fixtures/rule-examples.json`.
 - **Rule pages are generated, never edited.** `bun run docs:rules` writes
-  `docs/rules/` from the registry, the README's "What it means" column and
-  `fixtures/rule-examples.json`. `docs/rulePages.test.ts` runs the linter on
-  every example and fails when a page on disk is not what would be written
-  now. To change a page, change its source and run the script.
+  `docs/rules/` from the registry, whose `meaning` is each page's first line,
+  and `fixtures/rule-examples.json`. `docs/rulePages.test.ts` runs the linter
+  on every example and fails when a page on disk is not what would be written
+  now. To change a page, change its source and run the script. The examples
+  are imported into `docs/rulePages.ts`, so they ship inside the bundle and
+  `explain_rule` renders the same page offline. A test holds the import to
+  the file.
 - **A good example has nothing wrong with it.** The test runs every offline
   rule over each one. An example that trips a second rule teaches the wrong
   thing.
@@ -477,9 +495,9 @@ bun run validate -- --dry-run   # what would be sent to Jev, no key needed
 ## Not done
 
 - No Rust port of the command line, by decision. See the roadmap in SPEC.md.
-- No localization or MCP registry listing, by decision. See the roadmap in
-  SPEC.md. The sibling repos have these and the Rust port, and SPEC.md lists
-  them under Extended release 2.
+- No localization, by decision. See the roadmap in SPEC.md. The sibling
+  repos have it and the Rust port, and SPEC.md lists them under Extended
+  release 2.
 - Not compared by the family's fleet check. See below.
 - The shell does not yet follow the family layout: no `services/serviceFactory`,
   `telemetry/` or `config/settings`.
@@ -517,7 +535,7 @@ difference matters when the family changes one.
 | `.cursorrules`, `.windsurfrules`, `.clinerules`, `GEMINI.md`, `.github/copilot-instructions.md`, `.cursor/rules/project.mdc`, `scripts/check-agent-files.py`, `src/agent-files.test.ts` | Copies. The six instruction files are one document, and the test fails if they differ |
 | `.github/workflows/codeql.yml`, `.github/codeql-config.yml`, `.github/workflows/dependabot-auto-merge.yml`, `.gitattributes`, `.editorconfig`, `biome.json`, `tsconfig.it.json` | Copies |
 | `.github/workflows/ci.yml` | Cut down: no second extension toolchain, no generated README check, no bundle gate. Adds `test:cli` |
-| `.github/workflows/release.yml` | Changed: publishes `npm/` with the `NPM_TOKEN` secret where the family uses trusted publishing, and has no MCP registry step |
+| `.github/workflows/release.yml` | Changed: publishes `npm/` with the `NPM_TOKEN` secret where the family uses trusted publishing. The MCP registry step is the family's |
 | `.github/dependabot.yml` | Cut down: no `cargo` entry |
 
 - **`letools-site`'s fleet check names this repo and does not compare it.** It

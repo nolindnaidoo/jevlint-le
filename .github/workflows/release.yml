@@ -9,7 +9,8 @@
 # Turn it on deliberately, once that namespace is the intended one.
 #
 # npm defaults to OFF for the same reason. The package is the command line and
-# the MCP server in one.
+# the MCP server in one, and the MCP registry listing follows it in the same
+# job, because the listing points at the version npm has just been given.
 name: Release
 
 on:
@@ -24,7 +25,7 @@ on:
         type: boolean
         default: false
       npm:
-        description: Publish the command line and MCP server to npm (jevlint-le)
+        description: Publish the command line and MCP server to npm (jevlint-le), then the listing to the MCP registry
         type: boolean
         default: false
 
@@ -151,11 +152,12 @@ jobs:
         run: bunx ovsx publish "${{ steps.vsix.outputs.path }}"
 
   # The command line and MCP server on npm, for CI and for every host that is
-  # not VS Code. Published with the NPM_TOKEN secret, the same token the rest
-  # of the family's packages use, so the first release of a new package needs
-  # no setup on the registry beforehand. `id-token: write` is here for
-  # provenance only: npm signs the package as built by this workflow, and that
-  # permission should not be held by a job handling the VSIX registry tokens.
+  # not VS Code, then the MCP registry listing that points at it. Published
+  # with the NPM_TOKEN secret, the same token the rest of the family's
+  # packages use, so the first release of a new package needs no setup on the
+  # registry beforehand. `id-token: write` signs the npm provenance and logs
+  # in to the MCP registry, and that permission should not be held by a job
+  # handling the VSIX registry tokens.
   npm:
     if: inputs.npm
     needs: preflight
@@ -213,3 +215,25 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish ./npm --access public
+
+      # The registry hosts metadata pointing at the npm package, so it can only
+      # be correct once that version exists. It logs in with this job's OIDC
+      # identity, so the registry needs no credential of its own.
+      #
+      # Pinned by version AND checksum: this is a binary fetched over the
+      # network into a job that holds an identity token, and `latest` would
+      # make that whatever was released this morning.
+      - name: Publish to the MCP registry
+        env:
+          PUBLISHER_VERSION: v1.8.0
+          PUBLISHER_SHA256: 1370446bbe74d562608e8005a6ccce02d146a661fbd78674e11cc70b9618d6cf
+        run: |
+          url="https://github.com/modelcontextprotocol/registry/releases/download/${PUBLISHER_VERSION}/mcp-publisher_linux_amd64.tar.gz"
+          curl -fsSL "$url" -o publisher.tar.gz
+          echo "${PUBLISHER_SHA256}  publisher.tar.gz" | sha256sum --check --status || {
+            echo "::error::mcp-publisher checksum mismatch — refusing to run it."
+            exit 1
+          }
+          tar xzf publisher.tar.gz mcp-publisher
+          ./mcp-publisher login github-oidc
+          ./mcp-publisher publish

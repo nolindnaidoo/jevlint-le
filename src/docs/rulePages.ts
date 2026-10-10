@@ -1,3 +1,4 @@
+import given from '../../fixtures/rule-examples.json';
 import { DEFAULT_MODEL } from '../jev/review';
 import { REQUEST_REVIEWS, REVIEWS } from '../jev/reviews';
 import { lintText } from '../lint/lint';
@@ -5,10 +6,12 @@ import { RULE_CODES, RULES } from '../lint/rules';
 import type { LintOptions, RuleCode, Syntax } from '../types';
 
 /**
- * A page per rule, written from the registry, the README's table and a pair
- * of examples the linter itself is run on. Nothing on a page is typed by
- * hand, so a page cannot drift from the rule it describes: change the rule
- * and `bun run docs:rules` rewrites it, and a test fails until it is run.
+ * A page per rule, written from the registry and a pair of examples the
+ * linter itself is run on. Nothing on a page is typed by hand, so a page
+ * cannot drift from the rule it describes: change the rule and `bun run
+ * docs:rules` rewrites it, and a test fails until it is run. The MCP server
+ * renders the same page in answer to `explain_rule`, which is why the
+ * examples are imported here and ship inside the bundle.
  */
 
 export type RuleExample =
@@ -16,6 +19,9 @@ export type RuleExample =
 	| Readonly<{ note: string }>;
 
 export type RuleExamples = Readonly<Record<string, RuleExample>>;
+
+/** The checked examples in `fixtures/rule-examples.json`, one per rule the linter runs offline. */
+export const EXAMPLES: RuleExamples = given;
 
 const FENCE = '```';
 const READERS: Readonly<Record<string, Syntax>> = Object.freeze({
@@ -36,14 +42,6 @@ export function findingsOf(code: RuleCode, text: string, syntax: string) {
 	return lintText(text, ALL_ON, READERS[syntax] ?? 'js').findings.filter(
 		(finding) => finding.code === code,
 	);
-}
-
-// The "What it means" column of the README's rule tables, by code.
-function meanings(readme: string): ReadonlyMap<string, string> {
-	const rows = readme.matchAll(
-		/^\| (JEV\d{3}) \| [^|]+ \| [^|]+ \| (.+) \|$/gm,
-	);
-	return new Map([...rows].map((row) => [row[1] as string, row[2] as string]));
 }
 
 const jevBacked = (code: string) => code.startsWith('JEV3');
@@ -137,16 +135,17 @@ function silence(code: RuleCode): string {
 	].join('\n');
 }
 
-function page(
-	code: RuleCode,
-	meaning: string,
-	example: RuleExample | undefined,
-): string {
+/** One rule's page, as it is written to `docs/rules/` and as `explain_rule` answers. */
+export function rulePage(code: RuleCode, examples: RuleExamples = EXAMPLES) {
+	return page(code, examples[code]);
+}
+
+function page(code: RuleCode, example: RuleExample | undefined): string {
 	const rule = RULES[code];
 	return [
 		`# ${code} ${rule.name}`,
 		'',
-		`${meaning}.`,
+		`${rule.meaning}.`,
 		'',
 		`${level(code)} ${kind(code)}`,
 		'',
@@ -169,10 +168,10 @@ function page(
 	].join('\n');
 }
 
-function index(means: ReadonlyMap<string, string>): string {
+function index(): string {
 	const rows = RULE_CODES.map(
 		(code) =>
-			`| [${code}](${code}.md) | ${RULES[code].name} | ${RULES[code].severity} | ${means.get(code) ?? ''} |`,
+			`| [${code}](${code}.md) | ${RULES[code].name} | ${RULES[code].severity} | ${RULES[code].meaning} |`,
 	);
 	return [
 		'# Rules',
@@ -188,13 +187,10 @@ function index(means: ReadonlyMap<string, string>): string {
 
 /** Every page, by file name, as it should be on disk under `docs/rules/`. */
 export function renderRulePages(
-	readme: string,
-	given: RuleExamples,
+	examples: RuleExamples = EXAMPLES,
 ): Readonly<Record<string, string>> {
-	const means = meanings(readme);
 	const pages = RULE_CODES.map(
-		(code) =>
-			[`${code}.md`, page(code, means.get(code) ?? '', given[code])] as const,
+		(code) => [`${code}.md`, rulePage(code, examples)] as const,
 	);
-	return Object.fromEntries([['README.md', index(means)], ...pages]);
+	return Object.fromEntries([['README.md', index()], ...pages]);
 }

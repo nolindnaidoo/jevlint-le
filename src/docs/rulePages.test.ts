@@ -1,17 +1,27 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { RULE_CODES } from '../lint/rules';
-import { findingsOf, type RuleExamples, renderRulePages } from './rulePages';
+import {
+	EXAMPLES,
+	findingsOf,
+	type RuleExamples,
+	renderRulePages,
+} from './rulePages';
 
 const examples: RuleExamples = JSON.parse(
 	readFileSync('fixtures/rule-examples.json', 'utf8'),
 );
-const pages = renderRulePages(readFileSync('README.md', 'utf8'), examples);
+const pages = renderRulePages(examples);
 const offline = RULE_CODES.filter((code) => !code.startsWith('JEV3'));
 
 describe('the rule examples', () => {
 	it('has one for every rule the linter can run offline, and for no other', () => {
 		expect(Object.keys(examples).sort()).toEqual([...offline].sort());
+	});
+
+	it('ship inside the bundle as the file on disk', () => {
+		// `explain_rule` renders a page from the import, so the two must be one.
+		expect(EXAMPLES).toEqual(examples);
 	});
 
 	it.each(offline)(
@@ -55,7 +65,7 @@ describe('the rule pages', () => {
 		expect(readdirSync('docs/rules').sort()).toEqual(Object.keys(pages).sort());
 	});
 
-	it('says what each rule means, taken from the README', () => {
+	it('says what each rule means, taken from the registry', () => {
 		for (const code of RULE_CODES)
 			expect(pages[`${code}.md`]?.split('\n')[2]?.length, code).toBeGreaterThan(
 				20,
