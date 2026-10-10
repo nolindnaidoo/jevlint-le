@@ -70,6 +70,8 @@ jev/
 cli/
   args.ts                the flag table: one entry parses a flag and prints its help
   files.ts               paths -> the files to lint
+  dotenv.ts              the API key for the server: the environment, then
+                         .env.local, then .env, never a tool argument
   format.ts              stylish, compact, JSON, GitHub annotation, SARIF and JUnit output
   run.ts                 run(argv, io) -> exit status. Everything but the process
   jev.ts                 --jev: the plan across files under one call limit, and the run
@@ -327,11 +329,13 @@ family's files, copied unchanged from `regex-le`.
   Only the Python reader does this.
 - **Text in backticks or double quotes is not the question's wording.**
   `prose()` removes it before any wording rule reads.
-- **Only four callers may reach the network:** `commands/jev.ts`,
-  `commands/probe.ts` and `services/reviewer.ts` in the editor, and
-  `cli/jev.ts` under `--jev`. `lintText` and everything under it stay
-  offline. `extension.test.ts` fails if linting calls `fetch`, and
-  `cli.test.ts` fails if a run without `--jev` does. Two hosts, and only two:
+- **Only five callers may reach the network:** `commands/jev.ts`,
+  `commands/probe.ts` and `services/reviewer.ts` in the editor, `cli/jev.ts`
+  under `--jev`, and `cli/mcp.ts` under `check_with_jev` and
+  `probe_question`. `lintText` and everything under it stay offline.
+  `extension.test.ts` fails if linting calls `fetch`, and `cli.test.ts`
+  fails if a run without `--jev` does, or if any other MCP tool does. Two
+  hosts, and only two:
   `api.typesafe.ai` for a Jev model and `api.openai.com` for `gpt-6-luna`,
   chosen by `jev/provider.ts` from the model id, each with its own key.
 - **A question carries its dialect.** `extraction/requests.ts` reads
@@ -346,14 +350,29 @@ family's files, copied unchanged from `regex-le`.
   cloned repository could spend the key of whoever lints it. This is the
   command line's workspace trust.
 - **The command line's key is `TYPESAFE_API_KEY` and nothing else.** No flag
-  takes it, so it cannot reach shell history or a CI log.
+  takes it, so it cannot reach shell history or a CI log. The MCP server
+  reads the same names, and also from the project's `.env.local` and `.env`,
+  because an agent host starts the server in the project and rarely carries
+  a shell environment of its own.
 - **The call limit on the command line is for the run, not the file.** Each
   file is planned with what the files before it left. A run that needed more
   exits 2, as does one that failed or was stopped.
-- **The MCP server never calls Jev and never writes a file.** Its tool
-  descriptions say it sends nothing, `--jev` with `--mcp` is refused, and
-  `fix_text` returns the mended text in place of writing it. That is what
-  lets every tool carry `readOnlyHint`, and a test fails if one does not.
+- **The MCP server sends only from `check_with_jev` and `probe_question`,
+  and never writes a file.** The other six tools' descriptions say they send
+  nothing, and a test holds `fetch` uncalled across all of them. The two that
+  send are annotated open-world and not idempotent, and their descriptions
+  and the server's instructions tell an agent to call them only when the user
+  asks, because each call spends the user's key. `fix_text` returns the
+  mended text in place of writing it, which is what lets every tool carry
+  `readOnlyHint`. `--jev` with `--mcp` is still refused: the flag has no run
+  to apply to.
+- **The server's key comes from the environment or the project's `.env`,
+  never from a tool argument.** `cli/dotenv.ts` reads `TYPESAFE_API_KEY` or
+  `OPENAI_API_KEY` from `io.env`, then `.env.local`, then `.env` in the
+  working directory, and the first found wins. An argument would put the key
+  in the agent's transcript and the host's log. No answer carries the key:
+  `keySource` names where it came from, and a test checks the key string is
+  in no reply. With none found the call fails before anything is sent.
 - **Every MCP tool declares an `outputSchema` and answers with
   `structuredContent` equal to its text.** A client reads either. A tool
   that answers prose, `explain_rule`, puts the page in both.

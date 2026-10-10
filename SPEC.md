@@ -844,14 +844,32 @@ case this tool is most useful for.
 | `lint_text` | `text`, an optional `filename` whose extension picks the reader, optional `rules` | The same report as `--format json`, each finding with the edit that would mend it and whether it is safe |
 | `lint_paths` | `paths`, optional `rules` | The same, one entry per file |
 | `fix_text` | as `lint_text` | The text with the safe fixes applied, how many were mended, and the report of what is left. Nothing is written |
-| `list_rules` | nothing | Every rule with its meaning, default level, its pages, and whether it runs here |
+| `list_rules` | nothing | Every rule with its meaning, default level, its pages, and whether it runs offline here |
 | `explain_rule` | `code` | The rule's own page as Markdown, rendered from the bundle, and the same fields as `list_rules` |
+| `plan_jev` | `text` or `paths`, optional `model`, `maxCalls`, `sendState`, `rules` | The report with `totals.jev` saying what `check_with_jev` would send. Nothing is sent and no key is needed |
+| `check_with_jev` | the same | The report with the model's findings added and `totals.jev` saying what was sent and answered, where the key came from, and why the check fell short when it did |
+| `probe_question` | `text`, optional `filename`, `questionId`, `model` | The probe report as Markdown with its verdict and the variants that moved the decision. Jev only |
 
 Every tool declares the shape of its answer and returns it as structured
-content beside the text, carries a title, and is annotated read-only, so a
-host can let an agent call it without asking. The server is listed on the
-MCP registry from `server.json` at the root, published by the Release
-workflow after npm, as the family does.
+content beside the text, and carries a title. The first six are annotated
+read-only and reach nothing past the files they are given, so a host can let
+an agent call them without asking. The two that send are open-world and not
+idempotent, since each call costs, and their descriptions and the server's
+instructions tell an agent to call them only when the user asks for a check
+or a probe. That reverses the first decision, which kept the server offline
+so that an agent could not spend the key unasked: the owner chose on
+2026-10-10 to give the server everything the editor and the command line
+have, with the descriptions carrying the caution.
+
+The key is found the way `cli/dotenv.ts` finds it: `TYPESAFE_API_KEY` or
+`OPENAI_API_KEY` in the environment the client started the server with,
+then `.env.local`, then `.env` in its working directory. Never a tool
+argument, so no key lands in an agent's transcript, and never a workspace
+setting or `jevlint-le.json`, for the reason the command line refuses those.
+No answer carries the key: the report names where it came from.
+
+The server is listed on the MCP registry from `server.json` at the root,
+published by the Release workflow after npm, as the family does.
 
 The extension also offers the server to the editor it runs in, through
 `mcpServerDefinitionProviders`, so an agent in VS Code has the tools with no

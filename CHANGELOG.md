@@ -3,8 +3,22 @@
 ## 0.7.0 — 2026-10-10
 
 The MCP server gets a package of its own, `jevlint-le-mcp`, as every sibling
-has.
+has, and everything the editor and the command line can do.
 
+- **`check_with_jev`, `plan_jev` and `probe_question`.** The server now
+  has the editor's Check with Jev and Probe for an agent: `check_with_jev`
+  asks Jev, or Luna with `model: gpt-6-luna`, about the questions in text or
+  files and returns the lint report with the model's findings added;
+  `plan_jev` says what that would send and sends nothing; `probe_question`
+  varies one question's layout and reports whether the answer held. The two
+  that send are marked open-world and not idempotent, and their descriptions
+  tell an agent to call them only when asked, since each call spends your
+  key. This reverses the decision to keep the server offline.
+- **The key comes from the environment or the project's `.env`.** The server
+  reads `TYPESAFE_API_KEY` or `OPENAI_API_KEY` from the environment the
+  client started it with, then from `.env.local`, then `.env` in the
+  directory it started in. Never from a tool argument, so no key lands in an
+  agent's transcript, and no answer carries one.
 - **`npx -y jevlint-le-mcp` is the server, with no flag.** A client that
   installs by package name, and an index that reads one, gets the server
   and not a linter that exits. It is the same server as `jevlint-le --mcp`,

@@ -417,7 +417,7 @@ function refuseJev(options: CliOptions, io: Io): string | undefined {
 	const stray = JEV_ONLY.find(([key]) => options[key]);
 	if (!asks && stray) return `${stray[1]} needs --jev or --jev-plan.`;
 	if (asks && options.mcp)
-		return '--jev cannot be combined with --mcp. The server sends nothing.';
+		return '--jev cannot be combined with --mcp. The server has check_with_jev for that.';
 	const { envKey } = providerFor(options.jevModel ?? DEFAULT_MODEL);
 	if (options.jev && !options.jevPlan && !io.env[envKey]?.trim())
 		return `--jev needs an API key in ${envKey}. Nothing was sent.`;

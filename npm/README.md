@@ -127,10 +127,15 @@ has this package reaches the same server with the flag:
 | `fix_text` | Returns the text with the safe fixes applied, and the report of what is left. Writes nothing |
 | `list_rules` | Lists every rule with what it means, its default level and its pages |
 | `explain_rule` | A rule's own page as Markdown: an example that is flagged, one that is not, how to fix it and how to silence it |
+| `plan_jev` | What `check_with_jev` would send, and sends nothing |
+| `check_with_jev` | Asks Jev or Luna to check the questions in text or files, with your key, as `--jev` does |
+| `probe_question` | Sends one question with its layout varied and reports whether the answer held, with your key |
 
-Every tool is read-only, answers as structured content beside the text, and
-sends nothing over the network. The server is listed on the MCP registry as
-`io.github.nolindnaidoo/jevlint-le`.
+Every tool answers as structured content beside the text. The first six send
+nothing and need no key. The two that send read `TYPESAFE_API_KEY` or
+`OPENAI_API_KEY` from the server's environment, or from `.env.local` or
+`.env` in its working directory, never from an argument. The server is listed
+on the MCP registry as `io.github.nolindnaidoo/jevlint-le`.
 
 ## As a library
 
