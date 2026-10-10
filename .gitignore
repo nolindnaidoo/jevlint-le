@@ -84,10 +84,12 @@ benchmark-results.json
 
 # Rust CLI build output (crate/Cargo.lock IS committed — it pins the binary build)
 crate/target/
-# The npm package's bundle and license are built into npm/ by `bun run build:npm`.
+# The npm packages' bundles and licenses are built into npm/ and mcp/ by `bun run build:npm`.
 npm/cli.js
 npm/lib.js
 npm/LICENSE
+mcp/server.js
+mcp/LICENSE
 
 # The shared corpus is the contract between the two frontends, so every
 # file in it must be tracked whatever its extension — a corpus document

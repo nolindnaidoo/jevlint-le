@@ -108,9 +108,9 @@ jobs:
           fi
           node scripts/commit-lint.js --range "$RANGE"
 
-  # One version across the manifests and server.json, and the registry
-  # identity across the two that name it. build-npm.js writes the npm
-  # version, but only when it is run: CI is where a hand-edit that skipped
+  # One version across the three manifests and server.json, and the registry
+  # identity across the two that name it. build-npm.js writes the package
+  # versions, but only when it is run: CI is where a hand-edit that skipped
   # it gets caught.
   versions:
     name: Versions and registry identity
@@ -126,17 +126,19 @@ jobs:
         run: |
           extension_version=$(node -p "require('./package.json').version")
           npm_version=$(node -p "require('./npm/package.json').version")
-          npm_name=$(node -p "require('./npm/package.json').name")
-          mcp_name=$(node -p "require('./npm/package.json').mcpName || ''")
+          npm_mcp_name=$(node -p "require('./npm/package.json').mcpName || ''")
+          mcp_version=$(node -p "require('./mcp/package.json').version")
+          mcp_package=$(node -p "require('./mcp/package.json').name")
+          mcp_name=$(node -p "require('./mcp/package.json').mcpName || ''")
           registry_name=$(node -p "require('./server.json').name")
           registry_version=$(node -p "require('./server.json').version")
           registry_identifier=$(node -p "require('./server.json').packages[0].identifier")
           registry_pkg_version=$(node -p "require('./server.json').packages[0].version")
-          registry_args=$(node -p "(require('./server.json').packages[0].packageArguments || []).map(a => a.value).join(' ')")
 
           fail=0
           for pair in \
             "npm/package.json:$npm_version" \
+            "mcp/package.json:$mcp_version" \
             "server.json:$registry_version" \
             "server.json packages[0]:$registry_pkg_version"; do
             file=${pair%:*}
@@ -148,26 +150,27 @@ jobs:
           done
 
           # The registry verifies ownership by reading mcpName out of the
-          # PUBLISHED package, so a mismatch is only discoverable after the
-          # version is spent and can never be republished.
+          # PUBLISHED package its listing points at, so a mismatch is only
+          # discoverable after the version is spent and can never be
+          # republished. That package is the server-only one, and only it
+          # carries the name: two packages claiming one listing would leave
+          # the registry to pick.
           if [ -z "$mcp_name" ]; then
-            echo "::error::npm/package.json has no mcpName"
+            echo "::error::mcp/package.json has no mcpName"
+            fail=1
+          fi
+          if [ -n "$npm_mcp_name" ]; then
+            echo "::error::npm/package.json carries mcpName $npm_mcp_name; only mcp/package.json may"
             fail=1
           fi
           if [ "$registry_name" != "$mcp_name" ]; then
             echo "::error::server.json is $registry_name, mcpName is $mcp_name"
             fail=1
           fi
-          if [ "$registry_identifier" != "$npm_name" ]; then
-            echo "::error::server.json publishes $registry_identifier, expected $npm_name"
+          if [ "$registry_identifier" != "$mcp_package" ]; then
+            echo "::error::server.json publishes $registry_identifier, expected $mcp_package"
             fail=1
           fi
-          # The package is the command line unless told otherwise. A listing
-          # that starts it bare lints the working directory and exits.
-          case " $registry_args " in
-            *" --mcp "*) ;;
-            *) echo "::error::server.json does not pass --mcp, so a client would start the command line"; fail=1 ;;
-          esac
           exit $fail
 
   ci:

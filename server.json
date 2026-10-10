@@ -17,21 +17,14 @@
 		"url": "https://github.com/nolindnaidoo/jevlint-le",
 		"source": "github"
 	},
-	"version": "0.6.0",
+	"version": "0.7.0",
 	"packages": [
 		{
 			"registryType": "npm",
 			"registryBaseUrl": "https://registry.npmjs.org",
-			"identifier": "jevlint-le",
-			"version": "0.6.0",
+			"identifier": "jevlint-le-mcp",
+			"version": "0.7.0",
 			"runtimeHint": "npx",
-			"packageArguments": [
-				{
-					"type": "positional",
-					"value": "--mcp",
-					"description": "Runs the program as an MCP server on standard input and output. Without it, it is the command line."
-				}
-			],
 			"transport": {
 				"type": "stdio"
 			}

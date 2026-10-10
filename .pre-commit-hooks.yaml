@@ -1,7 +1,7 @@
 # For https://pre-commit.com. In a project's .pre-commit-config.yaml:
 #
 #   - repo: https://github.com/nolindnaidoo/jevlint-le
-#     rev: v0.6.0
+#     rev: v0.7.0
 #     hooks:
 #       - id: jevlint-le
 #
@@ -11,6 +11,6 @@
 - id: jevlint-le
   name: JevLint-LE
   description: Lint the questions written for TypeSafe's Jev model. No API key and no network calls.
-  entry: npx --yes jevlint-le@0.6.0 --no-error-on-unmatched-pattern
+  entry: npx --yes jevlint-le@0.7.0 --no-error-on-unmatched-pattern
   language: system
   files: \.(json|jsonc|js|jsx|mjs|cjs|ts|tsx|mts|cts|py|rs|go)$

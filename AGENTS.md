@@ -76,6 +76,7 @@ cli/
   mcp.ts                 the MCP server: five read-only tools over the same
                          linting, the fixes and the rule pages
   main.ts                the process: real filesystem, streams and exit code
+  mcpMain.ts             the server-only process, published as jevlint-le-mcp
 services/linter.ts       diagnostics collection, per-document results, debounce
 services/reviewer.ts     shows what jev/review.ts finds in a document, in its own collection
 services/mcpProvider.ts  offers the bundled MCP server to agents in the editor
@@ -429,18 +430,22 @@ family's files, copied unchanged from `regex-le`.
   new language adds its extension there, a reader in `LANGUAGES` in
   `lint/lint.ts`, an `onLanguage` activation event and an entry in the
   linter service's `LANGUAGES`.
-- **One npm package is the command line, the MCP server and the library.** It is
-  assembled in `npm/` by `bun run build:npm`, which writes the root manifest's
-  version into `npm/package.json`. Never edit that version by hand.
-  `scripts/e2e-cli.js` fails if the two differ or if anything but the bundle,
-  the manifest, the readme and the license would be uploaded.
-- **Three files carry the version, and CI fails unless they agree:**
-  `package.json`, `npm/package.json` and `server.json`, both its `.version`
-  and `.packages[0].version`. The same step holds `server.json.name` to the
-  manifest's `mcpName`, `.packages[0].identifier` to the npm name, and
-  `--mcp` among the package arguments, without which a client would start
-  the command line. Not relaxable: the registry verifies ownership by reading
-  `mcpName` out of the published package, so a mismatch is found only after
+- **Two npm packages, one source.** `jevlint-le` is the command line, the
+  library and the server behind `--mcp`. `jevlint-le-mcp` is the server
+  alone, from `cli/mcpMain.ts`, with no flag, so a client that installs by
+  name cannot start the command line by mistake. Both are assembled by
+  `bun run build:npm`, which writes the root manifest's version into
+  `npm/package.json` and `mcp/package.json`. Never edit those versions by
+  hand. `scripts/e2e-cli.js` drives both bundles as processes, holds their
+  answers equal, and fails if anything but the bundles, the manifests, the
+  readmes and the licenses would be uploaded.
+- **Four files carry the version, and CI fails unless they agree:**
+  `package.json`, `npm/package.json`, `mcp/package.json` and `server.json`,
+  both its `.version` and `.packages[0].version`. The same step holds
+  `server.json.name` to `mcp/package.json`'s `mcpName`, which `npm/package.json`
+  must not carry, and `.packages[0].identifier` to the server package's name.
+  Not relaxable: the registry verifies ownership by reading `mcpName` out of
+  the published package its listing names, so a mismatch is found only after
   the version is spent, and a version can never be republished.
 - **The MCP server returns what `--format json` prints.** Both come from
   `toReport`, so an agent and a CI job read one shape.
