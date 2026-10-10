@@ -1,7 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
+import { rulePage } from '../docs/rulePages';
 import type { Fetch } from '../jev/client';
 import { EXTENSIONS } from '../lint/lint';
+import { RULE_CODES, RULES } from '../lint/rules';
 import { FLAG_NAMES, helpText, parseArgs } from './args';
 import type { Files } from './files';
 import { EXIT, type Io, run } from './run';
@@ -513,6 +515,30 @@ describe('--fix', () => {
 		});
 	});
 
+	it('reports each fix with its edits and whether --fix applies it', async () => {
+		const result = await cli(['--format', 'json', 'q.json'], {
+			'q.json': `\n${BAD}`,
+		});
+		const [fallback, shape] = JSON.parse(result.out).files[0].findings;
+		expect(fallback.code).toBe('JEV004');
+		expect(fallback.fix).toMatchObject({
+			safe: false,
+			title: expect.any(String),
+		});
+		expect(shape.code).toBe('JEV006');
+		expect(shape.fix).toMatchObject({
+			safe: true,
+			edits: [{ line: 2, text: '["Calm"]' }],
+		});
+		expect(shape.fix.edits[0].column).toBeLessThan(
+			shape.fix.edits[0].endColumn,
+		);
+		const clean = await cli(['--format', 'json', 'q.json'], {
+			'q.json': CLEAN,
+		});
+		expect(JSON.parse(clean.out).files[0].findings).toEqual([]);
+	});
+
 	it('stops and says so when a file cannot be written', async () => {
 		const result = await cli(['--fix', 'q.json'], { 'q.json': BROKEN }, '', {
 			files: (files) => ({
@@ -926,9 +952,134 @@ describe('the MCP server', () => {
 
 	it('lists every rule, and says which need Jev itself', async () => {
 		const [reply] = await talk([call(1, 'list_rules', {})]);
-		const rules = body(reply).rules as { code: string; runsHere: boolean }[];
+		const rules = body(reply).rules as {
+			code: string;
+			meaning: string;
+			runsHere: boolean;
+		}[];
+		expect(rules.map((rule) => rule.code)).toEqual(RULE_CODES);
 		expect(rules.find((rule) => rule.code === 'JEV004')?.runsHere).toBe(true);
 		expect(rules.find((rule) => rule.code === 'JEV303')?.runsHere).toBe(false);
+		expect(rules.find((rule) => rule.code === 'JEV004')?.meaning).toBe(
+			RULES.JEV004.meaning,
+		);
+	});
+
+	it('describes every tool as read-only, with a title and the shape of its answer', async () => {
+		const [reply] = await talk([
+			{ jsonrpc: '2.0', id: 1, method: 'tools/list', params: {} },
+		]);
+		const tools = reply.result.tools as {
+			name: string;
+			title: string;
+			outputSchema: { required: string[] };
+			annotations: Record<string, boolean>;
+		}[];
+		expect(tools.map((tool) => tool.name)).toEqual([
+			'lint_text',
+			'lint_paths',
+			'fix_text',
+			'list_rules',
+			'explain_rule',
+		]);
+		for (const tool of tools) {
+			expect(tool.title, tool.name).toBeTruthy();
+			expect(tool.outputSchema.required, tool.name).not.toEqual([]);
+			expect(tool.annotations, tool.name).toEqual({
+				readOnlyHint: true,
+				destructiveHint: false,
+				idempotentHint: true,
+				openWorldHint: false,
+			});
+		}
+	});
+
+	it('answers as data too, the same as the text', async () => {
+		const [reply] = await talk([call(1, 'lint_text', { text: BAD })]);
+		expect(reply.result.structuredContent).toEqual(body(reply));
+		expect(reply.result.structuredContent.totals.fixable).toBe(1);
+	});
+
+	it('carries each fix with the finding, marked safe or not', async () => {
+		const [reply] = await talk([call(1, 'lint_text', { text: BAD })]);
+		const [fallback, shape] = body(reply).files[0].findings;
+		expect(fallback).toMatchObject({ code: 'JEV004', fix: { safe: false } });
+		expect(shape).toMatchObject({
+			code: 'JEV006',
+			fix: { safe: true, edits: [{ line: 1, text: '["Calm"]' }] },
+		});
+	});
+
+	it('fixes text, applies only the safe fixes, and reports what is left', async () => {
+		const [reply] = await talk([call(1, 'fix_text', { text: BAD })]);
+		const fixed = reply.result.structuredContent;
+		expect(fixed.fixed).toBe(1);
+		expect(fixed.text).toContain('"criteria": ["Calm"]');
+		// The fallback option is the author's call, so it is still reported. One
+		// level is now too few, which the mended text shows and the original did not.
+		expect(
+			fixed.files[0].findings.map((f: { code: string }) => f.code),
+		).toEqual(['JEV004', 'JEV009']);
+		expect(fixed.totals.fixable).toBe(0);
+		expect(body(reply)).toEqual(fixed);
+	});
+
+	it('fixes text in the language of the file name, and writes nothing', async () => {
+		const result = await cli(
+			['--mcp'],
+			{},
+			JSON.stringify(call(1, 'fix_text', { text: PYTHON, filename: 'q.py' })),
+			{
+				files: (files) => ({
+					...files,
+					write: () => {
+						throw new Error('the server must not write');
+					},
+				}),
+			},
+		);
+		const [reply] = result.out
+			.trim()
+			.split('\n')
+			.map((l) => JSON.parse(l));
+		expect(reply.result.isError).toBe(false);
+		expect(reply.result.structuredContent).toMatchObject({
+			text: PYTHON,
+			fixed: 0,
+		});
+	});
+
+	it('leaves a fix that is not safe to the author, even when it is the only one', async () => {
+		const [reply] = await talk([
+			call(1, 'fix_text', { text: CLEAN.replace('jev-1.13.0', 'jev-latest') }),
+		]);
+		const fixed = reply.result.structuredContent;
+		expect(fixed.fixed).toBe(0);
+		expect(fixed.text).toContain('jev-latest');
+		expect(fixed.files[0].findings[0]).toMatchObject({
+			code: 'JEV001',
+			fix: { safe: false },
+		});
+	});
+
+	it('explains a rule with its page, taking the code in any case', async () => {
+		const [exact, loose, jev] = await talk([
+			call(1, 'explain_rule', { code: 'JEV004' }),
+			call(2, 'explain_rule', { code: ' jev004' }),
+			call(3, 'explain_rule', { code: 'JEV303' }),
+		]);
+		expect(exact.result.content[0].text).toBe(rulePage('JEV004'));
+		expect(exact.result.content[0].text).toContain('## Flagged');
+		expect(exact.result.structuredContent).toMatchObject({
+			code: 'JEV004',
+			name: 'no-fallback-option',
+			meaning: RULES.JEV004.meaning,
+			runsHere: true,
+			markdown: rulePage('JEV004'),
+		});
+		expect(loose.result.structuredContent.code).toBe('JEV004');
+		expect(jev.result.structuredContent.runsHere).toBe(false);
+		expect(jev.result.content[0].text).toContain('## What Jev is asked');
 	});
 
 	it.each([
@@ -961,6 +1112,21 @@ describe('the MCP server', () => {
 			'a rule level it does not know',
 			call(1, 'lint_text', { text: BAD, rules: { JEV004: 'loud' } }),
 			"'loud' is not a level",
+		],
+		[
+			'a rule it does not have',
+			call(1, 'explain_rule', { code: 'JEV999' }),
+			'Unknown rule: JEV999',
+		],
+		[
+			'a rule code that is not a string',
+			call(1, 'explain_rule', { code: 4 }),
+			"'code' must be a string",
+		],
+		[
+			'text to fix in a file type it does not read',
+			call(1, 'fix_text', { text: BAD, filename: 'q.toml' }),
+			'Not a file type',
 		],
 	])('reports %s as a failed call', async (_name, message, reason) => {
 		const [reply] = await talk([message]);

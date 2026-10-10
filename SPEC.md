@@ -841,9 +841,17 @@ case this tool is most useful for.
 
 | Tool | Input | Returns |
 |---|---|---|
-| `lint_text` | `text`, an optional `filename` whose extension picks the reader, optional `rules` | The same report as `--format json` |
+| `lint_text` | `text`, an optional `filename` whose extension picks the reader, optional `rules` | The same report as `--format json`, each finding with the edit that would mend it and whether it is safe |
 | `lint_paths` | `paths`, optional `rules` | The same, one entry per file |
-| `list_rules` | nothing | Every rule with its default level, its docs link, and whether it runs here |
+| `fix_text` | as `lint_text` | The text with the safe fixes applied, how many were mended, and the report of what is left. Nothing is written |
+| `list_rules` | nothing | Every rule with its meaning, default level, its pages, and whether it runs here |
+| `explain_rule` | `code` | The rule's own page as Markdown, rendered from the bundle, and the same fields as `list_rules` |
+
+Every tool declares the shape of its answer and returns it as structured
+content beside the text, carries a title, and is annotated read-only, so a
+host can let an agent call it without asking. The server is listed on the
+MCP registry from `server.json` at the root, published by the Release
+workflow after npm, as the family does.
 
 The extension also offers the server to the editor it runs in, through
 `mcpServerDefinitionProviders`, so an agent in VS Code has the tools with no
@@ -1134,9 +1142,14 @@ granted it, so the listing is verified. The family is to follow it there.
 
 Not planned for now: a Rust port of the command line, which every sibling
 has. The TypeScript one lints thousands of files in seconds, and a port would
-be every reader and rule kept in agreement twice. Nor a listing in the MCP
-registry. The npm package it would sit on is published, so it waits only on
-a go-ahead.
+be every reader and rule kept in agreement twice.
+
+The MCP registry listing, `io.github.nolindnaidoo/jevlint-le`, is in
+`server.json` and goes out with the npm job of the Release workflow from
+0.6.0, pointing at the npm package with `--mcp`. It was held back until the
+server gave an agent something to act on: the fixes, `fix_text` and
+`explain_rule` went in with the listing, so the first entry a client sees is
+that server and not the lint-only one.
 
 ## OpenAI's Decisions API
 
@@ -1219,7 +1232,6 @@ More sources: the Vercel AI SDK's `experimental_evaluate`.
   ignore-aware tree walk, and a shared fixture corpus with a parity check
   against the extension. The command line in `src/cli/` already gives CI an
   exit code, so this is about the family pattern and not a missing feature.
-- **MCP registry listing.** The npm package it needs is published.
 - **Localization** into the family's 12 locales.
 
 ## Verification

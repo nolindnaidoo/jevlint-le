@@ -1,0 +1,40 @@
+{
+	"$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+	"name": "io.github.nolindnaidoo/jevlint-le",
+	"title": "JevLint-LE",
+	"description": "Lint questions for TypeSafe's Jev and OpenAI's Decisions API before sending. No key, no network.",
+	"websiteUrl": "https://letools.dev/tools/jevlint-le",
+	"icons": [
+		{
+			"src": "https://raw.githubusercontent.com/nolindnaidoo/jevlint-le/main/src/assets/images/icon.png",
+			"mimeType": "image/png",
+			"sizes": [
+				"256x256"
+			]
+		}
+	],
+	"repository": {
+		"url": "https://github.com/nolindnaidoo/jevlint-le",
+		"source": "github"
+	},
+	"version": "0.6.0",
+	"packages": [
+		{
+			"registryType": "npm",
+			"registryBaseUrl": "https://registry.npmjs.org",
+			"identifier": "jevlint-le",
+			"version": "0.6.0",
+			"runtimeHint": "npx",
+			"packageArguments": [
+				{
+					"type": "positional",
+					"value": "--mcp",
+					"description": "Runs the program as an MCP server on standard input and output. Without it, it is the command line."
+				}
+			],
+			"transport": {
+				"type": "stdio"
+			}
+		}
+	]
+}

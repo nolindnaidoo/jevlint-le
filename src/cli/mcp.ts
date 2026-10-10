@@ -1,6 +1,9 @@
 import { readRules } from '../config/projectConfig';
+import { rulePage } from '../docs/rulePages';
+import { fixText } from '../lint/fixAll';
 import { syntaxForPath } from '../lint/lint';
 import { pageFor, RULE_CODES, RULES } from '../lint/rules';
+import type { RuleCode, Syntax } from '../types';
 import { toReport } from './format';
 import {
 	createSettings,
@@ -8,6 +11,7 @@ import {
 	type Io,
 	type Left,
 	lintSources,
+	type Settings,
 	type Source,
 	total,
 	withoutExcluded,
@@ -29,13 +33,29 @@ const ERRORS = Object.freeze({
 const DEFAULT_NAME = 'request.jev.json';
 
 type Json = Readonly<Record<string, unknown>>;
-type Outcome = Readonly<{ text: string; failed: boolean }>;
+type Outcome = Readonly<{
+	text: string;
+	failed: boolean;
+	/** The answer as data, for a client that reads `structuredContent`. */
+	structured?: Json;
+}>;
 type Tool = Readonly<{
 	name: string;
+	title: string;
 	description: string;
 	inputSchema: Json;
+	outputSchema: Json;
 	call: (input: Json, io: Io) => Outcome;
 }>;
+
+// Every tool reads, and none reaches past the files it is given: a host can
+// let an agent call them without asking. fix_text returns text and writes nothing.
+const READ_ONLY = Object.freeze({
+	readOnlyHint: true,
+	destructiveHint: false,
+	idempotentHint: true,
+	openWorldHint: false,
+});
 
 const RULES_SCHEMA = Object.freeze({
 	type: 'object',
@@ -43,20 +63,224 @@ const RULES_SCHEMA = Object.freeze({
 		'Rule levels to override, such as { "JEV004": "off" }. Levels: off, hint, info, warning, error.',
 	additionalProperties: { type: 'string' },
 });
+const TEXT_SCHEMA = Object.freeze({
+	type: 'string',
+	description: 'The request JSON or the source code.',
+});
+const FILENAME_SCHEMA = Object.freeze({
+	type: 'string',
+	description: `A file name whose extension says what the text is: .json, .ts, .js, .py, .rs or .go. Defaults to ${DEFAULT_NAME}.`,
+});
+
+const integer = (description: string) =>
+	Object.freeze({ type: 'integer', description });
+const POSITION = Object.freeze({
+	line: integer('One-based line where it starts.'),
+	column: integer('One-based column where it starts.'),
+	endLine: integer('One-based line where it ends.'),
+	endColumn: integer('One-based column just past where it ends.'),
+});
+const FINDING_SCHEMA = Object.freeze({
+	type: 'object',
+	properties: {
+		code: { type: 'string', description: 'The rule, such as JEV004.' },
+		rule: { type: 'string', description: "The rule's name." },
+		severity: { type: 'string', enum: ['hint', 'info', 'warning', 'error'] },
+		message: { type: 'string' },
+		questionId: {
+			type: ['string', 'null'],
+			description: 'The question the finding is about, when it has an id.',
+		},
+		...POSITION,
+		docs: { type: 'string', description: 'The vendor page behind the rule.' },
+		page: { type: 'string', description: "The rule's own page." },
+		fix: {
+			type: ['object', 'null'],
+			description:
+				'The edit the linter would make, or null when the change is yours to make. Safe when it only mends what the API would refuse, so fix_text applies it unasked. Otherwise it changes what a working request does, and is left to you.',
+			properties: {
+				title: { type: 'string' },
+				safe: { type: 'boolean' },
+				edits: {
+					type: 'array',
+					items: {
+						type: 'object',
+						properties: {
+							...POSITION,
+							text: {
+								type: 'string',
+								description: 'What replaces the text between the positions.',
+							},
+						},
+						required: ['line', 'column', 'endLine', 'endColumn', 'text'],
+					},
+				},
+			},
+			required: ['title', 'safe', 'edits'],
+		},
+	},
+	required: [
+		'code',
+		'rule',
+		'severity',
+		'message',
+		'questionId',
+		'line',
+		'column',
+		'endLine',
+		'endColumn',
+		'docs',
+		'page',
+		'fix',
+	],
+});
+const REPORT_PROPERTIES = Object.freeze({
+	files: {
+		type: 'array',
+		items: {
+			type: 'object',
+			properties: {
+				path: { type: 'string' },
+				questionCount: integer('Questions found in the file.'),
+				unreadableCount: integer(
+					'Questions with a part built at runtime, which no rule could read in full.',
+				),
+				findings: { type: 'array', items: FINDING_SCHEMA },
+			},
+			required: ['path', 'questionCount', 'unreadableCount', 'findings'],
+		},
+	},
+	totals: {
+		type: 'object',
+		properties: {
+			files: integer('Files linted.'),
+			questions: integer('Questions found.'),
+			unreadable: integer('Questions not read in full.'),
+			excluded: integer('Files a settings file leaves out.'),
+			skipped: {
+				type: 'array',
+				items: { type: 'string' },
+				description: 'Files over the size limit, not read.',
+			},
+			unread: {
+				type: 'array',
+				items: { type: 'string' },
+				description: 'Folders and files that could not be read.',
+			},
+			counts: {
+				type: 'object',
+				properties: {
+					error: integer('Findings at error.'),
+					warning: integer('Findings at warning.'),
+					info: integer('Findings at info.'),
+					hint: integer('Findings at hint.'),
+				},
+				required: ['error', 'warning', 'info', 'hint'],
+			},
+			fixable: integer('Findings fix_text would mend.'),
+		},
+		required: [
+			'files',
+			'questions',
+			'unreadable',
+			'excluded',
+			'skipped',
+			'unread',
+			'counts',
+			'fixable',
+		],
+	},
+});
+const REPORT_SCHEMA = Object.freeze({
+	type: 'object',
+	properties: REPORT_PROPERTIES,
+	required: ['files', 'totals'],
+});
+const FIXED_SCHEMA = Object.freeze({
+	type: 'object',
+	properties: {
+		text: {
+			type: 'string',
+			description: 'The text with the safe fixes applied.',
+		},
+		fixed: integer('Findings mended.'),
+		...REPORT_PROPERTIES,
+	},
+	required: ['text', 'fixed', 'files', 'totals'],
+});
+const RULE_PROPERTIES = Object.freeze({
+	code: { type: 'string' },
+	name: { type: 'string' },
+	meaning: {
+		type: 'string',
+		description: 'What the rule catches, in one sentence.',
+	},
+	default: {
+		type: 'string',
+		enum: ['off', 'hint', 'info', 'warning', 'error'],
+		description: 'The level the rule runs at unless a setting changes it.',
+	},
+	docs: { type: 'string', description: 'The vendor page behind the rule.' },
+	page: { type: 'string', description: "The rule's own page." },
+	runsHere: {
+		type: 'boolean',
+		description:
+			'False for a rule that asks Jev itself, which this server never does.',
+	},
+});
+const RULE_LIST_SCHEMA = Object.freeze({
+	type: 'object',
+	properties: {
+		rules: {
+			type: 'array',
+			items: {
+				type: 'object',
+				properties: RULE_PROPERTIES,
+				required: Object.keys(RULE_PROPERTIES),
+			},
+		},
+	},
+	required: ['rules'],
+});
+const RULE_PAGE_SCHEMA = Object.freeze({
+	type: 'object',
+	properties: {
+		...RULE_PROPERTIES,
+		markdown: { type: 'string', description: "The rule's page, as Markdown." },
+	},
+	required: [...Object.keys(RULE_PROPERTIES), 'markdown'],
+});
 
 const fail = (text: string): Outcome => ({ text, failed: true });
+const ok = (
+	structured: Json,
+	text = JSON.stringify(structured, null, 2),
+): Outcome => ({ text, failed: false, structured });
+
+/** The rule levels asked for, over the project's own settings file, which applies here as on the command line. */
+function settingsFrom(input: Json, io: Io): Settings | string {
+	const rules = readRules(input.rules);
+	if (typeof rules === 'string') return rules;
+	return createSettings(io.files, { rules });
+}
+
+type Named = Readonly<{ text: string; filename: string; syntax: Syntax }>;
+
+function named(input: Json): Named | string {
+	const { text, filename = DEFAULT_NAME } = input;
+	if (typeof text !== 'string') return "'text' must be a string.";
+	if (typeof filename !== 'string') return "'filename' must be a string.";
+	const syntax = syntaxForPath(filename);
+	if (!syntax) return `Not a file type jevlint-le reads: ${filename}`;
+	return { text, filename, syntax };
+}
 
 function report(
 	sources: ReadonlyArray<Source>,
 	left: Left,
-	input: Json,
-	io: Io,
+	settings: Settings,
 	searched = false,
 ): Outcome {
-	const rules = readRules(input.rules);
-	if (typeof rules === 'string') return fail(rules);
-	// The project's own settings file applies here as it does on the command line.
-	const settings = createSettings(io.files, { rules });
 	// Text passed in was handed over on purpose. Only files found on disk can be left out.
 	const kept = searched
 		? withoutExcluded(sources, settings)
@@ -68,73 +292,107 @@ function report(
 		skipped: left.skipped,
 		unread: [...left.unread, ...linted.failed],
 	});
-	const text = JSON.stringify(toReport(linted.reports, totals), null, 2);
-	return { text, failed: false };
+	return ok(toReport(linted.reports, totals));
 }
 
-function lintText(input: Json, io: Io): Outcome {
-	const { text, filename = DEFAULT_NAME } = input;
-	if (typeof text !== 'string') return fail("'text' must be a string.");
-	if (typeof filename !== 'string') return fail("'filename' must be a string.");
-	if (!syntaxForPath(filename))
-		return fail(`Not a file type jevlint-le reads: ${filename}`);
+const NOTHING_LEFT: Left = Object.freeze({ skipped: [], unread: [] });
+
+function lintTextTool(input: Json, io: Io): Outcome {
+	const given = named(input);
+	if (typeof given === 'string') return fail(given);
+	const settings = settingsFrom(input, io);
+	if (typeof settings === 'string') return fail(settings);
 	return report(
-		[{ path: filename, text }],
-		{ skipped: [], unread: [] },
-		input,
-		io,
+		[{ path: given.filename, text: given.text }],
+		NOTHING_LEFT,
+		settings,
 	);
 }
 
-function lintPaths(input: Json, io: Io): Outcome {
+function lintPathsTool(input: Json, io: Io): Outcome {
 	const { paths } = input;
 	const listed =
 		Array.isArray(paths) &&
 		paths.length > 0 &&
 		paths.every((path) => typeof path === 'string');
 	if (!listed) return fail("'paths' must be a list of at least one path.");
+	const settings = settingsFrom(input, io);
+	if (typeof settings === 'string') return fail(settings);
 	const gathered = gatherPaths(paths as string[], io.files);
 	if (typeof gathered === 'string') return fail(gathered);
-	return report(gathered.sources, gathered.left, input, io, true);
+	return report(gathered.sources, gathered.left, settings, true);
 }
 
-function listRules(): Outcome {
-	const rules = RULE_CODES.map((code) => ({
+// The mended text, and the report of what is left in it: the findings whose
+// fix is the author's call, and those with no fix at all.
+function fixTextTool(input: Json, io: Io): Outcome {
+	const given = named(input);
+	if (typeof given === 'string') return fail(given);
+	const settings = settingsFrom(input, io);
+	if (typeof settings === 'string') return fail(settings);
+	const options = settings.optionsFor(given.filename);
+	if (typeof options === 'string') return fail(options);
+	const mended = fixText(given.text, options, given.syntax);
+	const left = report(
+		[{ path: given.filename, text: mended.text }],
+		NOTHING_LEFT,
+		settings,
+	);
+	if (left.failed) return left;
+	return ok({ text: mended.text, fixed: mended.fixed, ...left.structured });
+}
+
+const runsHere = (code: RuleCode) => !code.startsWith('JEV3');
+
+function describe(code: RuleCode): Json {
+	return {
 		code,
 		name: RULES[code].name,
+		meaning: RULES[code].meaning,
 		default: RULES[code].severity,
 		docs: RULES[code].docs,
 		page: pageFor(code),
 		// These ask Jev itself, which this server never does.
-		runsHere: !code.startsWith('JEV3'),
-	}));
-	return { text: JSON.stringify({ rules }, null, 2), failed: false };
+		runsHere: runsHere(code),
+	};
+}
+
+function listRulesTool(): Outcome {
+	return ok({ rules: RULE_CODES.map(describe) });
+}
+
+function explainRuleTool(input: Json): Outcome {
+	const { code } = input;
+	if (typeof code !== 'string') return fail("'code' must be a string.");
+	const asked = code.trim().toUpperCase();
+	const known = RULE_CODES.find((candidate) => candidate === asked);
+	if (!known)
+		return fail(`Unknown rule: ${code}. list_rules names every rule.`);
+	const markdown = rulePage(known);
+	return ok({ ...describe(known), markdown }, markdown);
 }
 
 const TOOLS: ReadonlyArray<Tool> = Object.freeze([
 	{
 		name: 'lint_text',
+		title: 'Lint text',
 		description:
-			"Lint questions written for a decision model before they are sent: TypeSafe's Jev (System One, /v1/systemone) and OpenAI's Decisions API (gpt-6-luna, /v1/decisions), in either request shape, or the Vercel AI SDK's decide() for both. Pass a request body as JSON, or source code that builds one. Returns each finding with its rule, message, position and docs link, plus how many questions were found and how many could not be read in full. Use it after writing or changing a question. It sends nothing over the network.",
+			"Lint questions written for a decision model before they are sent: TypeSafe's Jev (System One, /v1/systemone) and OpenAI's Decisions API (gpt-6-luna, /v1/decisions), in either request shape, or the Vercel AI SDK's decide() for both. Pass a request body as JSON, or source code that builds one. Returns each finding with its rule, message, position and docs link, the edit that would mend it when there is one, plus how many questions were found and how many could not be read in full. Use it after writing or changing a question. It sends nothing over the network.",
 		inputSchema: {
 			type: 'object',
 			properties: {
-				text: {
-					type: 'string',
-					description: 'The request JSON or the source code.',
-				},
-				filename: {
-					type: 'string',
-					description: `A file name whose extension says what the text is: .json, .ts, .js, .py, .rs or .go. Defaults to ${DEFAULT_NAME}.`,
-				},
+				text: TEXT_SCHEMA,
+				filename: FILENAME_SCHEMA,
 				rules: RULES_SCHEMA,
 			},
 			required: ['text'],
 		},
-		call: lintText,
+		outputSchema: REPORT_SCHEMA,
+		call: lintTextTool,
 	},
 	{
 		name: 'lint_paths',
+		title: 'Lint files',
 		description:
 			'Lint the Jev and OpenAI Decisions questions in files or directories on disk. A directory is searched for the file types the linter reads. Returns the same report as lint_text, one entry per file.',
 		inputSchema: {
@@ -145,27 +403,62 @@ const TOOLS: ReadonlyArray<Tool> = Object.freeze([
 			},
 			required: ['paths'],
 		},
-		call: lintPaths,
+		outputSchema: REPORT_SCHEMA,
+		call: lintPathsTool,
+	},
+	{
+		name: 'fix_text',
+		title: 'Fix text',
+		description:
+			'Apply the safe fixes to a request body or source code passed as text, and return the mended text with how many findings were mended and the report of what is left. A safe fix only mends what the API would refuse: a criteria key written yes where it takes true, a mistyped question type, criteria in the wrong shape. A fix that changes what a working request does, such as adding a fallback option or pinning a model, is never applied here. It stays in the report with its edit marked safe: false, for you to make or to leave. Nothing is written to disk and nothing is sent over the network.',
+		inputSchema: {
+			type: 'object',
+			properties: {
+				text: TEXT_SCHEMA,
+				filename: FILENAME_SCHEMA,
+				rules: RULES_SCHEMA,
+			},
+			required: ['text'],
+		},
+		outputSchema: FIXED_SCHEMA,
+		call: fixTextTool,
 	},
 	{
 		name: 'list_rules',
+		title: 'List rules',
 		description:
-			'List every rule with its code, name, default level, its own page with an example, and the vendor page behind it.',
+			'List every rule with its code, name, what it catches, default level, its own page with an example, the vendor page behind it, and whether it runs here.',
 		inputSchema: { type: 'object', properties: {} },
-		call: () => listRules(),
+		outputSchema: RULE_LIST_SCHEMA,
+		call: () => listRulesTool(),
+	},
+	{
+		name: 'explain_rule',
+		title: 'Explain a rule',
+		description:
+			"A rule's own page, as Markdown: what it catches, an example that is flagged with the message the linter gives, one that is not, how to fix it and how to silence it. Use it before making a fix that fix_text leaves to you, or before silencing a finding.",
+		inputSchema: {
+			type: 'object',
+			properties: {
+				code: { type: 'string', description: 'The rule, such as JEV004.' },
+			},
+			required: ['code'],
+		},
+		outputSchema: RULE_PAGE_SCHEMA,
+		call: (input) => explainRuleTool(input),
 	},
 ]);
 
 // What an agent reads once, before it has seen a tool: when to reach for this server.
 const INSTRUCTIONS =
-	"Lints questions written for a decision model, TypeSafe's Jev or OpenAI's Decisions API (gpt-6-luna), before they are sent. Call lint_text after writing or changing a question, in a request body or in code, and fix what it reports. It never calls either model.";
+	"Lints questions written for a decision model, TypeSafe's Jev or OpenAI's Decisions API (gpt-6-luna), before they are sent. Call lint_text after writing or changing a question, in a request body or in code. Call fix_text for the mended text where the fix is certain, and explain_rule for a rule's page with an example before making the fixes it leaves to you. It never calls either model, and it writes nothing.";
 
 function initialize(params: Json, version: string): Json {
 	const asked = String(params.protocolVersion ?? '');
 	return {
 		protocolVersion: PROTOCOLS.includes(asked) ? asked : PROTOCOLS[0],
 		capabilities: { tools: {} },
-		serverInfo: { name: NAME, version },
+		serverInfo: { name: NAME, title: 'JevLint-LE', version },
 		instructions: INSTRUCTIONS,
 	};
 }
@@ -191,6 +484,7 @@ function callTool(params: Json, io: Io): Json {
 		: fail(`Unknown tool: ${String(params.name)}`);
 	return {
 		content: [{ type: 'text', text: outcome.text }],
+		...(outcome.structured ? { structuredContent: outcome.structured } : {}),
 		isError: outcome.failed,
 	};
 }
@@ -200,11 +494,16 @@ const METHODS: Readonly<Record<string, (params: Json, io: Io) => Json>> =
 		initialize: (params, io) => initialize(params, io.version),
 		ping: () => ({}),
 		'tools/list': () => ({
-			tools: TOOLS.map(({ name, description, inputSchema }) => ({
-				name,
-				description,
-				inputSchema,
-			})),
+			tools: TOOLS.map(
+				({ name, title, description, inputSchema, outputSchema }) => ({
+					name,
+					title,
+					description,
+					inputSchema,
+					outputSchema,
+					annotations: READ_ONLY,
+				}),
+			),
 		}),
 		'tools/call': callTool,
 	});

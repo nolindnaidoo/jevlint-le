@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.6.0 — 2026-10-10
+
+The MCP server gives an agent something to act on, and the release publishes
+it to the MCP registry.
+
+- **Every finding carries its fix.** `--format json` and the MCP report give
+  the edit the linter would make, with `safe` saying whether `--fix` applies
+  it unasked. Before this the report counted the fixable findings and kept
+  the edits to itself. The field is new and nothing else in the report moved.
+- **`fix_text`.** The MCP server returns the text with the safe fixes
+  applied, how many it mended, and the report of what is left for the author.
+  It writes nothing.
+- **`explain_rule`.** A rule's own page, as `docs/rules/` has it, with the
+  flagged and the clean example and the message the linter gives. The pages
+  render from inside the bundle, so an agent with no network reads the same
+  page a person does.
+- **Typed, read-only tools.** Each tool declares the shape of its answer and
+  returns it as structured content beside the text, carries a title, and is
+  marked read-only, so a host can let an agent call it without asking.
+  `list_rules` says what each rule means.
+- **The MCP registry.** `server.json` lists the server as
+  `io.github.nolindnaidoo/jevlint-le`, pointing at the npm package with
+  `--mcp`. CI holds its version and identity to the manifests, and the
+  Release workflow publishes it after npm, as the family does.
+- The README's "What it means" column is held to the rule registry, which
+  now carries each rule's meaning. The rule pages did not change.
+- The GitHub Action and the pre-commit hook pin 0.6.0.
+
 ## 0.5.2 — 2026-10-09
 
 - **The listing says Luna.** The Marketplace and npm descriptions and

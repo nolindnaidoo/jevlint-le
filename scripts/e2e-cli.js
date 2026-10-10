@@ -114,9 +114,20 @@ assert.strictEqual(served.status, 0, served.err);
 const replies = served.out.trim().split('\n').map((line) => JSON.parse(line));
 assert.deepStrictEqual(replies.map((reply) => reply.id), [1, 2, 3]);
 assert.strictEqual(replies[0].result.serverInfo.version, require(join(root, 'package.json')).version);
-assert.deepStrictEqual(replies[1].result.tools.map((tool) => tool.name), ['lint_text', 'lint_paths', 'list_rules']);
+assert.deepStrictEqual(replies[1].result.tools.map((tool) => tool.name), ['lint_text', 'lint_paths', 'fix_text', 'list_rules', 'explain_rule']);
+assert.ok(replies[1].result.tools.every((tool) => tool.annotations.readOnlyHint && tool.outputSchema));
 const linted = JSON.parse(replies[2].result.content[0].text);
 assert.strictEqual(linted.files[0].findings.length, 7);
+// The answer as data is the text, so a client may read either.
+assert.deepStrictEqual(replies[2].result.structuredContent, linted);
+// The rule pages ship in the bundle: an agent with no network still gets an example.
+const explained = cli(['--mcp'], `${JSON.stringify({ jsonrpc: '2.0', id: 4, method: 'tools/call', params: { name: 'explain_rule', arguments: { code: 'JEV006' } } })}\n`);
+assert.strictEqual(explained.status, 0, explained.err);
+const page = JSON.parse(explained.out.trim()).result;
+assert.strictEqual(page.isError, false);
+assert.match(page.content[0].text, /^# JEV006 criteria-shape\n/);
+assert.match(page.content[0].text, /## Flagged\n/);
+assert.strictEqual(page.structuredContent.markdown, page.content[0].text);
 
 // The library the editor loads from a project's node_modules, required the way
 // the editor requires it: by the file the manifest names.

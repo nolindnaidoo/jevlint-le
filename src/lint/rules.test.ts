@@ -24,6 +24,17 @@ describe('rule registry', () => {
 		},
 	);
 
+	it('README.md says what each rule means in the words the registry holds', () => {
+		// The registry's `meaning` is the first line of a rule's page and what
+		// the MCP server explains a rule with, so the README's column is held to it.
+		const rows = read('README.md').matchAll(
+			/^\| (JEV\d{3}) \| [^|]+ \| [^|]+ \| (.+) \|$/gm,
+		);
+		const documented = new Map([...rows].map((row) => [row[1], row[2]]));
+		for (const code of RULE_CODES)
+			expect(documented.get(code), code).toBe(RULES[code].meaning);
+	});
+
 	it('keys every rule by its own code', () => {
 		for (const code of RULE_CODES) expect(RULES[code].code).toBe(code);
 	});

@@ -370,9 +370,17 @@ other client, point it at the program:
 }
 ```
 
-It offers three tools: `lint_text` for a request or source code passed as
-text, `lint_paths` for files on disk, and `list_rules`. It never uses the
-network, and it does not run the checks that ask Jev.
+It offers five tools. `lint_text` lints a request or source code passed as
+text and `lint_paths` lints files on disk, with each finding carrying the
+edit that would mend it. `fix_text` returns the text with the safe fixes
+applied and the report of what is left, and writes nothing. `list_rules`
+lists every rule with what it means, and `explain_rule` returns a rule's own
+page, with an example that is flagged and one that is not. Every tool is
+read-only and answers as structured content beside the text. It never uses
+the network, and it does not run the checks that ask Jev.
+
+It is listed on the MCP registry as `io.github.nolindnaidoo/jevlint-le`,
+for a client that installs servers from there.
 
 ## Probe a question
 

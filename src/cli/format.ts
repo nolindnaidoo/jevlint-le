@@ -1,6 +1,6 @@
 import { providerFor } from '../jev/provider';
 import { pageFor, RULES } from '../lint/rules';
-import type { ReportedFinding, Severity } from '../types';
+import type { ReportedFinding, Severity, Span } from '../types';
 import type { Format } from './args';
 
 export type FileReport = Readonly<{
@@ -214,29 +214,46 @@ function asCompact(reports: ReadonlyArray<FileReport>, totals: Totals): string {
 
 /** The run as plain data: what `--format json` prints and what the MCP server returns. */
 export function toReport(reports: ReadonlyArray<FileReport>, totals: Totals) {
-	const byPath = new Map<string, Row[]>();
-	for (const row of rows(reports))
-		byPath.set(row.path, [...(byPath.get(row.path) ?? []), row]);
-	const files = reports.map((report) => ({
-		path: report.path,
-		questionCount: report.questionCount,
-		unreadableCount: report.unreadableCount,
-		findings: (byPath.get(report.path) ?? []).map(
-			({ finding, start, end }) => ({
+	const files = reports.map((report) => {
+		const starts = lineStarts(report.text);
+		const place = (span: Span) => {
+			const start = locate(starts, span.start);
+			const end = locate(starts, span.end);
+			return {
+				line: start.line,
+				column: start.column,
+				endLine: end.line,
+				endColumn: end.column,
+			};
+		};
+		return {
+			path: report.path,
+			questionCount: report.questionCount,
+			unreadableCount: report.unreadableCount,
+			findings: report.findings.map((finding) => ({
 				code: finding.code,
 				rule: RULES[finding.code].name,
 				severity: finding.severity,
 				message: finding.message,
 				questionId: finding.questionId ?? null,
-				line: start.line,
-				column: start.column,
-				endLine: end.line,
-				endColumn: end.column,
+				...place(finding.span),
 				docs: RULES[finding.code].docs,
 				page: pageFor(finding.code),
-			}),
-		),
-	}));
+				// The edit the linter would make, so a reader need not work it
+				// out again. `safe` says whether `--fix` applies it unasked.
+				fix: finding.fix
+					? {
+							title: finding.fix.title,
+							safe: finding.fix.safe,
+							edits: finding.fix.edits.map((edit) => ({
+								...place(edit.span),
+								text: edit.text,
+							})),
+						}
+					: null,
+			})),
+		};
+	});
 	return { files, totals };
 }
 

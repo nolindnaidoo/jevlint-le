@@ -114,9 +114,15 @@ either shape.
 
 | Tool | What it does |
 |---|---|
-| `lint_text` | Lints a request body or source code passed as text |
+| `lint_text` | Lints a request body or source code passed as text. Each finding carries the edit that would mend it |
 | `lint_paths` | Lints files or directories on disk |
-| `list_rules` | Lists every rule with its default level and docs link |
+| `fix_text` | Returns the text with the safe fixes applied, and the report of what is left. Writes nothing |
+| `list_rules` | Lists every rule with what it means, its default level and its pages |
+| `explain_rule` | A rule's own page as Markdown: an example that is flagged, one that is not, how to fix it and how to silence it |
+
+Every tool is read-only, answers as structured content beside the text, and
+sends nothing over the network. The server is listed on the MCP registry as
+`io.github.nolindnaidoo/jevlint-le`.
 
 ## As a library
 
