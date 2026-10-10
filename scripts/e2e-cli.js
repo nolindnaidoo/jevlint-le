@@ -114,8 +114,10 @@ assert.strictEqual(served.status, 0, served.err);
 const replies = served.out.trim().split('\n').map((line) => JSON.parse(line));
 assert.deepStrictEqual(replies.map((reply) => reply.id), [1, 2, 3]);
 assert.strictEqual(replies[0].result.serverInfo.version, require(join(root, 'package.json')).version);
-assert.deepStrictEqual(replies[1].result.tools.map((tool) => tool.name), ['lint_text', 'lint_paths', 'fix_text', 'list_rules', 'explain_rule']);
+assert.deepStrictEqual(replies[1].result.tools.map((tool) => tool.name), ['lint_text', 'lint_paths', 'fix_text', 'list_rules', 'explain_rule', 'plan_jev', 'check_with_jev', 'probe_question']);
 assert.ok(replies[1].result.tools.every((tool) => tool.annotations.readOnlyHint && tool.outputSchema));
+// Only the two that send are open-world; the rest a host may run unasked.
+assert.deepStrictEqual(replies[1].result.tools.filter((tool) => tool.annotations.openWorldHint).map((tool) => tool.name), ['check_with_jev', 'probe_question']);
 const linted = JSON.parse(replies[2].result.content[0].text);
 assert.strictEqual(linted.files[0].findings.length, 7);
 // The answer as data is the text, so a client may read either.

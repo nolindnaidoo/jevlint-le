@@ -2,7 +2,7 @@
   "name": "jevlint-le-mcp",
   "version": "0.7.0",
   "mcpName": "io.github.nolindnaidoo/jevlint-le",
-  "description": "Lint questions for TypeSafe's Jev and OpenAI's Decisions API before sending. No key, no network.",
+  "description": "Lint questions for TypeSafe's Jev and OpenAI's Luna offline, or ask the model itself with your key.",
   "keywords": [
     "mcp",
     "modelcontextprotocol",

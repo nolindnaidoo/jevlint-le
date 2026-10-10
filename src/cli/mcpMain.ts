@@ -1,6 +1,7 @@
 import { lstatSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
+import type { Fetch } from '../jev/client';
 import type { Entry } from './files';
 import { serve } from './mcp';
 import { EXIT } from './run';
@@ -9,7 +10,9 @@ import { EXIT } from './run';
  * The server-only process, published as `jevlint-le-mcp`. It is the server
  * `jevlint-le --mcp` runs, reached with no flag, so a client that installs
  * by package name cannot start the command line by mistake and sit waiting
- * on a linter that has already exited.
+ * on a linter that has already exited. The network and the environment are
+ * handed in for check_with_jev and probe_question, which are the only tools
+ * that use them; the rest never touch either.
  */
 
 function stat(path: string): Entry | undefined {
@@ -29,10 +32,17 @@ function version(): string {
 }
 
 // What the server must never do, made to throw so that a path reaching it is
-// a failed call with a reason, never a quiet write or a quiet request.
+// a failed call with a reason, never a quiet write.
 const never = (what: string) => (): never => {
 	throw new Error(`The MCP server ${what}.`);
 };
+
+// A request in flight is cut off by the first interrupt, as on the command line.
+function stopSignal(): AbortSignal {
+	const stop = new AbortController();
+	process.once('SIGINT', () => stop.abort());
+	return stop.signal;
+}
 
 // A client that closes the pipe is not an error of this server's.
 process.stdout.on('error', (error: NodeJS.ErrnoException) => {
@@ -51,11 +61,12 @@ serve({
 	out: (text) => process.stdout.write(text),
 	err: (text) => process.stderr.write(text),
 	version: version(),
-	env: {},
+	// Read only for an API key, and only by the two tools that send.
+	env: process.env,
 	terminal: false,
-	fetch: never('never reaches the network'),
-	wait: never('never waits on anything'),
-	stopSignal: () => new AbortController().signal,
+	fetch: ((url, init) => fetch(url, init)) as Fetch,
+	wait: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+	stopSignal,
 }).catch((error: unknown) => {
 	process.stderr.write(`jevlint-le-mcp: ${String(error)}\n`);
 	process.exitCode = EXIT.unusable;

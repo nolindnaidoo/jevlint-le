@@ -375,14 +375,26 @@ A project that already pins `jevlint-le` for CI has the same server behind
 `npx jevlint-le --mcp`. The package with no flag is the one to give a client,
 because `jevlint-le` started bare is a linter that exits, not a server.
 
-It offers five tools. `lint_text` lints a request or source code passed as
+It offers eight tools. `lint_text` lints a request or source code passed as
 text and `lint_paths` lints files on disk, with each finding carrying the
 edit that would mend it. `fix_text` returns the text with the safe fixes
 applied and the report of what is left, and writes nothing. `list_rules`
 lists every rule with what it means, and `explain_rule` returns a rule's own
-page, with an example that is flagged and one that is not. Every tool is
-read-only and answers as structured content beside the text. It never uses
-the network, and it does not run the checks that ask Jev.
+page, with an example that is flagged and one that is not. Those send
+nothing and need no key.
+
+The other three are the editor's **Check This File with Jev** and **Probe**
+for an agent. `check_with_jev` asks Jev, or Luna with `model: gpt-6-luna`,
+to check the questions in text or in files, and returns the lint report with
+the model's findings added. `plan_jev` says what that would send, and sends
+nothing. `probe_question` sends one question with its layout varied and
+reports whether the answer held. The two that send use your key and cost
+money, and their descriptions tell an agent to call them only when you ask.
+The key is read from `TYPESAFE_API_KEY` or `OPENAI_API_KEY` in the
+environment the client started the server with, or from `.env.local` or
+`.env` in the directory it started it in, and never from a tool argument, so
+no key lands in an agent's transcript. Every tool answers as structured
+content beside the text, and none writes a file.
 
 It is listed on the MCP registry as `io.github.nolindnaidoo/jevlint-le`,
 for a client that installs servers from there.

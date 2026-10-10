@@ -54,10 +54,16 @@ export function failureMessage(
  * the whole run: each file is planned with what the files before it left.
  * The run sends from these same shares, so the count said is the count sent.
  */
+/** What the plan reads of the flags, so the MCP server can hand it the same three from a tool's arguments. */
+export type JevAsk = Pick<
+	CliOptions,
+	'jevModel' | 'jevMaxCalls' | 'jevSendState'
+>;
+
 export function planJev(
 	reports: ReadonlyArray<FileReport>,
 	optionsFor: (file: string) => LintOptions | string,
-	options: CliOptions,
+	options: JevAsk,
 ): JevPlan | string {
 	const model = options.jevModel ?? DEFAULT_MODEL;
 	let left = options.jevMaxCalls ?? DEFAULT_MAX_CALLS;

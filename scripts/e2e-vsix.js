@@ -154,7 +154,7 @@ exports.run = async function run() {
 	assert.strictEqual(answered.status, 0, 'the shipped MCP server failed: ' + answered.stderr);
 	const replies = answered.stdout.trim().split('\\n').map((line) => JSON.parse(line));
 	assert.strictEqual(replies[0].result.serverInfo.version, ext.packageJSON.version);
-	assert.deepStrictEqual(replies[1].result.tools.map((t) => t.name), ['lint_text', 'lint_paths', 'fix_text', 'list_rules', 'explain_rule']);
+	assert.deepStrictEqual(replies[1].result.tools.map((t) => t.name), ['lint_text', 'lint_paths', 'fix_text', 'list_rules', 'explain_rule', 'plan_jev', 'check_with_jev', 'probe_question']);
 
 	const ts = vscode.Uri.joinPath(folder, 'triage.ts');
 	await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(ts));

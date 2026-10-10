@@ -12,6 +12,41 @@ const BAD = `{ "model": "jev-1.13.0", "questions": { "team": { "type": "choice",
 const CLEAN = `{ "model": "jev-1.13.0", "questions": { "late": { "type": "noul", "instructions": "Did the parcel arrive after the promised day?" } } }`;
 const PYTHON = `from typesafe_sdk import Noul\nq = {"questions": {"a": Noul(instructions=f"Is {name} late?")}}\n`;
 
+// What a check with Jev is given and answered with, for the command line and the server alike.
+const VAGUE = `const r = { questions: { big: { type: 'noul', instructions: 'Is the order large?' } } };`;
+const HEAVY = `const r = { questions: { heavy: { type: 'noul', instructions: 'Is the parcel heavy?' } } };`;
+const RUNTIME = `const r = { questions: { a: { type: 'noul', instructions: build() } } };`;
+const STATED = `{ "state": { "note": "Wheel wobbles." }, "model": "jev-1.13.0", "questions": { "a": { "type": "noul", "instructions": "Is there one?" }, "b": { "type": "noul", "instructions": "Are there two?" } } }`;
+const KEY = { TYPESAFE_API_KEY: 'apikey_secret_value' };
+
+const jevSays = (
+	answers: Record<string, { noul: number }> = {},
+	status = 200,
+) =>
+	vi.fn(async () => ({
+		ok: status === 200,
+		status,
+		json: async () => ({
+			model: 'jev-1.13.0',
+			answers,
+			usage: { input_tokens: 310 },
+		}),
+		text: async () => '',
+	}));
+type Sent = ReturnType<typeof jevSays>;
+const world = (fetch: Sent, env: Record<string, string> = KEY) => ({
+	env,
+	fetch: fetch as unknown as Fetch,
+});
+const calls = (fetch: Sent) =>
+	fetch.mock.calls.map((call) => {
+		const [, init] = call as unknown as [
+			string,
+			{ body: string; headers: Record<string, string> },
+		];
+		return { body: JSON.parse(init.body), headers: init.headers };
+	});
+
 function disk(tree: Record<string, string>): Files {
 	const dirs = new Set(['.']);
 	for (const path of Object.keys(tree)) {
@@ -855,9 +890,10 @@ describe('the MCP server', () => {
 	const talk = async (
 		messages: unknown[],
 		tree: Record<string, string> = {},
+		where: World = {},
 	) => {
 		const input = messages.map((message) => JSON.stringify(message)).join('\n');
-		const result = await cli(['--mcp'], tree, input);
+		const result = await cli(['--mcp'], tree, input, where);
 		return result.out
 			.trim()
 			.split('\n')
@@ -981,15 +1017,20 @@ describe('the MCP server', () => {
 			'fix_text',
 			'list_rules',
 			'explain_rule',
+			'plan_jev',
+			'check_with_jev',
+			'probe_question',
 		]);
+		const sends = new Set(['check_with_jev', 'probe_question']);
 		for (const tool of tools) {
 			expect(tool.title, tool.name).toBeTruthy();
 			expect(tool.outputSchema.required, tool.name).not.toEqual([]);
+			// The two that send are open-world and not idempotent: each call costs.
 			expect(tool.annotations, tool.name).toEqual({
 				readOnlyHint: true,
 				destructiveHint: false,
-				idempotentHint: true,
-				openWorldHint: false,
+				idempotentHint: !sends.has(tool.name),
+				openWorldHint: sends.has(tool.name),
 			});
 		}
 	});
@@ -1082,6 +1123,239 @@ describe('the MCP server', () => {
 		expect(jev.result.content[0].text).toContain('## What Jev is asked');
 	});
 
+	it('never touches the network or a key from the tools that lint', async () => {
+		const fetch = jevSays();
+		const tree = { 'q.ts': VAGUE, '.env': 'TYPESAFE_API_KEY=in_a_file' };
+		const replies = await talk(
+			[
+				call(1, 'lint_text', { text: VAGUE, filename: 'q.ts' }),
+				call(2, 'lint_paths', { paths: ['q.ts'] }),
+				call(3, 'fix_text', { text: BAD }),
+				call(4, 'list_rules', {}),
+				call(5, 'explain_rule', { code: 'JEV302' }),
+				call(6, 'plan_jev', { text: VAGUE, filename: 'q.ts' }),
+			],
+			tree,
+			world(fetch),
+		);
+		expect(fetch).not.toHaveBeenCalled();
+		expect(replies.every((reply) => reply.result.isError === false)).toBe(true);
+		expect(JSON.stringify(replies)).not.toContain('apikey_secret_value');
+		expect(JSON.stringify(replies)).not.toContain('in_a_file');
+	});
+
+	it('plans a check, sending nothing and needing no key', async () => {
+		const fetch = jevSays();
+		const [reply] = await talk(
+			[call(1, 'plan_jev', { paths: ['.'], maxCalls: 1 })],
+			{ 'a.ts': VAGUE, 'b.ts': HEAVY, 'c.ts': RUNTIME },
+			world(fetch, {}),
+		);
+		expect(fetch).not.toHaveBeenCalled();
+		expect(reply.result.isError).toBe(false);
+		expect(reply.result.structuredContent.totals.jev).toMatchObject({
+			sent: false,
+			planned: 1,
+			answered: 0,
+			runtime: 1,
+			overLimit: 1,
+			model: 'jev-1.13.0',
+			state: false,
+		});
+		expect(reply.result.structuredContent.totals.files).toBe(3);
+	});
+
+	it('refuses to check with no key anywhere, before sending anything', async () => {
+		const fetch = jevSays();
+		const [reply] = await talk(
+			[call(1, 'check_with_jev', { text: VAGUE, filename: 'q.ts' })],
+			{ '.env': 'OTHER=1' },
+			world(fetch, { TYPESAFE_API_KEY: '  ' }),
+		);
+		expect(fetch).not.toHaveBeenCalled();
+		expect(reply.result.isError).toBe(true);
+		expect(reply.result.content[0].text).toContain(
+			'TYPESAFE_API_KEY in the environment the server was started with, or in .env.local or .env',
+		);
+		expect(reply.result.content[0].text).toContain('Nothing was sent');
+	});
+
+	it('checks with the model using the key from the environment, and prints it nowhere', async () => {
+		const fetch = jevSays({ JEV301: { noul: 0.02 }, JEV302: { noul: 0.91 } });
+		const [reply] = await talk(
+			[call(1, 'check_with_jev', { text: VAGUE, filename: 'q.ts' })],
+			{},
+			world(fetch),
+		);
+		expect(fetch).toHaveBeenCalledTimes(1);
+		expect(calls(fetch)[0]?.headers.Authorization).toContain(
+			'apikey_secret_value',
+		);
+		expect(reply.result.isError).toBe(false);
+		const checked = reply.result.structuredContent;
+		expect(checked.keySource).toBe('the environment');
+		expect(checked.shortfall).toBe(null);
+		expect(checked.totals.jev).toMatchObject({
+			sent: true,
+			planned: 1,
+			answered: 1,
+			inputTokens: 310,
+		});
+		// Beside the offline finding the wording rule already made on "large".
+		const findings = checked.files[0].findings as {
+			code: string;
+			message: string;
+			fix: unknown;
+		}[];
+		expect(findings.map((f) => f.code)).toEqual(['JEV302', 'JEV112']);
+		const fromModel = findings.find((f) => f.code === 'JEV302');
+		expect(fromModel?.message).toContain('0.91');
+		expect(fromModel?.fix).toBe(null);
+		expect(JSON.stringify(reply)).not.toContain('apikey_secret_value');
+	});
+
+	it('takes the key from .env.local before .env when the environment has none', async () => {
+		const fetch = jevSays({ JEV302: { noul: 0.91 } });
+		const tree = {
+			'q.ts': VAGUE,
+			'.env': 'TYPESAFE_API_KEY=shared_key_value',
+			'.env.local': 'export TYPESAFE_API_KEY="local_key_value" # mine',
+		};
+		const [local] = await talk(
+			[call(1, 'check_with_jev', { paths: ['q.ts'] })],
+			tree,
+			world(fetch, {}),
+		);
+		expect(local.result.structuredContent.keySource).toBe('.env.local');
+		expect(calls(fetch)[0]?.headers.Authorization).toContain('local_key_value');
+		const shared = jevSays({ JEV302: { noul: 0.91 } });
+		const [fromEnv] = await talk(
+			[call(1, 'check_with_jev', { paths: ['q.ts'] })],
+			{ 'q.ts': VAGUE, '.env': tree['.env'] },
+			world(shared, {}),
+		);
+		expect(fromEnv.result.structuredContent.keySource).toBe('.env');
+		expect(calls(shared)[0]?.headers.Authorization).toContain(
+			'shared_key_value',
+		);
+		for (const reply of [local, fromEnv]) {
+			expect(JSON.stringify(reply)).not.toContain('key_value');
+		}
+	});
+
+	it('says why a check fell short, and fails one that answered nothing', async () => {
+		const over = jevSays({ JEV302: { noul: 0.91 } });
+		const [short] = await talk(
+			[call(1, 'check_with_jev', { paths: ['.'], maxCalls: 1 })],
+			{ 'a.ts': VAGUE, 'b.ts': HEAVY },
+			world(over),
+		);
+		expect(over).toHaveBeenCalledTimes(1);
+		expect(short.result.isError).toBe(false);
+		expect(short.result.structuredContent.shortfall).toContain(
+			'1 request over the maxCalls limit not sent',
+		);
+		expect(short.result.structuredContent.totals.jev).toMatchObject({
+			answered: 1,
+			overLimit: 1,
+		});
+		const refused = jevSays({}, 401);
+		const [failed] = await talk(
+			[call(1, 'check_with_jev', { text: VAGUE, filename: 'q.ts' })],
+			{},
+			world(refused),
+		);
+		expect(failed.result.isError).toBe(true);
+		expect(failed.result.content[0].text).toContain('rejected the API key');
+		expect(failed.result.content[0].text).toContain('Answered 0 of 1 request');
+	});
+
+	it('asks Luna with the OpenAI key when the model is gpt-6-luna', async () => {
+		const lunaSays = vi.fn(async () => ({
+			ok: true,
+			status: 200,
+			json: async () => ({
+				model: 'gpt-6-luna',
+				answers: [{ type: 'predicate', name: 'JEV302', probability: 0.91 }],
+				usage: { input_tokens: 200 },
+			}),
+			text: async () => '',
+		}));
+		const [noKey] = await talk(
+			[
+				call(1, 'check_with_jev', {
+					text: VAGUE,
+					filename: 'q.ts',
+					model: 'gpt-6-luna',
+				}),
+			],
+			{},
+			world(lunaSays as unknown as Sent, KEY),
+		);
+		expect(noKey.result.isError).toBe(true);
+		expect(noKey.result.content[0].text).toContain('OPENAI_API_KEY');
+		expect(lunaSays).not.toHaveBeenCalled();
+		const [asked] = await talk(
+			[
+				call(1, 'check_with_jev', {
+					text: VAGUE,
+					filename: 'q.ts',
+					model: 'gpt-6-luna',
+				}),
+			],
+			{ '.env': 'OPENAI_API_KEY=sk-luna-key' },
+			world(lunaSays as unknown as Sent, {}),
+		);
+		expect(lunaSays).toHaveBeenCalledTimes(1);
+		const [url] = lunaSays.mock.calls[0] as unknown as [string];
+		expect(url).toContain('api.openai.com');
+		expect(asked.result.structuredContent.totals.jev.model).toBe('gpt-6-luna');
+		expect(
+			asked.result.structuredContent.files[0].findings.map(
+				(f: { code: string }) => f.code,
+			),
+		).toContain('JEV302');
+	});
+
+	it('probes a question against its state and reports the verdict', async () => {
+		const fetch = jevSays({ q: { noul: 0.8 } });
+		const [reply] = await talk(
+			[call(1, 'probe_question', { text: STATED, questionId: 'a' })],
+			{},
+			world(fetch),
+		);
+		expect(reply.result.isError).toBe(false);
+		const probed = reply.result.structuredContent;
+		// A Noul with no criteria has no layout to vary, so only the repeats run.
+		expect(fetch).toHaveBeenCalledTimes(3);
+		expect(probed).toMatchObject({
+			questionId: 'a',
+			model: 'jev-1.13.0',
+			requests: 3,
+			moved: [],
+			keySource: 'the environment',
+		});
+		expect(probed.verdict).toContain('only repeats were run');
+		expect(probed.markdown).toMatch(/^# Probe of `a`\n/);
+		expect(reply.result.content[0].text).toBe(probed.markdown);
+		// Every request carried the state written in the text.
+		for (const sent of calls(fetch))
+			expect(sent.body.state).toEqual({ note: 'Wheel wobbles.' });
+		expect(JSON.stringify(reply)).not.toContain('apikey_secret_value');
+	});
+
+	it('makes no probe report when a request fails part way', async () => {
+		const fetch = jevSays({}, 500);
+		const [reply] = await talk(
+			[call(1, 'probe_question', { text: STATED, questionId: 'a' })],
+			{},
+			world(fetch),
+		);
+		expect(reply.result.isError).toBe(true);
+		expect(reply.result.content[0].text).toContain('had an error of its own');
+		expect(reply.result.content[0].text).toContain('no report was made');
+	});
+
 	it.each([
 		[
 			'an unknown tool',
@@ -1127,6 +1401,45 @@ describe('the MCP server', () => {
 			'text to fix in a file type it does not read',
 			call(1, 'fix_text', { text: BAD, filename: 'q.toml' }),
 			'Not a file type',
+		],
+		[
+			'a check given text and paths together',
+			call(1, 'check_with_jev', { text: BAD, paths: ['.'] }),
+			"Pass 'text' or 'paths', not both",
+		],
+		[
+			'a check with a limit of zero',
+			call(1, 'check_with_jev', { text: BAD, maxCalls: 0 }),
+			"'maxCalls' must be a whole number above zero",
+		],
+		[
+			'a plan with a model that is not a string',
+			call(1, 'plan_jev', { text: BAD, model: 7 }),
+			"'model' must be a model id",
+		],
+		[
+			'a probe of a question with no state beside it',
+			call(1, 'probe_question', { text: VAGUE, filename: 'q.ts' }),
+			'needs a request with the state written out',
+		],
+		[
+			'a probe that does not say which of two questions',
+			call(1, 'probe_question', { text: STATED }),
+			"Name one with 'questionId': a, b",
+		],
+		[
+			'a probe of an id the text lacks',
+			call(1, 'probe_question', { text: STATED, questionId: 'zzz' }),
+			"No question with the id 'zzz'",
+		],
+		[
+			'a probe aimed at Luna',
+			call(1, 'probe_question', {
+				text: STATED,
+				questionId: 'a',
+				model: 'gpt-6-luna',
+			}),
+			'The probe asks Jev only',
 		],
 	])('reports %s as a failed call', async (_name, message, reason) => {
 		const [reply] = await talk([message]);
@@ -1199,40 +1512,6 @@ describe('the MCP server', () => {
 });
 
 describe('checking with Jev', () => {
-	const VAGUE = `const r = { questions: { big: { type: 'noul', instructions: 'Is the order large?' } } };`;
-	const HEAVY = `const r = { questions: { heavy: { type: 'noul', instructions: 'Is the parcel heavy?' } } };`;
-	const RUNTIME = `const r = { questions: { a: { type: 'noul', instructions: build() } } };`;
-	const STATED = `{ "state": { "note": "Wheel wobbles." }, "model": "jev-1.13.0", "questions": { "a": { "type": "noul", "instructions": "Is there one?" }, "b": { "type": "noul", "instructions": "Are there two?" } } }`;
-	const KEY = { TYPESAFE_API_KEY: 'apikey_secret_value' };
-
-	const jevSays = (
-		answers: Record<string, { noul: number }> = {},
-		status = 200,
-	) =>
-		vi.fn(async () => ({
-			ok: status === 200,
-			status,
-			json: async () => ({
-				model: 'jev-1.13.0',
-				answers,
-				usage: { input_tokens: 310 },
-			}),
-			text: async () => '',
-		}));
-	type Sent = ReturnType<typeof jevSays>;
-	const world = (fetch: Sent, env: Record<string, string> = KEY) => ({
-		env,
-		fetch: fetch as unknown as Fetch,
-	});
-	const calls = (fetch: Sent) =>
-		fetch.mock.calls.map((call) => {
-			const [, init] = call as unknown as [
-				string,
-				{ body: string; headers: Record<string, string> },
-			];
-			return { body: JSON.parse(init.body), headers: init.headers };
-		});
-
 	it('never uses the network or the key unless --jev is given', async () => {
 		const fetch = jevSays();
 		const result = await cli(['q.ts'], { 'q.ts': VAGUE }, '', world(fetch));
