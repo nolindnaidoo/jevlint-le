@@ -9,8 +9,9 @@
 # Turn it on deliberately, once that namespace is the intended one.
 #
 # npm defaults to OFF for the same reason. The package is the command line and
-# the MCP server in one, and the MCP registry listing follows it in the same
-# job, because the listing points at the version npm has just been given.
+# the MCP server in one. The MCP registry listing follows it in a job of its
+# own, because the listing points at the version npm has just been given and
+# npm takes minutes to serve it.
 name: Release
 
 on:
@@ -152,12 +153,12 @@ jobs:
         run: bunx ovsx publish "${{ steps.vsix.outputs.path }}"
 
   # The command line and MCP server on npm, for CI and for every host that is
-  # not VS Code, then the MCP registry listing that points at it. Published
-  # with the NPM_TOKEN secret, the same token the rest of the family's
-  # packages use, so the first release of a new package needs no setup on the
-  # registry beforehand. `id-token: write` signs the npm provenance and logs
-  # in to the MCP registry, and that permission should not be held by a job
-  # handling the VSIX registry tokens.
+  # not VS Code. Published with the NPM_TOKEN secret, the same token the rest
+  # of the family's packages use, so the first release of a new package needs
+  # no setup on the registry beforehand. `id-token: write` is here for
+  # provenance only: npm signs the package as built by this workflow, and that
+  # permission should not be held by a job handling the VSIX registry tokens.
+  # The MCP registry listing follows in the `registry` job below.
   npm:
     if: inputs.npm
     needs: preflight
@@ -216,10 +217,41 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish ./npm --access public
 
-      # The registry hosts metadata pointing at the npm package, so it can only
-      # be correct once that version exists. It logs in with this job's OIDC
-      # identity, so the registry needs no credential of its own.
-      #
+  # The registry hosts metadata pointing at the npm package, and refuses a
+  # version npm does not serve yet. npm serves one minutes after `npm publish`
+  # returns: 0.6.0 was refused two seconds after it. So the listing waits, in
+  # a job of its own, which also means a listing that fails is re-run from
+  # "Re-run failed jobs" and npm is never asked to publish twice. It logs in
+  # with this job's OIDC identity, so the registry needs no credential of
+  # its own.
+  registry:
+    if: inputs.npm
+    needs: npm
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # Bounded: a version still missing after this long is a publish that
+      # did not happen, not a slow one.
+      - name: Wait for npm to serve the version
+        run: |
+          version=$(node -p "require('./package.json').version")
+          name=$(node -p "require('./npm/package.json').name")
+          for attempt in $(seq 1 30); do
+            if npm view "$name@$version" version >/dev/null 2>&1; then
+              echo "$name@$version is on npm"
+              exit 0
+            fi
+            echo "attempt $attempt of 30: npm does not serve $name@$version yet"
+            sleep 20
+          done
+          echo "::error::$name@$version is not on npm after ten minutes."
+          exit 1
+
       # Pinned by version AND checksum: this is a binary fetched over the
       # network into a job that holds an identity token, and `latest` would
       # make that whatever was released this morning.
